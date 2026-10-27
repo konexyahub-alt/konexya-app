@@ -1,0 +1,1989 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Konexya Protótipo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap">
+<style>
+/* Layout: barra fixa com alternador; cliente = celular + painel do apresentador; imobiliária = sidebar + área de trabalho */
+:root{
+  --black:#0b0b0c; --ink:#151516; --white:#ffffff; --paper:#f4f4f2; --paper2:#ebebe8;
+  --line:#e2e2df; --line2:#d3d3cf; --muted:#5f5f5c; --muted2:#8a8a86;
+  --g:#1f7a4d; --g-bg:#e3f1ea; --y:#a86a00; --y-bg:#fbf0d9; --r:#b3261e; --r-bg:#f8e3e1;
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --hh:60px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:90;background:var(--white)}
+button{font:inherit;color:inherit;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;line-height:1.2;text-wrap:balance}
+p{margin:0}
+:focus-visible{outline:2px solid var(--black);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.ico{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico.s{width:16px;height:16px}
+
+/* ===== Barra superior ===== */
+.top{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:var(--hh);z-index:80;background:var(--white);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wm{height:22px;width:auto;display:block}
+.wm path{fill:var(--black)}
+.ymark path{fill:currentColor}
+.top .brand{display:flex;align-items:center;gap:10px;min-width:0}
+.top .brand small{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.04em;white-space:nowrap}
+.seg{margin-left:auto;margin-right:auto;display:inline-flex;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-weight:600;font-size:13px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:8px;transition:background .2s,color .2s}
+.seg button[aria-pressed="true"]{background:var(--black);color:var(--white)}
+.seg .dot{width:8px;height:8px;border-radius:50%;background:var(--r);display:none}
+.seg .dot.on{display:inline-block;animation:pulse 1.4s ease-in-out infinite}
+.menu-wrap{position:relative}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--white);display:grid;place-items:center}
+.icon-btn:hover{background:var(--paper)}
+.menu{position:absolute;right:0;top:48px;background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -18px rgba(0,0,0,.3);padding:6px;min-width:250px;z-index:100}
+.menu button{display:flex;gap:10px;align-items:center;width:100%;border:0;background:none;text-align:left;padding:11px 12px;border-radius:10px;font-weight:500}
+.menu button:hover{background:var(--paper)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px 6px}
+.menu .note{font-size:11.5px;color:var(--muted);padding:6px 12px 8px;line-height:1.45}
+@media (max-width:720px){
+  .top .brand .wm{display:none}
+  .top .brand .ymark-top{display:block}
+  .top .brand small{display:none}
+  .seg button{padding:8px 11px;font-size:12px}
+  .seg .long{display:none}
+}
+@media (min-width:721px){.top .brand .ymark-top{display:none}}
+
+.stage{position:fixed;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top,0px) + var(--hh));padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* ===== Lado do cliente ===== */
+.client{height:100%;display:flex;justify-content:center;align-items:center;gap:40px;padding:20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))}
+.phone{width:390px;height:min(820px,100%);background:var(--black);border-radius:46px;padding:10px;box-shadow:0 40px 80px -30px rgba(0,0,0,.45);flex:none}
+.screen{position:relative;height:100%;background:var(--white);border-radius:37px;overflow:hidden;display:flex;flex-direction:column}
+.side{width:340px;max-height:100%;overflow:auto;display:grid;gap:16px;align-content:start;flex:none}
+@media (max-width:820px){
+  .client{padding:0;gap:0}
+  .phone{width:100%;height:100%;border-radius:0;padding:0;box-shadow:none}
+  .screen{border-radius:0}
+  .side{display:none}
+}
+@media (max-width:1000px) and (min-width:821px){.side{display:none}}
+
+.panel{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:18px}
+.panel h3{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.steps li{display:grid;grid-template-columns:24px 1fr;gap:10px;padding:7px 0;font-size:13px;color:var(--muted);align-items:start}
+.steps li b{display:block;color:var(--ink);font-weight:600}
+.steps .n{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line2);display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--muted)}
+.steps li.done .n{background:var(--black);border-color:var(--black);color:var(--white)}
+.steps li.now .n{border-color:var(--black);color:var(--black);animation:pulse 1.6s ease-in-out infinite}
+.steps li.now b{text-decoration:underline;text-underline-offset:3px}
+.pf{display:grid;gap:8px}
+.pf .row{display:grid;grid-template-columns:96px 1fr;gap:10px;font-size:13px;align-items:baseline}
+.pf .row span{color:var(--muted);font-size:12px}
+.pf .row b{font-weight:600}
+.pf .row b.none{color:var(--muted2);font-weight:400}
+.pf .row.fresh b{animation:flash 1.2s ease}
+@keyframes flash{0%{background:var(--paper2)}100%{background:transparent}}
+
+/* app header */
+.ahead{display:flex;align-items:center;gap:10px;padding:16px 16px 12px;border-bottom:1px solid var(--line);background:var(--white);min-height:62px}
+.ahead h2{font-size:17px;font-weight:700}
+.ahead .sub{font-size:11.5px;color:var(--muted)}
+.ahead .grow{flex:1;min-width:0}
+.av{width:34px;height:34px;border-radius:50%;background:var(--black);color:var(--white);display:grid;place-items:center;font-weight:700;font-size:12px;flex:none}
+.av .ymark{width:13px;height:auto}
+.av.lt{background:var(--paper2);color:var(--ink)}
+.demo{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line2);color:var(--muted);border-radius:999px;padding:3px 8px;white-space:nowrap}
+.scr{flex:1;min-height:0;display:flex;flex-direction:column}
+.scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--white);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs button{border:0;background:none;display:grid;justify-items:center;gap:3px;padding:6px 0;font-size:10.5px;font-weight:600;color:var(--muted2);position:relative}
+.tabs button[aria-current="page"]{color:var(--black)}
+.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:16px;height:16px;border-radius:8px;background:var(--black);color:var(--white);font-size:9.5px;display:grid;place-items:center;padding:0 4px}
+
+/* perfil ao vivo no chat */
+.pstrip{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--line);scrollbar-width:none;background:var(--white)}
+.pstrip::-webkit-scrollbar{display:none}
+.pstrip .lbl{font-size:11px;font-weight:700;white-space:nowrap;align-self:center;color:var(--muted);padding-right:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;white-space:nowrap;border:1px dashed var(--line2);color:var(--muted2);border-radius:999px;padding:4px 10px}
+.chip.on{border-style:solid;border-color:var(--black);color:var(--ink);background:var(--white);animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.85);opacity:.3}100%{transform:scale(1);opacity:1}}
+
+/* chat */
+.msgs{padding:16px 14px 8px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:86%;padding:10px 13px;border-radius:18px;font-size:13.5px;line-height:1.45}
+.m.ai{align-self:flex-start;background:var(--paper);border-bottom-left-radius:6px}
+.m.me{align-self:flex-end;background:var(--black);color:var(--white);border-bottom-right-radius:6px}
+.m.sys{align-self:center;background:none;color:var(--muted);font-size:11.5px;text-align:center;padding:2px 8px;max-width:95%}
+.m.br{align-self:flex-start;background:var(--white);border:1px solid var(--line2);border-bottom-left-radius:6px}
+.m .who{display:block;font-size:10.5px;font-weight:700;color:var(--muted);margin-bottom:2px;letter-spacing:.02em}
+.new{animation:up .32s ease both}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 14px;background:var(--paper);border-radius:18px;border-bottom-left-radius:6px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted2);animation:dot 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-3px);opacity:1}}
+.quick{display:flex;flex-wrap:wrap;gap:8px;padding:4px 14px 12px;justify-content:flex-end}
+.qb{border:1.5px solid var(--black);background:var(--white);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;text-align:left;transition:background .15s,color .15s}
+.qb:hover{background:var(--black);color:var(--white)}
+.qb.ghost{border-color:var(--line2);font-weight:500}
+.compose{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:var(--white)}
+.compose input{flex:1;min-width:0;border:1px solid var(--line2);border-radius:999px;padding:11px 16px;font-size:14px;background:var(--white)}
+.compose input:focus{outline:none;border-color:var(--black)}
+.send{width:44px;height:44px;border-radius:50%;border:0;background:var(--black);color:var(--white);display:grid;place-items:center;flex:none}
+
+/* recomendações */
+.recs{align-self:stretch;display:grid;gap:8px}
+.rec{display:grid;grid-template-columns:64px 1fr;gap:12px;border:1px solid var(--line);border-radius:16px;padding:10px;background:var(--white);text-align:left;width:100%;transition:border-color .2s}
+.rec:hover{border-color:var(--black)}
+.rec .art{width:64px;height:64px;border-radius:10px;overflow:hidden}
+.rec .art svg{display:block;width:100%;height:100%}
+.rec h4{font-size:13.5px;font-weight:700}
+.rec .meta{font-size:11.5px;color:var(--muted)}
+.rec ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:2px;font-size:11.5px}
+.rec li{display:flex;gap:6px;align-items:flex-start}
+.rec li svg{margin-top:2px}
+.rec .hd{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.mv{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 7px;background:var(--black);color:var(--white);margin-left:6px;vertical-align:2px}
+
+.pct{font-weight:800;font-variant-numeric:tabular-nums;border-radius:999px;padding:2px 8px;font-size:12.5px;white-space:nowrap}
+.pct.g{background:var(--g-bg);color:var(--g)}.pct.y{background:var(--y-bg);color:var(--y)}.pct.r{background:var(--r-bg);color:var(--r)}
+.okc{color:var(--g)}.badc{color:var(--r)}
+
+/* telas genéricas */
+.pad{padding:16px;display:grid;gap:14px;align-content:start}
+.sec-t{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.empty{border:1px dashed var(--line2);border-radius:16px;padding:22px;text-align:center;color:var(--muted);display:grid;gap:10px;justify-items:center;font-size:13px}
+.empty b{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;font-weight:600;font-size:14px;border:1.5px solid var(--black);background:var(--black);color:var(--white);transition:background .15s,color .15s,opacity .15s}
+.btn:hover{background:#2b2b2d}
+.btn.line{background:var(--white);color:var(--black)}
+.btn.line:hover{background:var(--paper)}
+.btn.sm{min-height:36px;padding:0 14px;font-size:13px}
+.btn.full{width:100%}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.on{background:var(--paper2);color:var(--black);border-color:var(--paper2)}
+
+/* perfil */
+.prow{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:8px}
+.prow .h{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.prow .h span{font-size:12px;color:var(--muted)}
+.prow .h b{font-size:14px;font-weight:600;display:block}
+.prow .opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line2);background:var(--white);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:500}
+.opt[aria-pressed="true"]{background:var(--black);border-color:var(--black);color:var(--white)}
+.linkb{border:0;background:none;font-weight:600;font-size:12.5px;text-decoration:underline;text-underline-offset:3px;padding:4px}
+.devc{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--paper)}
+.devc b{display:block;font-size:13.5px}
+.devc p{font-size:12.5px;color:var(--muted)}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line2);border-radius:999px;padding:2px 8px;color:var(--muted);margin-top:6px}
+
+/* mapa */
+.mapwrap{position:relative;flex:1;min-height:0;background:#eef0ee;overflow:hidden}
+#map{position:absolute;inset:0}
+.map-top{position:absolute;top:10px;left:10px;right:10px;z-index:1000;display:grid;gap:8px;pointer-events:none}
+.map-top>*{pointer-events:auto}
+.layers-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.layers-row::-webkit-scrollbar{display:none}
+.lchip{flex:none;border:1px solid var(--line2);background:var(--white);border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.lchip[aria-pressed="true"]{background:var(--black);color:var(--white);border-color:var(--black)}
+.map-flags{display:flex;gap:6px;flex-wrap:wrap}
+.flag{font-size:10.5px;font-weight:600;background:rgba(255,255,255,.94);border:1px solid var(--line2);border-radius:999px;padding:3px 9px;color:var(--muted)}
+.flag.strong{background:var(--black);color:var(--white);border-color:var(--black)}
+.legend-btn{position:absolute;right:10px;bottom:12px;z-index:1000;border:1px solid var(--line2);background:var(--white);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:600;display:flex;gap:6px;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.legend{position:absolute;right:10px;bottom:56px;z-index:1000;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:14px;width:230px;box-shadow:0 14px 30px -12px rgba(0,0,0,.3);display:grid;gap:10px;font-size:12px}
+.legend b{font-size:12.5px}
+.lg{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center}
+.sw{width:22px;height:14px;border-radius:4px;opacity:.75}
+.route-card{position:absolute;left:10px;bottom:12px;z-index:1000;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:9px 12px;font-size:11.5px;box-shadow:0 6px 16px -6px rgba(0,0,0,.25);max-width:calc(100% - 140px)}
+.route-card b{display:block;font-size:12.5px}
+.route-card small{color:var(--muted)}
+.pcard{position:absolute;left:10px;right:10px;bottom:10px;z-index:1001;background:var(--white);border-radius:20px;box-shadow:0 18px 40px -12px rgba(0,0,0,.35);padding:12px;display:grid;grid-template-columns:92px 1fr;gap:12px;animation:up .25s ease both}
+.pcard .art{width:92px;height:92px;border-radius:12px;overflow:hidden}
+.pcard .art svg{width:100%;height:100%;display:block}
+.pcard h4{font-size:14px;font-weight:700;padding-right:24px}
+.pcard .meta{font-size:12px;color:var(--muted)}
+.pcard .why{font-size:12px;margin-top:4px;display:flex;gap:6px}
+.pcard .x{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:0;background:var(--paper);display:grid;place-items:center}
+.pin{display:flex;align-items:center;gap:4px;background:var(--black);color:var(--white);border-radius:999px;padding:3px 8px 3px 6px;font:700 11.5px/1 var(--f);box-shadow:0 3px 8px rgba(0,0,0,.3);white-space:nowrap;border:2px solid var(--white);transform:translate(-50%,-50%);position:absolute;left:0;top:0;cursor:pointer}
+.pin .ymark{width:9px;height:auto}
+.pin.sel{background:var(--white);color:var(--black);border-color:var(--black);z-index:5}
+.pin .bd{width:7px;height:7px;border-radius:50%}
+.pin .bd.g{background:#3fb37a}.pin .bd.y{background:#e3a72f}.pin .bd.r{background:#e2574c}
+.work-pin{display:flex;align-items:center;gap:5px;background:var(--white);border:2px solid var(--black);border-radius:10px;padding:3px 7px;font:700 11px/1 var(--f);transform:translate(-50%,-50%);position:absolute;left:0;top:0;white-space:nowrap}
+.poi{width:12px;height:12px;border-radius:50%;background:var(--white);border:3px solid var(--black);transform:translate(-50%,-50%);position:absolute;left:0;top:0}
+.blab{font:700 9.5px/1 var(--f);letter-spacing:.08em;text-transform:uppercase;color:rgba(21,21,22,.5);white-space:nowrap;transform:translate(-50%,-50%);position:absolute;left:0;top:0;pointer-events:none;text-shadow:0 0 3px #fff,0 0 3px #fff}
+.rlab{font:500 9.5px/1 var(--f);color:#77776f;white-space:nowrap;transform:translate(-50%,-140%);position:absolute;left:0;top:0;pointer-events:none}
+
+/* detalhe */
+.overlay{position:absolute;inset:0;z-index:2000;background:var(--white);display:flex;flex-direction:column;animation:slide .28s ease both}
+@keyframes slide{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;position:relative}
+.gal::-webkit-scrollbar{display:none}
+.gal .shot{flex:none;width:100%;aspect-ratio:4/3;scroll-snap-align:start;position:relative;max-width:100%}
+.gal .shot svg{width:100%;height:100%;display:block}
+.gal .cap{position:absolute;left:12px;bottom:10px;font-size:10.5px;font-weight:600;background:rgba(255,255,255,.9);border-radius:999px;padding:3px 9px}
+.dhead{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:3}
+.round{width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.95);display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fact{background:var(--paper);border-radius:12px;padding:10px;display:grid;gap:2px;justify-items:center;text-align:center}
+.fact b{font-size:15px}
+.fact span{font-size:11px;color:var(--muted)}
+.feats{display:flex;flex-wrap:wrap;gap:6px}
+.feats span{font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:4px 10px}
+.bigscore{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:16px;padding:14px}
+.ring{width:72px;height:72px;flex:none}
+.crit{display:grid;gap:10px}
+.cr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12.5px}
+.cr .bar{grid-column:1/-1;height:6px;background:var(--paper2);border-radius:6px;overflow:hidden}
+.cr .bar i{display:block;height:100%;border-radius:6px;transition:width .6s ease}
+.cr .bar i.g{background:var(--g)}.cr .bar i.y{background:#d89a1e}.cr .bar i.r{background:var(--r)}
+.whys{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:13px}
+.whys li{display:flex;gap:8px;align-items:flex-start}
+.whys li svg{margin-top:2px}
+.fine{font-size:11px;color:var(--muted);line-height:1.45}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--white)}
+.actions .full2{grid-column:1/-1}
+
+/* consentimento */
+.modal-bg{position:absolute;inset:0;z-index:3000;background:rgba(11,11,12,.45);display:flex;align-items:flex-end;animation:fade .2s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--white);width:100%;border-radius:24px 24px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;animation:slide .28s ease both}
+.sheet h3{font-size:18px;font-weight:700}
+.sheet p{font-size:14px;color:var(--ink)}
+.sheet ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13px;color:var(--muted)}
+.sheet ul li{display:flex;gap:8px}
+.sent{display:grid;gap:12px;justify-items:center;text-align:center;padding:10px 0}
+.check-big{width:56px;height:56px;border-radius:50%;background:var(--black);color:var(--white);display:grid;place-items:center;animation:pop .4s ease}
+
+/* comparação */
+.cmp{display:grid;gap:8px;overflow-x:auto}
+.cmp table{border-collapse:collapse;font-size:12.5px;min-width:100%}
+.cmp th,.cmp td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cmp th{font-weight:600;color:var(--muted);font-size:11.5px;width:84px}
+.cmp td b{font-size:13px}
+.ai-box{background:var(--paper);border-radius:16px;padding:14px;display:grid;gap:8px;font-size:13.5px}
+.ai-box .h{display:flex;gap:8px;align-items:center;font-size:12px;font-weight:700}
+
+/* lista salvos */
+.fav{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--white);text-align:left;width:100%}
+.fav .art{width:56px;height:56px;border-radius:10px;overflow:hidden}
+.fav .art svg{width:100%;height:100%;display:block}
+.fav h4{font-size:13.5px}
+.fav .meta{font-size:11.5px;color:var(--muted)}
+.ck{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600}
+.ck input{width:16px;height:16px;accent-color:#0b0b0c}
+
+/* negociação */
+.track{display:flex;gap:4px;align-items:center;font-size:10.5px;font-weight:600;color:var(--muted2);padding:10px 14px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.track span{white-space:nowrap;display:flex;align-items:center;gap:4px}
+.track span.on{color:var(--ink)}
+.track i{width:8px;height:8px;border-radius:50%;background:var(--line2);flex:none}
+.track span.on i{background:var(--black)}
+.track em{flex:none;width:12px;height:1px;background:var(--line2)}
+.visit-card{align-self:stretch;border:1.5px solid var(--black);border-radius:16px;padding:12px;display:grid;gap:4px;font-size:13px}
+.visit-card b{font-size:14px}
+
+/* toast */
+.toasts{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + var(--hh) + 12px);z-index:5000;display:grid;gap:8px;width:min(360px,calc(100% - 32px))}
+.toast{background:var(--black);color:var(--white);border-radius:16px;padding:12px 14px;font-size:13px;display:flex;gap:10px;align-items:center;box-shadow:0 18px 40px -16px rgba(0,0,0,.5);animation:tin .35s cubic-bezier(.2,.8,.2,1) both}
+.toast.big{padding:16px;border:2px solid var(--white);outline:1px solid var(--black)}
+.toast b{display:block}
+.toast .grow{flex:1;min-width:0}
+.toast button{border:1px solid rgba(255,255,255,.4);background:transparent;color:var(--white);border-radius:999px;padding:6px 12px;font-weight:600;font-size:12px;white-space:nowrap}
+@keyframes tin{from{opacity:0;transform:translateY(-10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes pulse{50%{opacity:.35}}
+
+/* ===== Painel da imobiliária ===== */
+.agency{height:100%;display:grid;grid-template-columns:232px 1fr;background:var(--paper)}
+.sb{background:var(--white);border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
+.sb .org{display:flex;gap:10px;align-items:center;padding:4px 8px 16px}
+.sb .org b{display:block;font-size:13.5px}
+.sb .org small{font-size:11px;color:var(--muted)}
+.sb .org .av{border-radius:10px}
+.nav-b{display:flex;gap:10px;align-items:center;border:0;background:none;padding:10px 10px;border-radius:12px;font-weight:600;font-size:13.5px;color:var(--muted);text-align:left;width:100%;position:relative}
+.nav-b:hover{background:var(--paper)}
+.nav-b[aria-current="page"]{background:var(--black);color:var(--white)}
+.nav-b .cnt{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:var(--r);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 6px}
+.nav-b .cnt.bump{animation:bump .6s ease}
+@keyframes bump{30%{transform:scale(1.35)}}
+.sb .foot{margin-top:auto;padding:12px 8px 0;font-size:11px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line)}
+.main{overflow-y:auto;min-width:0;padding:24px 28px 40px}
+.main-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.main-h h1{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.main-h p{color:var(--muted);font-size:13px;margin-top:2px}
+@media (max-width:900px){
+  .agency{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .sb{flex-direction:row;overflow-x:auto;padding:8px max(12px,env(safe-area-inset-left,0px));border-right:0;border-bottom:1px solid var(--line);gap:4px;scrollbar-width:none}
+  .sb .org,.sb .foot{display:none}
+  .nav-b{width:auto;white-space:nowrap;padding:8px 12px;font-size:12.5px}
+  .main{padding:16px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px))}
+}
+.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.card h3{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:4px;min-width:0}
+.kpi span{font-size:12px;color:var(--muted);font-weight:500}
+.kpi b{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi small{font-size:11.5px;color:var(--muted)}
+.kpi.hot{border-color:var(--black);box-shadow:0 0 0 3px var(--paper2)}
+.kpi b.bump{animation:bump .7s ease}
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media (max-width:1100px){.grid2{grid-template-columns:1fr}}
+.funnel{display:grid;gap:10px}
+.fr{display:grid;grid-template-columns:120px 1fr 44px;gap:10px;align-items:center;font-size:12.5px}
+.fr .b{height:22px;background:var(--paper2);border-radius:6px;overflow:hidden}
+.fr .b i{display:block;height:100%;background:var(--black);border-radius:6px}
+.fr .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.fr small{grid-column:2/-1;color:var(--muted);font-size:11px;margin-top:-6px}
+.feed{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.feed li{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.feed li:last-child{border-bottom:0}
+.feed small{color:var(--muted);font-size:11.5px;display:block}
+.feed li.hot{animation:hl 2.4s ease}
+@keyframes hl{0%,40%{background:var(--paper2)}100%{background:transparent}}
+
+.kanban{display:grid;grid-template-columns:repeat(6,minmax(210px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.col{background:var(--paper2);border-radius:16px;padding:10px;display:grid;gap:8px;align-content:start;min-height:200px;transition:background .15s}
+.col.over{background:#dcdcd8}
+.col-h{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700;padding:2px 4px 4px}
+.col-h span{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.kc{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px;cursor:grab;font-size:12.5px}
+.kc:hover{border-color:var(--line2)}
+.kc h4{font-size:13.5px;display:flex;justify-content:space-between;gap:6px;align-items:center}
+.kc .meta{color:var(--muted);font-size:11.5px}
+.kc .row{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.kc .mvb{border:1px solid var(--line2);background:var(--white);border-radius:8px;width:28px;height:26px;display:grid;place-items:center}
+.kc .mvb:hover{background:var(--paper)}
+.kc.marina{border:2px solid var(--black)}
+.kc.arrive{animation:arrive 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes arrive{0%{transform:translateY(-30px) scale(.9);opacity:0;box-shadow:0 0 0 0 rgba(11,11,12,.5)}60%{transform:none;opacity:1;box-shadow:0 0 0 8px rgba(11,11,12,.08)}100%{box-shadow:0 0 0 0 rgba(11,11,12,0)}}
+.pill{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 8px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.pill.dark{background:var(--black);color:var(--white)}
+.pill.lt{background:var(--paper2);color:var(--ink)}
+.pill.wait{background:var(--y-bg);color:var(--y)}
+.pill.ok{background:var(--g-bg);color:var(--g)}
+
+/* lead aberto */
+.lead{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;gap:16px;align-items:start}
+@media (max-width:1280px){.lead{grid-template-columns:280px minmax(0,1fr)}.lead .rcol{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:16px}}
+@media (max-width:820px){.lead{grid-template-columns:1fr}.lead .rcol{grid-template-columns:1fr}}
+.lead .col2{display:grid;gap:16px;min-width:0}
+.kv{display:grid;gap:8px;font-size:13px}
+.kv .r{display:grid;grid-template-columns:96px 1fr;gap:8px}
+.kv .r span{color:var(--muted);font-size:12px}
+.kv .r b{font-weight:600}
+.summary{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13.5px}
+.summary li{display:flex;gap:8px}
+.hist{display:grid;gap:8px;max-height:340px;overflow-y:auto;padding-right:4px}
+.hm{display:grid;grid-template-columns:28px 1fr;gap:8px;font-size:13px}
+.hm .av{width:28px;height:28px;font-size:10px}
+.hm .bub{border-radius:12px;padding:8px 11px}
+.hm .bub small{display:block;font-size:10.5px;font-weight:700;letter-spacing:.03em;margin-bottom:1px}
+.hm.ai .bub{background:var(--paper)}
+.hm.ai .bub small{color:var(--muted)}
+.hm.cl .bub{background:var(--white);border:1px solid var(--line2)}
+.hm.cl .bub small{color:var(--muted)}
+.hm.br .bub{background:var(--black);color:var(--white)}
+.hm.br .bub small{color:#bdbdb8}
+.hm.ev{grid-template-columns:1fr;text-align:center;font-size:11.5px;color:var(--muted)}
+.hleg{display:flex;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.hleg span{display:flex;align-items:center;gap:5px}
+.hleg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.sugg{border:2px solid var(--black);border-radius:18px;padding:16px;display:grid;gap:12px;background:var(--white)}
+.sugg .h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.sugg .h b{font-size:14px;display:flex;gap:8px;align-items:center}
+.sugg .txt{font-size:14px;line-height:1.55;background:var(--paper);border-radius:12px;padding:12px 14px}
+.sugg textarea{width:100%;min-height:120px;border:1px solid var(--line2);border-radius:12px;padding:12px;font-size:14px;line-height:1.5;resize:vertical}
+.sugg .acts{display:flex;gap:8px;flex-wrap:wrap}
+.sugg.done{border-color:var(--line);}
+.aiflags{display:flex;gap:8px;flex-wrap:wrap}
+.mini-prop{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.mini-prop:last-child{border-bottom:0}
+.mini-prop .art{width:44px;height:44px;border-radius:8px;overflow:hidden}
+.mini-prop .art svg{width:100%;height:100%;display:block}
+.mini-prop b{display:block;font-size:13px}
+.mini-prop small{color:var(--muted)}
+.next{display:flex;gap:10px;align-items:flex-start;font-size:13.5px}
+.next input{width:18px;height:18px;margin-top:1px;accent-color:#0b0b0c;flex:none}
+.next.done span{text-decoration:line-through;color:var(--muted)}
+select.stage-sel{width:100%;border:1px solid var(--line2);border-radius:10px;padding:10px;background:var(--white);font-weight:600}
+.lead-list{display:grid;gap:8px;margin-bottom:16px}
+
+/* agenda, tabelas */
+.week{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:8px;overflow-x:auto}
+.day{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:6px;align-content:start;min-height:220px}
+.day.today{border-color:var(--black)}
+.day h4{font-size:12px;font-weight:700;display:flex;justify-content:space-between}
+.day h4 span{color:var(--muted);font-weight:500}
+.ev{border-radius:10px;padding:8px;font-size:11.5px;display:grid;gap:2px}
+.ev.v{background:var(--black);color:var(--white)}
+.ev.f{background:var(--paper);border:1px dashed var(--line2)}
+.ev b{font-size:12px}
+.ev.new{animation:arrive 1s ease both}
+.tbl-wrap{overflow-x:auto}
+table.tbl{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+.tbl th{font-size:11.5px;color:var(--muted);font-weight:600;text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .pn{display:flex;gap:10px;align-items:center}
+.tbl .pn .art{width:36px;height:36px;border-radius:8px;overflow:hidden;flex:none}
+.tbl .pn .art svg{width:100%;height:100%;display:block}
+.ins{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:1100px){.ins{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.ins{grid-template-columns:1fr}}
+.insc{display:grid;gap:10px}
+.insc .big{font-size:15px;font-weight:700;line-height:1.35}
+.hb{display:grid;grid-template-columns:110px 1fr 36px;gap:8px;align-items:center;font-size:12px}
+.hb .b{height:8px;background:var(--paper2);border-radius:4px;overflow:hidden}
+.hb .b i{display:block;height:100%;background:var(--black)}
+.hb .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* leaflet (subconjunto do CSS oficial, embutido) */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;background:#eef0ee;outline-offset:1px;font-family:var(--f);touch-action:none}
+.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{user-select:none;-webkit-user-drag:none}
+.leaflet-container img.leaflet-tile,.leaflet-container .leaflet-overlay-pane svg,.leaflet-container img{max-width:none!important;max-height:none!important}
+.leaflet-tile{filter:grayscale(1) contrast(.95) brightness(1.04);visibility:hidden}
+.leaflet-tile-loaded{visibility:inherit}
+.leaflet-zoom-box{width:0;height:0;box-sizing:border-box;z-index:800}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
+.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto;float:left;clear:both}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-right .leaflet-control{float:right}
+.leaflet-zoom-animated{transform-origin:0 0}
+.leaflet-zoom-anim .leaflet-zoom-animated{transition:transform .25s cubic-bezier(0,0,.25,1)}
+.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}
+.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}
+.leaflet-interactive{cursor:pointer}
+.leaflet-grab{cursor:grab}
+.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-marker-draggable{cursor:grabbing}
+.leaflet-marker-icon,.leaflet-image-layer,.leaflet-pane>svg path{pointer-events:none}
+.leaflet-marker-icon.leaflet-interactive,.leaflet-image-layer.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:auto}
+.leaflet-div-icon{background:transparent;border:0}
+.leaflet-control-attribution{background:rgba(255,255,255,.85);margin:0;padding:1px 6px;font-size:9.5px;color:#333;line-height:1.4;border-top-left-radius:6px}
+.leaflet-control-attribution a{color:#333}
+.leaflet-bottom.leaflet-right{bottom:0}
+.mapwrap.has-card .leaflet-control-attribution{opacity:0}
+
+/* mapa SVG de reserva */
+.svgmap{position:absolute;inset:0}
+.svgmap svg{position:absolute;inset:0;width:100%;height:100%}
+.svgmap .pins{position:absolute;inset:0}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ===== v2 ===== */
+.ymark.s20{width:14px;height:auto}
+.mic{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:var(--white);display:grid;place-items:center;flex:none;color:var(--muted)}
+.outs{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.outs li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:12px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--white)}
+.outs b{display:block;font-size:12.5px}
+.outs span{color:var(--muted)}
+.recs .linkb{padding:4px 2px}
+.mk,.fin{border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.mk-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mk-row div{display:grid}
+.mk-row b{font-size:15px}
+.mk-row span{font-size:11.5px;color:var(--muted)}
+.mk-bar{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--g-bg),var(--paper2) 50%,var(--r-bg))}
+.mk-bar em{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:var(--muted2)}
+.mk-bar i{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--black);border:2px solid var(--white);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.rng{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.rng b{color:var(--ink)}
+input[type=range]{width:100%;accent-color:#0b0b0c}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fin-grid div{background:var(--paper);border-radius:12px;padding:10px;display:grid}
+.fin-grid span{font-size:11px;color:var(--muted)}
+.fin-grid b{font-size:15px}
+.qual{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.qual li{display:grid;grid-template-columns:24px 1fr;gap:10px;font-size:13px;align-items:start}
+.qual li i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:11px}
+.qual li.ok i{background:var(--g-bg);color:var(--g)}
+.qual li.mid i{background:var(--y-bg);color:var(--y)}
+.qual b{display:block;font-weight:600}
+.qual span{color:var(--muted);font-size:12px}
+textarea.note{width:100%;min-height:80px;border:1px solid var(--line2);border-radius:12px;padding:10px;font-size:13px;resize:vertical;background:var(--white)}
+.perm{list-style:none;margin:0;padding:0;display:grid}
+.perm li{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.perm li:last-child{border-bottom:0}
+.perm b{display:block;font-size:13.5px;font-weight:600}
+.perm span{font-size:12px;color:var(--muted)}
+.perm .pill{flex:none}
+.sw2{flex:none;width:44px;height:26px;border-radius:13px;border:0;background:var(--line2);position:relative;padding:0;transition:background .2s}
+.sw2 i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--white);transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.sw2[aria-checked="true"]{background:var(--black)}
+.sw2[aria-checked="true"] i{transform:translateX(18px)}
+.sw2[disabled]{cursor:default;opacity:.75}
+.txt-ex{margin-top:12px;background:var(--paper);border-radius:12px;padding:12px;font-size:13px}
+/* login cliente */
+#auth{position:absolute;inset:0;z-index:4000;pointer-events:none}
+#auth>*{pointer-events:auto}
+.auth{position:absolute;inset:0;background:var(--white);display:flex;flex-direction:column;gap:14px;padding:22px 22px calc(22px + env(safe-area-inset-bottom,0px));animation:fade .25s ease both;overflow-y:auto}
+.auth h2{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:18px}
+.auth .round.flat{box-shadow:none;background:var(--paper)}
+.splash{background:var(--black);color:var(--white);justify-content:flex-end;gap:18px;overflow:hidden}
+.sp-mark{position:absolute;right:-60px;top:20px;width:300px;opacity:.13;animation:float 6s ease-in-out infinite}
+.sp-mark .ymark{width:100%;height:auto}
+.sp-mark path{fill:#fff}
+@keyframes float{50%{transform:translateY(12px) rotate(2deg)}}
+.wm-w path{fill:#fff}
+.sp-wm .wm{height:38px}
+.sp-sl{font-size:26px;font-weight:300;line-height:1.25;letter-spacing:-.01em}
+.sp-acts{display:grid;gap:10px;margin-top:10px}
+.btn.inv{background:var(--white);color:var(--black);border-color:var(--white)}
+.btn.inv:hover{background:#e6e6e3}
+.btn.ghost-w{background:transparent;color:var(--white);border-color:rgba(255,255,255,.45)}
+.sp-demo{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#a1a19d;text-align:center}
+.fld{display:grid;gap:6px;font-size:12.5px;font-weight:600}
+.fld input{border:1.5px solid var(--line2);border-radius:14px;padding:14px;font-size:16px;font-weight:500;background:var(--white)}
+.fld input:focus{outline:none;border-color:var(--black)}
+.ckl{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:12.5px;color:var(--muted);align-items:start}
+.ckl input{width:18px;height:18px;margin:1px 0 0;accent-color:#0b0b0c}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted2);font-size:12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.code{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+.code span{aspect-ratio:1/1.15;border:1.5px solid var(--line2);border-radius:12px;display:grid;place-items:center;font-size:22px;font-weight:700;max-width:100%}
+.code span.f{border-color:var(--black);animation:pop .2s ease}
+/* login imobiliária */
+#ag-auth{position:absolute;inset:0;z-index:50;pointer-events:none}
+#ag-auth>*{pointer-events:auto}
+.agency{position:relative}
+.ag-login{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;background:var(--white);animation:fade .25s ease both}
+.ag-brand{background:var(--black);color:var(--white);padding:48px;display:flex;flex-direction:column;justify-content:flex-end;gap:18px}
+.ag-brand .wm{height:34px;width:auto;align-self:flex-start}
+.ag-brand .big{font-size:clamp(24px,3vw,36px);font-weight:300;line-height:1.2;letter-spacing:-.02em;max-width:18ch}
+.fine-w{font-size:12px;color:#a1a19d}
+.ag-form{display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));overflow-y:auto}
+.ag-f{width:min(380px,100%);display:grid;gap:14px}
+.ag-f h2{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.pending{display:flex;gap:10px;align-items:center;border:2px solid var(--black);border-radius:14px;padding:12px;font-size:13px;animation:pop .4s ease}
+.pending b{display:block}
+@media (max-width:820px){.ag-login{grid-template-columns:1fr;grid-template-rows:auto 1fr}.ag-brand{padding:24px max(16px,env(safe-area-inset-left,0px));gap:10px}.ag-brand .big{font-size:20px}}
+
+#ov.noanim .overlay{animation:none}
+#ov.noanim-modal .modal-bg,#ov.noanim-modal .sheet{animation:none}
+#auth.noanim .auth{animation:none}
+
+/* métricas */
+.hero-m{margin-bottom:16px;background:var(--black);color:var(--white);border-color:var(--black)}
+.hero-m .sec-t{color:#a1a19d}
+.hero-n{display:block;font-size:56px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:4px 0 6px}
+.hero-m p{color:#d3d3cf;max-width:62ch;font-size:14px}
+.dl{font-size:11.5px;font-weight:600}
+.dl.up{color:var(--g)}.dl.down{color:var(--r)}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart .ax{font:500 11px var(--f);fill:#8a8a86}
+.chart .ax.strong{fill:#151516;font-weight:700}
+.hbars{display:grid;gap:10px}
+.hbr{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;font-size:12.5px}
+.hbr .b{height:14px;background:var(--paper2);border-radius:4px;overflow:hidden}
+.hbr .b i{display:block;height:100%;background:var(--black);border-radius:0 4px 4px 0}
+.hbr b{text-align:right;font-weight:700}
+@media (max-width:560px){.hbr{grid-template-columns:110px 1fr 40px}}
+.lgd{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.lgd span{display:flex;align-items:center;gap:6px}
+.lgd i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.stack{display:flex;gap:2px;height:22px;border-radius:6px;overflow:hidden}
+.stack i{display:block;height:100%}
+.tip{position:fixed;z-index:9000;background:var(--black);color:var(--white);font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;pointer-events:none;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.4)}
+.main-h .opts{display:flex;gap:6px}
+
+.fine.err{color:var(--r);font-weight:600}
+
+.demo.live{background:var(--black);color:var(--white);border-color:var(--black)}
+.demo.live::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#3fb37a;margin-right:6px;vertical-align:1px}
+
+</style>
+
+<header class="top">
+  <div class="brand"><svg class="wm" viewBox="0 0 508.8 115.8" role="img" aria-label="Konexya"><path fill-rule="evenodd" d="M313 38 L313 38.8 L330.8 61.8 L311.8 86.5 L311.8 87.5 L320 87.2 L334.5 67.8 L335.5 68 L350 87.5 L357.5 87.5 L357.5 86 L339.5 62.2 L339.5 61 L357 38.2 L348.5 38.2 L335.8 55 L334.8 55.5 L321.5 38Z M249.8 38.2 L244 41.5 L241 44.2 L238 48.2 L236 52.8 L234.8 57.8 L234.5 65 L236.8 75 L239.5 79.5 L243.5 83.5 L249.5 87 L257.8 88.8 L265 88.2 L269.8 87 L275 84 L279.5 79.5 L279.5 78.8 L276.2 75.5 L275 75 L271 78.8 L266.2 81.2 L260.2 82.2 L255.2 81.8 L250.5 80 L246 76.2 L243.5 72.2 L241.8 65.8 L243 64.8 L282 64.8 L282.5 64.2 L282.5 58 L280.5 50.2 L277.5 45.2 L275.2 42.8 L268.2 38.2 L262 36.8 L256 36.8Z M242.2 57 L244.8 50.5 L248.5 46.5 L252.2 44.2 L255.5 43.2 L261.2 43 L267.5 45.2 L271.8 49 L273.8 52.5 L275 58 L274 59 L243 59 L242.2 58.2Z M475 40.2 L470.5 44.5 L474.2 48.5 L475.2 48.5 L477.8 46.2 L481.5 44.2 L485.2 43.2 L490.2 43 L494.8 44 L499.5 47.5 L501.2 52 L501.5 56.5 L500.2 57.8 L497 57.2 L481.8 57.5 L476 59.2 L471.5 62.2 L468 67.2 L467 71.5 L467 75.8 L467.8 78.8 L469.8 82.2 L473.5 85.8 L478.5 88 L487.5 88.5 L490.5 88 L495.5 86 L498.5 83.8 L500.8 81 L501.5 81 L501.8 87.2 L508 87.5 L508.5 86.8 L508.5 51.5 L507.5 47 L505.5 43.5 L502.5 40.5 L498.5 38.2 L491 36.5 L482.2 37.2Z M500.8 63.2 L501.5 64 L501.5 70.2 L500.5 73.8 L498.2 77.5 L494.8 80.2 L489.5 82 L482.8 82 L478.2 80.2 L475.5 77.5 L474.5 74.8 L474.8 70.2 L476.2 67.5 L478.8 65.2 L481.8 64 L486.8 63.2Z M193.2 40.2 L187 37.2 L179 36.5 L174.8 37.2 L170 39.5 L166.8 42.2 L165.2 44.5 L164.2 44.8 L164 38.2 L162.8 37.8 L157.5 38 L157 38.5 L157 87 L157.5 87.5 L163.5 87.5 L164.2 86.5 L164.2 56.5 L165.5 51.8 L166.8 49.5 L170.2 46 L173.2 44.2 L178.2 43 L182.8 43.2 L187 45 L190 47.8 L191.8 50.8 L192.8 54.8 L192.8 86.8 L193.2 87.5 L199.5 87.5 L200 87 L200 53.5 L199.5 50.2 L197.5 45.2Z M97 36.5 L87.8 38.2 L83.8 40.2 L78.8 44.2 L73.8 52 L72 58.8 L71.8 65 L72.8 70.2 L74.8 75.5 L77.5 79.8 L81 83.2 L84.8 85.8 L90.5 88 L98.8 88.8 L105 87.8 L109.5 86 L114.5 82.8 L117.2 80 L120.5 75.5 L122.5 70.5 L123.5 60.8 L122.5 55 L120.5 50 L118.5 46.8 L114.5 42.5 L107.8 38.5 L104 37.2Z M95 43.2 L100 43.2 L103.2 44 L109 47.2 L113.5 52.8 L115.8 60.2 L115.8 65.5 L114.8 69.8 L111.5 75.5 L106.2 80 L99.8 82 L95 82 L91.8 81.2 L87 79 L81.8 73 L79.2 65.5 L79.5 58 L82.8 50.5 L85 48 L89 45.2Z M0.5 14.2 L0 14.8 L0.2 87 L0.8 87.5 L7.2 87.5 L7.8 71.8 L15.5 64.8 L35 87.2 L44 87.5 L44 86.2 L20.8 60 L42.8 38.2 L42 37.8 L33 38 L8 62.8 L7.5 62.2 L7.5 14.5Z M452 0 L450.5 0 L440.8 8.2 L426.8 24.5 L419.8 34 L418.5 37.2 L417.8 37.2 L412.5 31.2 L407 26.8 L404.5 23 L401 19.5 L396.8 16.2 L394.8 12.2 L389.5 7.8 L383.5 0 L382 0.2 L376 7 L376.5 9 L384.5 16.5 L387.2 20 L389.8 21.8 L395 28.5 L399.5 33 L403 39.5 L408.5 46.8 L409.2 52.5 L409 60.8 L409.8 68 L408.5 93.8 L410.5 101.5 L411 114 L412.2 115.5 L414.2 114.5 L414.5 112.2 L416.5 108.5 L418.8 101.8 L418.2 88.2 L419 81.8 L419.2 67.5 L420.8 53.5 L420.8 48.2 L421.5 45.5 L424.5 39.8 L439.5 21.8 L452 10.8 L455.2 9.8 L456.8 8.5 L457.2 6.8 L456.2 4.8 L453.5 2.5Z"/></svg><span class="ymark-top" style="width:16px"><svg class="ymark" viewBox="0 0 581.0 838.0" aria-hidden="true" style="width:100%;height:auto;display:block"><path fill-rule="evenodd" d="M538 0 L529 2 L474 47 L373 150 L305 238 L305 245 L316 257 L316 263 L261 206 L232 187 L185 139 L154 117 L143 106 L137 93 L89 56 L56 19 L51 17 L42 18 L25 33 L0 60 L0 71 L3 75 L50 113 L73 136 L89 147 L161 217 L179 240 L201 278 L229 312 L234 324 L239 357 L237 421 L240 460 L234 616 L234 683 L242 714 L246 743 L246 767 L252 804 L252 828 L260 837 L269 835 L273 830 L274 813 L280 805 L286 783 L299 753 L305 719 L303 621 L307 603 L307 547 L311 510 L311 470 L321 375 L321 343 L326 321 L332 304 L345 282 L347 273 L396 210 L462 142 L491 120 L502 108 L527 92 L538 80 L557 71 L569 69 L577 64 L580 51 L574 37 L565 28 L549 17 L545 6Z"/></svg></span><small>Protótipo · dados de demonstração</small></div>
+  <div class="seg" role="group" aria-label="Alternar lado da demonstração">
+    <button id="v-client" data-a="view" data-id="client" aria-pressed="true">App do cliente</button>
+    <button id="v-agency" data-a="view" data-id="agency" aria-pressed="false"><span class="dot" id="lead-dot"></span><span class="long">Painel da&nbsp;</span>imobiliária</button>
+  </div>
+  <div class="menu-wrap">
+    <button class="icon-btn" data-a="menu" aria-label="Menu" aria-haspopup="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="menu" id="menu" hidden>
+      <button data-a="reset"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Reiniciar demonstração</button>
+      <button data-a="reset" data-id="skip"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Reiniciar sem login</button>
+      <hr>
+      <p class="note" style="padding-bottom:2px"><b>Atalhos do apresentador</b></p>
+      <button data-a="skiplogin"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Pular os logins</button>
+      <button data-a="ff"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6l8 6-8 6zM12 6l8 6-8 6z"/></svg>Completar a conversa</button>
+      <button data-a="logout"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>Sair deste lado</button>
+      <hr>
+      <p class="note">Protótipo navegável. Os botões do chat seguem um roteiro com a persona fictícia Marina. O que você escreve é respondido pela IA (Claude) quando esta página está aberta no Claude; fora dele, por um roteiro com palavras-chave. Imóveis, tempos e números do painel são ilustrativos.</p>
+    </div>
+  </div>
+</header>
+
+<main class="stage">
+  <section class="client" id="client" aria-label="App do cliente">
+    <div class="phone">
+      <div class="screen" id="screen">
+        <div class="scr" id="s-chat">
+          <div class="ahead"><div class="av"><svg class="ymark" viewBox="0 0 581.0 838.0" aria-hidden="true"><path fill-rule="evenodd" d="M538 0 L529 2 L474 47 L373 150 L305 238 L305 245 L316 257 L316 263 L261 206 L232 187 L185 139 L154 117 L143 106 L137 93 L89 56 L56 19 L51 17 L42 18 L25 33 L0 60 L0 71 L3 75 L50 113 L73 136 L89 147 L161 217 L179 240 L201 278 L229 312 L234 324 L239 357 L237 421 L240 460 L234 616 L234 683 L242 714 L246 743 L246 767 L252 804 L252 828 L260 837 L269 835 L273 830 L274 813 L280 805 L286 783 L299 753 L305 719 L303 621 L307 603 L307 547 L311 510 L311 470 L321 375 L321 343 L326 321 L332 304 L345 282 L347 273 L396 210 L462 142 L491 120 L502 108 L527 92 L538 80 L557 71 L569 69 L577 64 L580 51 L574 37 L565 28 L549 17 L545 6Z"/></svg></div><div class="grow"><h2>Konexya</h2><div class="sub">Você conversa. A Konexya encontra.</div></div><span class="demo" id="ai-chip">Demonstração</span></div>
+          <div class="pstrip" id="pstrip"></div>
+          <div class="scroll" id="chat-scroll"><div class="msgs" id="chat-msgs" aria-live="polite"></div><div class="quick" id="chat-quick"></div></div>
+          <form class="compose" id="compose" autocomplete="off"><button type="button" class="mic" data-a="mic" aria-label="Falar (em desenvolvimento)"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><input id="chat-input" placeholder="Escreva do seu jeito…" aria-label="Mensagem"><button class="send" aria-label="Enviar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12 20 4l-6 16-3-7-7-1z"/></svg></button></form>
+        </div>
+        <div class="scr" id="s-map" hidden>
+          <div class="ahead"><div class="grow"><h2>Mapa Vivo</h2><div class="sub">Bairros e imóveis pela compatibilidade com a sua rotina</div></div></div>
+          <div class="mapwrap" id="mapwrap"><div id="map"></div><div id="map-ui"></div></div>
+        </div>
+        <div class="scr" id="s-saved" hidden></div>
+        <div class="scr" id="s-broker" hidden></div>
+        <div class="scr" id="s-profile" hidden></div>
+        <nav class="tabs" id="tabs" aria-label="Navegação do app"></nav>
+        <div id="ov"></div>
+        <div id="auth"></div>
+      </div>
+    </div>
+    <aside class="side" aria-label="Apoio ao apresentador">
+      <div class="panel" id="side-profile"></div>
+      <div class="panel" id="side-steps"></div>
+    </aside>
+  </section>
+  <section class="agency" id="agency" hidden aria-label="Painel da imobiliária">
+    <nav class="sb" id="sb"></nav>
+    <div class="main" id="main"></div>
+    <div id="ag-auth"></div>
+  </section>
+</main>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const WMP='M313 38 L313 38.8 L330.8 61.8 L311.8 86.5 L311.8 87.5 L320 87.2 L334.5 67.8 L335.5 68 L350 87.5 L357.5 87.5 L357.5 86 L339.5 62.2 L339.5 61 L357 38.2 L348.5 38.2 L335.8 55 L334.8 55.5 L321.5 38Z M249.8 38.2 L244 41.5 L241 44.2 L238 48.2 L236 52.8 L234.8 57.8 L234.5 65 L236.8 75 L239.5 79.5 L243.5 83.5 L249.5 87 L257.8 88.8 L265 88.2 L269.8 87 L275 84 L279.5 79.5 L279.5 78.8 L276.2 75.5 L275 75 L271 78.8 L266.2 81.2 L260.2 82.2 L255.2 81.8 L250.5 80 L246 76.2 L243.5 72.2 L241.8 65.8 L243 64.8 L282 64.8 L282.5 64.2 L282.5 58 L280.5 50.2 L277.5 45.2 L275.2 42.8 L268.2 38.2 L262 36.8 L256 36.8Z M242.2 57 L244.8 50.5 L248.5 46.5 L252.2 44.2 L255.5 43.2 L261.2 43 L267.5 45.2 L271.8 49 L273.8 52.5 L275 58 L274 59 L243 59 L242.2 58.2Z M475 40.2 L470.5 44.5 L474.2 48.5 L475.2 48.5 L477.8 46.2 L481.5 44.2 L485.2 43.2 L490.2 43 L494.8 44 L499.5 47.5 L501.2 52 L501.5 56.5 L500.2 57.8 L497 57.2 L481.8 57.5 L476 59.2 L471.5 62.2 L468 67.2 L467 71.5 L467 75.8 L467.8 78.8 L469.8 82.2 L473.5 85.8 L478.5 88 L487.5 88.5 L490.5 88 L495.5 86 L498.5 83.8 L500.8 81 L501.5 81 L501.8 87.2 L508 87.5 L508.5 86.8 L508.5 51.5 L507.5 47 L505.5 43.5 L502.5 40.5 L498.5 38.2 L491 36.5 L482.2 37.2Z M500.8 63.2 L501.5 64 L501.5 70.2 L500.5 73.8 L498.2 77.5 L494.8 80.2 L489.5 82 L482.8 82 L478.2 80.2 L475.5 77.5 L474.5 74.8 L474.8 70.2 L476.2 67.5 L478.8 65.2 L481.8 64 L486.8 63.2Z M193.2 40.2 L187 37.2 L179 36.5 L174.8 37.2 L170 39.5 L166.8 42.2 L165.2 44.5 L164.2 44.8 L164 38.2 L162.8 37.8 L157.5 38 L157 38.5 L157 87 L157.5 87.5 L163.5 87.5 L164.2 86.5 L164.2 56.5 L165.5 51.8 L166.8 49.5 L170.2 46 L173.2 44.2 L178.2 43 L182.8 43.2 L187 45 L190 47.8 L191.8 50.8 L192.8 54.8 L192.8 86.8 L193.2 87.5 L199.5 87.5 L200 87 L200 53.5 L199.5 50.2 L197.5 45.2Z M97 36.5 L87.8 38.2 L83.8 40.2 L78.8 44.2 L73.8 52 L72 58.8 L71.8 65 L72.8 70.2 L74.8 75.5 L77.5 79.8 L81 83.2 L84.8 85.8 L90.5 88 L98.8 88.8 L105 87.8 L109.5 86 L114.5 82.8 L117.2 80 L120.5 75.5 L122.5 70.5 L123.5 60.8 L122.5 55 L120.5 50 L118.5 46.8 L114.5 42.5 L107.8 38.5 L104 37.2Z M95 43.2 L100 43.2 L103.2 44 L109 47.2 L113.5 52.8 L115.8 60.2 L115.8 65.5 L114.8 69.8 L111.5 75.5 L106.2 80 L99.8 82 L95 82 L91.8 81.2 L87 79 L81.8 73 L79.2 65.5 L79.5 58 L82.8 50.5 L85 48 L89 45.2Z M0.5 14.2 L0 14.8 L0.2 87 L0.8 87.5 L7.2 87.5 L7.8 71.8 L15.5 64.8 L35 87.2 L44 87.5 L44 86.2 L20.8 60 L42.8 38.2 L42 37.8 L33 38 L8 62.8 L7.5 62.2 L7.5 14.5Z M452 0 L450.5 0 L440.8 8.2 L426.8 24.5 L419.8 34 L418.5 37.2 L417.8 37.2 L412.5 31.2 L407 26.8 L404.5 23 L401 19.5 L396.8 16.2 L394.8 12.2 L389.5 7.8 L383.5 0 L382 0.2 L376 7 L376.5 9 L384.5 16.5 L387.2 20 L389.8 21.8 L395 28.5 L399.5 33 L403 39.5 L408.5 46.8 L409.2 52.5 L409 60.8 L409.8 68 L408.5 93.8 L410.5 101.5 L411 114 L412.2 115.5 L414.2 114.5 L414.5 112.2 L416.5 108.5 L418.8 101.8 L418.2 88.2 L419 81.8 L419.2 67.5 L420.8 53.5 L420.8 48.2 L421.5 45.5 L424.5 39.8 L439.5 21.8 L452 10.8 L455.2 9.8 L456.8 8.5 L457.2 6.8 L456.2 4.8 L453.5 2.5Z', WMW=508.8, WMH=115.8, YP='M538 0 L529 2 L474 47 L373 150 L305 238 L305 245 L316 257 L316 263 L261 206 L232 187 L185 139 L154 117 L143 106 L137 93 L89 56 L56 19 L51 17 L42 18 L25 33 L0 60 L0 71 L3 75 L50 113 L73 136 L89 147 L161 217 L179 240 L201 278 L229 312 L234 324 L239 357 L237 421 L240 460 L234 616 L234 683 L242 714 L246 743 L246 767 L252 804 L252 828 L260 837 L269 835 L273 830 L274 813 L280 805 L286 783 L299 753 L305 719 L303 621 L307 603 L307 547 L311 510 L311 470 L321 375 L321 343 L326 321 L332 304 L345 282 L347 273 L396 210 L462 142 L491 120 L502 108 L527 92 L538 80 L557 71 L569 69 L577 64 L580 51 L574 37 L565 28 L549 17 L545 6Z', YW=581.0, YH=838.0;
+/* ===== Dados de demonstração (todos fictícios) ===== */
+const AGENCY = 'Imobiliária Maré Alta';
+const BROKERS = [
+  {id:'lia', nome:'Lia Montenegro', ini:'LM'},
+  {id:'caio', nome:'Caio Ribamar', ini:'CR'},
+  {id:'bento', nome:'Bento Aquino', ini:'BA'}
+];
+const WORK = {lat:-3.7372, lng:-38.4985, nome:'Trabalho · Aldeota'};
+
+// Referência de mercado (m² de venda, anúncios): FipeZAP via MySide, set/2026: Meireles 13.194 · Aldeota 11.841 · Dionísio Torres 9.226.
+// Cocó 9.444 (A Corrida dos Bairros, out/2026, mediana de anúncios). Varjota e Mucuripe: sem fonte pública encontrada, estimativa da demo.
+const M2 = {
+  'Meireles':{v:13194, f:'FipeZAP · set/2026'}, 'Aldeota':{v:11841, f:'FipeZAP · set/2026'}, 'Dionísio Torres':{v:9226, f:'FipeZAP · set/2026'},
+  'Cocó':{v:9444, f:'Anúncios · out/2026'}, 'Varjota':{v:11500, f:'Estimativa da demonstração'}, 'Mucuripe':{v:12500, f:'Estimativa da demonstração'}
+};
+const PROPS = [
+  {id:'p1', nome:'Ed. Jardim Aldeota', bairro:'Aldeota', tipo:'Apartamento', area:82, q:3, suites:1, v:2, preco:950000, lat:-3.7400, lng:-38.5035, pet:'grande', fora:6, pico:12, rest:9, praia:1.6, tranq:8, invest:76, tom:0,
+   feats:['Pet place','Varanda gourmet','Piscina','Portaria 24 h'], destaque:'Pet place no térreo e rua arborizada'},
+  {id:'p2', nome:'Residencial Vila Varjota', bairro:'Varjota', tipo:'Apartamento', area:70, q:2, suites:1, v:1, preco:790000, lat:-3.7318, lng:-38.4850, pet:'grande', fora:9, pico:16, rest:10, praia:0.9, tranq:6, invest:73, tom:1,
+   feats:['Varanda','Academia','Bicicletário'], destaque:'Polo gastronômico a duas quadras'},
+  {id:'p3', nome:'Ed. Mirante do Cocó', bairro:'Cocó', tipo:'Apartamento', area:95, q:3, suites:2, v:2, preco:885000, lat:-3.7505, lng:-38.4840, pet:'grande', fora:10, pico:18, rest:6, praia:2.6, tranq:9, invest:72, tom:2,
+   feats:['Vista para o parque','Piscina','Espaço pet','Salão de festas'], destaque:'Ao lado do Parque do Cocó, bom para passear com o cão'},
+  {id:'p4', nome:'Ed. Brisa Meireles', bairro:'Meireles', tipo:'Apartamento', area:68, q:2, suites:1, v:1, preco:1040000, lat:-3.7262, lng:-38.5000, pet:'pequeno', fora:9, pico:17, rest:8, praia:0.3, tranq:5, invest:80, tom:3,
+   feats:['Vista parcial do mar','Rooftop','Coworking'], destaque:'A 300 m da Beira-Mar'},
+  {id:'p5', nome:'Residencial Ateliê', bairro:'Dionísio Torres', tipo:'Apartamento', area:92, q:3, suites:1, v:2, preco:830000, lat:-3.7500, lng:-38.5040, pet:'grande', fora:9, pico:16, rest:4, praia:3.0, tranq:9, invest:66, tom:4,
+   feats:['Planta ampla','Quadra','Playground'], destaque:'Rua residencial muito tranquila'},
+  {id:'p6', nome:'Ed. Porto Mucuripe', bairro:'Mucuripe', tipo:'Apartamento', area:66, q:2, suites:1, v:1, preco:830000, lat:-3.7255, lng:-38.4760, pet:'grande', fora:14, pico:26, rest:7, praia:0.4, tranq:3, invest:76, tom:5,
+   feats:['Vista mar','Piscina','Lavanderia'], destaque:'Vista para o mar e para o porto'},
+  {id:'p7', nome:'Ed. Atlântico', bairro:'Meireles', tipo:'Apartamento', area:105, q:3, suites:3, v:2, preco:1730000, lat:-3.7245, lng:-38.5055, pet:'grande', fora:10, pico:19, rest:9, praia:0.1, tranq:5, invest:82, tom:6,
+   feats:['Frente mar','Spa','Academia','Espaço pet'], destaque:'Frente para a Beira-Mar'},
+  {id:'p8', nome:'Casa Vila Aldeota', bairro:'Aldeota', tipo:'Casa', area:120, q:3, suites:2, v:2, preco:1140000, lat:-3.7385, lng:-38.4950, pet:'grande', fora:5, pico:10, rest:8, praia:2.0, tranq:8, invest:70, tom:7,
+   feats:['Quintal','Casa em vila fechada','Churrasqueira'], destaque:'Quintal próprio para o cão'},
+  {id:'p9', nome:'Ed. Parque Cocó', bairro:'Cocó', tipo:'Apartamento', area:64, q:2, suites:1, v:1, preco:590000, lat:-3.7545, lng:-38.4890, pet:'grande', fora:12, pico:22, rest:5, praia:3.2, tranq:8, invest:68, tom:8,
+   feats:['Piscina','Espaço pet','Brinquedoteca'], destaque:'Perto das trilhas do parque'},
+  {id:'p10', nome:'Ed. Solar Meireles', bairro:'Meireles', tipo:'Apartamento', area:82, q:3, suites:1, v:2, preco:1090000, lat:-3.7270, lng:-38.4935, pet:'grande', fora:8, pico:16, rest:9, praia:0.4, tranq:6, invest:79, tom:9,
+   feats:['Varanda','Espaço pet','Piscina','Academia'], destaque:'Duas quadras da praia, aceita cães grandes'}
+];
+
+const BAIRROS = [
+  {nome:'Meireles', c:[-3.7260,-38.5000], poly:[[-3.7212,-38.5130],[-3.7229,-38.5030],[-3.7232,-38.4940],[-3.7218,-38.4880],[-3.7300,-38.4880],[-3.7335,-38.4930],[-3.7330,-38.5130]]},
+  {nome:'Aldeota', c:[-3.7395,-38.5030], poly:[[-3.7335,-38.5150],[-3.7335,-38.4930],[-3.7370,-38.4920],[-3.7400,-38.4915],[-3.7455,-38.4925],[-3.7458,-38.5150]]},
+  {nome:'Varjota', c:[-3.7310,-38.4845], poly:[[-3.7300,-38.4880],[-3.7218,-38.4880],[-3.7205,-38.4825],[-3.7270,-38.4795],[-3.7360,-38.4800],[-3.7370,-38.4920],[-3.7335,-38.4930]]},
+  {nome:'Mucuripe', c:[-3.7250,-38.4755], poly:[[-3.7205,-38.4825],[-3.7175,-38.4790],[-3.7150,-38.4740],[-3.7175,-38.4690],[-3.7270,-38.4680],[-3.7300,-38.4740],[-3.7270,-38.4795]]},
+  {nome:'Dionísio Torres', c:[-3.7505,-38.5030], poly:[[-3.7458,-38.5150],[-3.7455,-38.4945],[-3.7560,-38.4950],[-3.7570,-38.5150]]},
+  {nome:'Cocó', c:[-3.7520,-38.4860], poly:[[-3.7400,-38.4915],[-3.7370,-38.4920],[-3.7360,-38.4800],[-3.7420,-38.4760],[-3.7600,-38.4760],[-3.7610,-38.4900],[-3.7560,-38.4950],[-3.7455,-38.4945],[-3.7455,-38.4925]]}
+];
+
+const COAST = [[-3.7180,-38.5240],[-3.7200,-38.5130],[-3.7212,-38.5130],[-3.7229,-38.5030],[-3.7232,-38.4940],[-3.7218,-38.4880],[-3.7205,-38.4825],[-3.7175,-38.4790],[-3.7150,-38.4740],[-3.7175,-38.4690],[-3.7240,-38.4640],[-3.7380,-38.4590],[-3.7650,-38.4500]];
+const ROADS = [
+  {nome:'Av. Beira-Mar', pts:[[-3.7212,-38.5150],[-3.7236,-38.5030],[-3.7240,-38.4940],[-3.7226,-38.4880],[-3.7212,-38.4830]]},
+  {nome:'Av. Dom Luís', pts:[[-3.7340,-38.5150],[-3.7345,-38.4800]]},
+  {nome:'Av. Santos Dumont', pts:[[-3.7380,-38.5150],[-3.7385,-38.4760]]},
+  {nome:'Av. Antônio Sales', pts:[[-3.7440,-38.5150],[-3.7445,-38.4800]]},
+  {nome:'Av. Senador Virgílio Távora', pts:[[-3.7300,-38.4990],[-3.7560,-38.4990]]},
+  {nome:'Av. Eng. Santana Jr.', pts:[[-3.7360,-38.4800],[-3.7600,-38.4780]]}
+];
+const PARK = [[-3.7560,-38.4880],[-3.7570,-38.4790],[-3.7640,-38.4740],[-3.7700,-38.4800],[-3.7680,-38.4900]];
+
+// camadas: pontos ilustrativos (não são estabelecimentos reais)
+const LAYERS = [
+  {id:'rest', nome:'Restaurantes', pts:[[-3.7300,-38.4860],[-3.7322,-38.4840],[-3.7290,-38.4900],[-3.7275,-38.4975],[-3.7395,-38.5005],[-3.7330,-38.4870]]},
+  {id:'acad', nome:'Academias', pts:[[-3.7350,-38.5010],[-3.7300,-38.4935],[-3.7480,-38.4870],[-3.7410,-38.4960]]},
+  {id:'esc', nome:'Escolas', pts:[[-3.7425,-38.5080],[-3.7490,-38.4990],[-3.7360,-38.4890]]},
+  {id:'hosp', nome:'Hospitais', pts:[[-3.7440,-38.5060],[-3.7470,-38.4925]]},
+  {id:'trans', nome:'Transporte', pts:[[-3.7383,-38.5080],[-3.7383,-38.4950],[-3.7343,-38.4870],[-3.7443,-38.4990]]},
+  {id:'verde', nome:'Áreas verdes', pts:[[-3.7365,-38.4995],[-3.7600,-38.4830],[-3.7280,-38.5080]]},
+  {id:'pet', nome:'Pet-friendly', pts:[[-3.7520,-38.4850],[-3.7405,-38.5045],[-3.7290,-38.4945]]}
+];
+
+const STAGES = [
+  {id:'novo', nome:'Novo'}, {id:'atendimento', nome:'Em atendimento'}, {id:'qualificado', nome:'Qualificado'},
+  {id:'visita', nome:'Visita agendada'}, {id:'proposta', nome:'Proposta'}, {id:'negociacao', nome:'Negociação'}
+];
+
+const OTHER_LEADS = [
+  {id:'l1', nome:'Rafael Duarte', stage:'atendimento', busca:'2 quartos em Meireles para investir', faixa:'R$ 600–700 mil', comp:84, broker:'caio', quando:'há 2 h'},
+  {id:'l2', nome:'Júlia Sampaio', stage:'qualificado', busca:'3 quartos no Cocó, com escola perto', faixa:'R$ 800–900 mil', comp:88, broker:'lia', quando:'ontem'},
+  {id:'l3', nome:'Otto Ramalho', stage:'visita', busca:'Casa na Aldeota com quintal', faixa:'até R$ 1 mi', comp:86, broker:'caio', quando:'ontem'},
+  {id:'l4', nome:'Beatriz Lins', stage:'proposta', busca:'2 quartos na Varjota', faixa:'R$ 650–750 mil', comp:90, broker:'bento', quando:'há 3 dias'},
+  {id:'l5', nome:'Henrique Assis', stage:'negociacao', busca:'3 quartos frente mar, Meireles', faixa:'até R$ 1,4 mi', comp:83, broker:'lia', quando:'há 5 dias'},
+  {id:'l6', nome:'Clara Vasconcelos', stage:'novo', busca:'Apartamento compacto no Dionísio Torres', faixa:'até R$ 500 mil', comp:79, broker:'bento', quando:'há 25 min'},
+  {id:'l7', nome:'Davi Holanda', stage:'atendimento', busca:'Investimento no Mucuripe, vista mar', faixa:'R$ 700–800 mil', comp:81, broker:'caio', quando:'há 4 h'},
+  {id:'l8', nome:'Lívia Prado', stage:'qualificado', busca:'2 quartos pet-friendly na Aldeota', faixa:'R$ 550–650 mil', comp:87, broker:'bento', quando:'há 1 dia'}
+];
+
+/* ===== Pontuação de compatibilidade ===== */
+const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+const PERSONA = {prioridades:['restaurantes'], trabalho:'Aldeota', trajeto:20, estilo:'tranquilidade', familia:'Sem filhos', pets:'grande', objetivo:'morar', orcMin:800000, orcMax:1000000, tipo:'Tanto faz', prazo:'3m'};
+function eff(p){ const o={...PERSONA}; for(const k in p){ if(p[k]!==null && p[k]!==undefined && !(Array.isArray(p[k])&&!p[k].length)) o[k]=p[k]; } return o; }
+
+function crit(prop, profile){
+  const P = eff(profile);
+  const T = P.trabalho==='Remoto' ? 60 : P.trajeto;
+  let pico = prop.pico;
+  if(P.trabalho==='Meireles'){ pico = Math.round(prop.pico*(prop.bairro==='Meireles'?0.6:prop.bairro==='Aldeota'?1:1.25)); }
+  const rotina = P.trabalho==='Remoto' ? 90 : clamp(Math.round(100 - Math.max(0,pico-T)*6 - pico*0.6), 30, 99);
+  let orc;
+  if(prop.preco<=P.orcMax) orc = prop.preco>=P.orcMin*0.8 ? 96 : 90;
+  else orc = clamp(Math.round(96 - ((prop.preco-P.orcMax)/P.orcMax)*100*3.2), 25, 95);
+  const pref = {tranquilidade:8.5, meio:5.5, movimento:2.5}[P.estilo]||6;
+  const tranqS = clamp(100 - Math.abs(prop.tranq-pref)*9, 30, 100);
+  let petS = 100;
+  if(P.pets==='grande') petS = prop.pet==='grande' ? 100 : 40;
+  let tipoS = 100;
+  if(P.tipo==='Casa' && prop.tipo!=='Casa') tipoS = 70;
+  if(P.tipo==='Apartamento' && prop.tipo!=='Apartamento') tipoS = 70;
+  if(P.familia==='Com filhos') tipoS = Math.min(tipoS, prop.q>=3 ? 100 : 65);
+  const estilo = Math.round((tranqS + petS + tipoS)/3);
+  const parts=[];
+  if(P.prioridades.includes('restaurantes')) parts.push(prop.rest*10);
+  if(P.prioridades.includes('praia')) parts.push(clamp(100 - prop.praia*28, 20, 100));
+  if(P.prioridades.includes('lazer')) parts.push(clamp(55 + prop.feats.length*10, 0, 100));
+  const lazer = Math.round(parts.length ? parts.reduce((a,b)=>a+b,0)/parts.length : 70);
+  const invest = prop.invest;
+  return {rotina, orc, estilo, lazer, invest, pico};
+}
+function weights(P){
+  const w = P.objetivo==='investir' ? {rotina:.12, orc:.25, estilo:.13, lazer:.15, invest:.35}
+          : P.objetivo==='ambos' ? {rotina:.22, orc:.24, estilo:.2, lazer:.16, invest:.18}
+          : {rotina:.27, orc:.25, estilo:.25, lazer:.15, invest:.08};
+  if(P.prioridades.includes('praia')) { w.lazer += .1; w.rotina -= .05; w.estilo -= .05; }
+  return w;
+}
+function score(prop, profile){
+  const c = crit(prop, profile), w = weights(eff(profile));
+  let s = 0; for(const k in w) s += c[k]*w[k];
+  return clamp(Math.round(s), 35, 98);
+}
+function ranked(profile){
+  return PROPS.map(p=>({p, s:score(p,profile)})).sort((a,b)=>b.s-a.s || a.p.preco-b.p.preco);
+}
+function band(s){ return s>=85 ? 'g' : s>=75 ? 'y' : 'r'; }
+
+function reasons(prop, profile){
+  const P = eff(profile), c = crit(prop, profile), pos=[], neg=[];
+  if(P.trabalho!=='Remoto'){
+    if(c.pico <= P.trajeto) pos.push(c.pico<=12 ? 'Perto do trabalho e da rotina diária' : `${c.pico} min até o trabalho no horário de pico`);
+    else neg.push(`${c.pico} min até o trabalho no pico, acima dos ${P.trajeto} min que você aceita`);
+  }
+  if(prop.preco<=P.orcMax) pos.push('Dentro do orçamento informado');
+  else neg.push(`${Math.round((prop.preco/P.orcMax-1)*100)}% acima do orçamento informado`);
+  if(P.pets==='grande'){ if(prop.pet==='grande') pos.push('Aceita pets de porte grande'); else neg.push('Condomínio só aceita pets de porte pequeno'); }
+  if(P.prioridades.includes('praia') && prop.praia<=0.5) pos.push(prop.praia<=0.15 ? 'Em frente à praia' : `Praia a ${Math.round(prop.praia*1000)} m`);
+  if(prop.rest>=8 && (P.prioridades.includes('restaurantes')||P.estilo!=='movimento')) pos.push('Restaurantes a pé');
+  if(prop.tranq>=8 && P.estilo==='tranquilidade') pos.push('Rua tranquila');
+  if(prop.tranq<=4 && P.estilo==='tranquilidade') neg.push('Região movimentada, com mais barulho');
+  if(prop.bairro==='Cocó') pos.push('Perto do Parque do Cocó');
+  return {pos, neg};
+}
+
+
+/* ===== Utilidades ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const brl = v => v>=1000000 ? 'R$ ' + (v/1000000).toFixed(2).replace('.',',').replace(/,00$/,'').replace(/0$/,'') + ' mi' : 'R$ ' + Math.round(v/1000) + ' mil';
+const brlFull = v => 'R$ ' + v.toLocaleString('pt-BR');
+const byId = id => PROPS.find(p=>p.id===id);
+const I = {
+  chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+  map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  heartF:'<path fill="currentColor" d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  broker:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  send:'<path d="M4 12 20 4l-6 16-3-7-7-1z"/>',
+  check:'<path d="m5 12 5 5 9-10"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.2v.3"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.3"/>',
+  layers:'<path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/>',
+  bell:'<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  kanban:'<rect x="4" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="10" rx="1"/><rect x="16" y="4" width="4" height="13" rx="1"/>',
+  lead:'<circle cx="10" cy="8" r="4"/><path d="M3 21a7 7 0 0 1 12-4.9M15 19l2 2 4-4"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>',
+  bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  memory:'<path d="M12 4v16M8 6a3 3 0 0 0-3 3 3 3 0 0 0 0 6 3 3 0 0 0 3 3M16 6a3 3 0 0 1 3 3 3 3 0 0 1 0 6 3 3 0 0 1-3 3"/>',
+  cube:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12v9M12 12l8-4.5M12 12 4 7.5"/>',
+  cmp:'<rect x="3" y="5" width="7" height="14" rx="1.5"/><rect x="14" y="5" width="7" height="14" rx="1.5"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/>',
+  pin:'<path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  brief:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 12h18"/>'
+};
+const ic = (n, cls='') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const Y = (cls='') => `<svg class="ymark ${cls}" viewBox="0 0 ${YW} ${YH}" aria-hidden="true"><path fill-rule="evenodd" d="${YP}"/></svg>`;
+const WM = (cls='wm') => `<svg class="${cls}" viewBox="0 0 ${WMW} ${WMH}" role="img" aria-label="Konexya"><path fill-rule="evenodd" d="${WMP}"/></svg>`;
+
+/* ilustrações neutras dos imóveis (nada de fotos reais) */
+const TONES = ['#d9d9d4','#cfd2cf','#dcd8d0','#d3d6d8','#d8d4ce','#cdd2d4','#d6d6d1','#dad5cc','#d1d4cf','#d5d3d6'];
+function art(p, v=0){
+  const t = TONES[p.tom%10], dk = '#3a3a3c', w = '#f7f7f4';
+  if(v===1){ // sala
+    return `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice"><rect width="160" height="120" fill="${w}"/><rect y="84" width="160" height="36" fill="${t}"/><rect x="${18+p.tom*3}" y="22" width="56" height="44" fill="#e9ecec" stroke="${dk}" stroke-width="1.5"/><path d="M${46+p.tom*3} 22v44M${18+p.tom*3} 44h56" stroke="${dk}" stroke-width="1"/><rect x="84" y="62" width="58" height="22" rx="4" fill="${dk}"/><rect x="88" y="54" width="50" height="14" rx="4" fill="#58585a"/><path d="M30 84v-26M24 58h12" stroke="${dk}" stroke-width="1.5"/><circle cx="30" cy="56" r="6" fill="${t}" stroke="${dk}"/></svg>`;
+  }
+  if(v===2){ // varanda e vista
+    return `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice"><rect width="160" height="120" fill="#eef0f0"/><rect y="${52+p.tom}" width="160" height="40" fill="${t}"/><path d="M0 ${52+p.tom}h160" stroke="#9a9c9c"/><rect y="88" width="160" height="32" fill="${w}"/><path d="M0 70h160" stroke="${dk}" stroke-width="2"/>${Array.from({length:11},(_,i)=>`<path d="M${i*16} 70v20" stroke="${dk}" stroke-width="1.2"/>`).join('')}<circle cx="${120-p.tom*4}" cy="28" r="9" fill="#fff" stroke="#c5c7c7"/></svg>`;
+  }
+  const h = 56 + (p.tom%4)*10, x = 34 + (p.tom%3)*8, bw = 70 + (p.tom%2)*14;
+  let win=''; const cols = Math.floor(bw/14), rows = Math.floor(h/12);
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) win += `<rect x="${x+6+c*14}" y="${112-h+6+r*12}" width="8" height="6" fill="${(r+c+p.tom)%5===0?'#fff':'#8d8f90'}"/>`;
+  return `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice"><rect width="160" height="120" fill="#eef0ee"/><rect x="${x}" y="${112-h}" width="${bw}" height="${h}" fill="${p.tipo==='Casa'?'#58585a':dk}"/>${p.tipo==='Casa'?`<path d="M${x-6} ${112-h}l${bw/2+6} -22l${bw/2+6} 22z" fill="${dk}"/>`:''}${win}<rect y="112" width="160" height="8" fill="${t}"/><path d="M${x+bw+18} 112v-30" stroke="#6b6d6c" stroke-width="2"/><circle cx="${x+bw+18}" cy="78" r="10" fill="#9fa39f"/></svg>`;
+}
+
+/* ===== Estado ===== */
+let GEN = 0;
+function fresh(){
+  return {
+    view:'client', tab:'chat', overlay:null, menu:false,
+    profile:{prioridades:[], trabalho:null, trajeto:null, estilo:null, familia:null, pets:null, objetivo:null, prazo:null, orcMin:null, orcMax:null, tipo:null, extras:[]},
+    freshKey:null,
+    chat:{i:0, msgs:[], typing:false, phase:'steps', seen:0, adj:{budget:0, praia:false}, last:null},
+    saved:[], compare:[],
+    map:{sel:null, layers:[], legend:false},
+    flags:{chat:false, map:false, detail:false, consent:false, agency:false, approved:false, visit:false},
+    lead:null, broker:{msgs:[], seen:0},
+    agTab:'painel', openLead:'marina', leads:JSON.parse(JSON.stringify(OTHER_LEADS)),
+    unseenLead:false, editProf:null,
+    auth:{c:'splash', a:false, name:'Marina', terms:false, code:'', role:'corretor', pending:false},
+    fin:{e:20, n:30}, met:{per:30, tbl:false}, ai:{auto:false, tone:'proximo'}, outs:{}
+  };
+}
+let S = fresh();
+let MID = 1;
+const later = (fn, ms) => { const g = GEN; setTimeout(()=>{ if(g===GEN) fn(); }, ms); };
+
+/* ===== Roteiro do chat ===== */
+const STEPS = [
+  {k:'prioridades', q:'O que é mais importante no lugar onde você vai morar?', opts:[
+    {t:'Restaurantes e serviços a pé', kw:['restaurante','comer','servico','bar','pe '], set:{prioridades:['restaurantes']}, ack:'Boa. Vou dar peso a lugares onde você resolve a vida a pé.'},
+    {t:'Ficar perto da praia', kw:['praia','mar','beira'], set:{prioridades:['praia']}, ack:'Anotado: praia perto entra como prioridade.'},
+    {t:'Espaço e lazer no prédio', kw:['espaco','lazer','piscina','estrutura'], set:{prioridades:['lazer']}, ack:'Certo, vou olhar com atenção a estrutura de cada prédio.'}]},
+  {k:'trabalho', q:'E onde você trabalha?', opts:[
+    {t:'Na Aldeota', kw:['aldeota'], set:{trabalho:'Aldeota'}, ack:'Entendi. A Aldeota fica perto de vários bairros que podem funcionar para você.'},
+    {t:'Em Meireles', kw:['meireles'], set:{trabalho:'Meireles'}, ack:'Entendi, Meireles.'},
+    {t:'Trabalho de casa', kw:['casa','remoto','home'], set:{trabalho:'Remoto'}, ack:'Certo. Sem trajeto diário, posso olhar outras coisas com mais peso.'}]},
+  {k:'trajeto', skip:P=>P.trabalho==='Remoto', q:'Quanto tempo você aceita gastar até lá, no horário de pico?', opts:[
+    {t:'Até 10 min', kw:['10'], set:{trajeto:10}, ack:'Combinado: até 10 min no pico. Isso aperta bastante a busca.'},
+    {t:'Até 20 min', kw:['20','vinte'], set:{trajeto:20}, ack:'Combinado: até 20 min no pico. Vou estimar o trajeto de cada imóvel.'},
+    {t:'Até 30 min', kw:['30','trinta','meia hora'], set:{trajeto:30}, ack:'Combinado: até 30 min no pico.'}]},
+  {k:'estilo', q:'No dia a dia, você prefere tranquilidade ou movimento?', opts:[
+    {t:'Tranquilidade', kw:['tranquil','calm','silenc','sossego'], set:{estilo:'tranquilidade'}, ack:'Então vou evitar ruas muito movimentadas, sem perder a vida do bairro.'},
+    {t:'Um meio-termo', kw:['meio','equilib','tanto faz'], set:{estilo:'meio'}, ack:'Meio-termo anotado.'},
+    {t:'Movimento', kw:['moviment','agito','noite','vida noturna'], set:{estilo:'movimento'}, ack:'Movimento anotado: bairros com mais vida à noite ganham pontos.'}]},
+  {k:'familia', q:'Tem filhos? Tem pets?', opts:[
+    {t:'Sem filhos, tenho um cão grande', kw:['cao','cachorro','dog','pet','labrador','golden'], set:{familia:'Sem filhos', pets:'grande'}, ack:'Anotado. Preciso de prédios que aceitem cães de porte grande, e isso já tira alguns da lista.'},
+    {t:'Tenho filhos', kw:['filho','filha','crianca'], set:{familia:'Com filhos', pets:'nenhum'}, ack:'Anotado. Vou priorizar 3 quartos e boa estrutura para crianças.'},
+    {t:'Nenhum dos dois', kw:['nenhum','nao tenho','nada'], set:{familia:'Sem filhos', pets:'nenhum'}, ack:'Certo.'}]},
+  {k:'objetivo', q:'Você está procurando para morar ou para investir?', opts:[
+    {t:'Para morar', kw:['morar','viver','moradia'], set:{objetivo:'morar'}, ack:'Para morar, então rotina e conforto pesam mais que retorno de investimento.'},
+    {t:'Para investir', kw:['investir','investimento','alugar','renda'], set:{objetivo:'investir'}, ack:'Para investir, então liquidez e potencial de aluguel ganham peso.'},
+    {t:'Os dois', kw:['dois','ambos'], set:{objetivo:'ambos'}, ack:'Os dois: vou equilibrar rotina e potencial de investimento.'}]},
+  {k:'prazo', q:'Para quando você pensa em se mudar?', opts:[
+    {t:'Nos próximos 3 meses', kw:['3 meses','tres meses','logo','urgente','rapido','ja'], set:{prazo:'3m'}, ack:'Entendi, é para logo. Vou priorizar imóveis prontos para morar.'},
+    {t:'Em até 6 meses', kw:['6 meses','seis meses','semestre'], set:{prazo:'6m'}, ack:'Até 6 meses, anotado.'},
+    {t:'Só estou pesquisando', kw:['pesquis','sem pressa','olhando'], set:{prazo:'pesq'}, ack:'Sem pressa, então. Assim você compara com calma.'}]},
+  {k:'orcamento', q:'Qual faixa de valor deixa você confortável na compra?', opts:[
+    {t:'Até R$ 800 mil', kw:['800','700','600','500'], set:{orcMin:600000, orcMax:800000}, ack:'Faixa registrada: até R$ 800 mil.'},
+    {t:'De R$ 800 mil a 1 mi', kw:['900','1 mi','um milhao','1 milhao'], set:{orcMin:800000, orcMax:1000000}, ack:'Faixa registrada: de R$ 800 mil a R$ 1 mi. Para referência, o m² na Aldeota está em torno de R$ 11,8 mil (FipeZAP).'},
+    {t:'Acima de R$ 1 mi', kw:['acima','mais de 1','1,5','2 mi'], set:{orcMin:1000000, orcMax:1800000}, ack:'Faixa registrada: acima de R$ 1 mi, até R$ 1,8 mi.'}]},
+  {k:'tipo', q:'Última pergunta: apartamento ou casa?', opts:[
+    {t:'Apartamento', kw:['apartamento','apto','ape'], set:{tipo:'Apartamento'}, ack:'Apartamento, certo.'},
+    {t:'Casa', kw:['casa'], set:{tipo:'Casa'}, ack:'Casa, certo.'},
+    {t:'Tanto faz', kw:['tanto faz','qualquer','os dois'], set:{tipo:'Tanto faz'}, ack:'Sem restrição de tipo.'}]}
+];
+const PFIELDS = [
+  {k:'prioridades', l:'Prioridade', step:0, f:P=>P.prioridades.length ? P.prioridades.map(x=>({restaurantes:'Restaurantes a pé', praia:'Praia perto', lazer:'Lazer no prédio'}[x])).join(' + ') : null},
+  {k:'trabalho', l:'Trabalho', step:1, f:P=>P.trabalho ? (P.trabalho==='Remoto'?'Trabalha de casa':P.trabalho) : null},
+  {k:'trajeto', l:'Trajeto', step:2, f:P=>P.trabalho==='Remoto' ? 'Não se aplica' : P.trajeto ? `Até ${P.trajeto} min no pico` : null},
+  {k:'estilo', l:'Estilo de vida', step:3, f:P=>P.estilo ? {tranquilidade:'Tranquilidade', meio:'Meio-termo', movimento:'Movimento'}[P.estilo] : null},
+  {k:'familia', l:'Filhos e pets', step:4, f:P=>P.familia ? P.familia + (P.pets==='grande' ? ' · cão de porte grande' : P.pets==='pequeno' ? ' · pet pequeno' : '') : null},
+  {k:'objetivo', l:'Objetivo', step:5, f:P=>P.objetivo ? {morar:'Morar', investir:'Investir', ambos:'Morar e investir'}[P.objetivo] : null},
+  {k:'prazo', l:'Prazo', step:6, f:P=>P.prazo ? {'3m':'Próximos 3 meses','6m':'Até 6 meses',pesq:'Só pesquisando'}[P.prazo] : null},
+  {k:'orcamento', l:'Orçamento', step:7, f:P=>P.orcMax ? `${brl(P.orcMin)} a ${brl(P.orcMax)}` : null},
+  {k:'tipo', l:'Tipo de imóvel', step:8, f:P=>P.tipo}
+];
+const filled = () => PFIELDS.filter(f=>f.f(S.profile)).length;
+const top3 = () => ranked(S.profile).slice(0,3);
+const sc = p => score(p, S.profile);
+
+function pushMsg(m){ m.id = MID++; S.chat.msgs.push(m); }
+function aiSeq(list, done){
+  // list: array de mensagens da IA; mostra "digitando…" entre elas
+  const g = GEN;
+  const step = i => {
+    if(g!==GEN) return;
+    if(i>=list.length){ S.chat.typing=false; render(); done&&done(); return; }
+    S.chat.typing = true; render();
+    const m = list[i]; const len = (m.text||'').length;
+    setTimeout(()=>{ if(g!==GEN) return; pushMsg(typeof m==='function'?m():m); step(i+1); }, Math.min(1300, 520 + len*7));
+  };
+  step(0);
+}
+function curStep(){ return STEPS[S.chat.i]; }
+function stepFilled(st){ const P = S.profile; if(st.skip && st.skip(P)) return true; if(st.k==='prioridades') return P.prioridades.length>0; if(st.k==='orcamento') return !!P.orcMax; return P[st.k]!==null && P[st.k]!==undefined; }
+function nextIndex(){ const j = STEPS.findIndex(st=>!stepFilled(st)); return j<0 ? STEPS.length : j; }
+
+function answer(opt, typed){
+  if(S.chat.typing) return;
+  const st = curStep();
+  pushMsg({who:'me', text: typed || opt.t});
+  Object.assign(S.profile, JSON.parse(JSON.stringify(opt.set)));
+  S.freshKey = st.k; S.flags.chat = true;
+  const j = nextIndex(S.chat.i);
+  S.chat.i = j;
+  if(j < STEPS.length){
+    aiSeq([{who:'ai', text:opt.ack}, {who:'ai', text:STEPS[j].q}]);
+  } else {
+    S.chat.phase = 'results';
+    aiSeq([{who:'ai', text:opt.ack + ' Já tenho o que preciso.'},
+      {who:'ai', text:'Analisei 10 imóveis de demonstração em 6 bairros. Estes 3 combinam mais com a sua vida:'},
+      ()=>recMsg(null),
+      {who:'ai', text:'Quer ajustar alguma coisa? Pode pedir do seu jeito.'}]);
+  }
+  render();
+}
+function recMsg(prev){
+  const t = top3().map(r=>({id:r.p.id, s:r.s}));
+  const mv = {};
+  if(prev){ t.forEach((r,i)=>{ const k = prev.findIndex(x=>x.id===r.id); if(k<0) mv[r.id]='Novo'; else if(k>i) mv[r.id]='Subiu'; }); }
+  S.chat.last = t;
+  return {who:'recs', recs:t, mv};
+}
+function adjBudget(typed){
+  if(S.chat.typing) return;
+  pushMsg({who:'me', text: typed || 'Pode subir um pouco o orçamento'});
+  const P = S.profile; if(!P.orcMax){ P.orcMin=800000; P.orcMax=1000000; }
+  if(P.orcMax >= 1800000){ aiSeq([{who:'ai', text:'Seu teto já está em R$ 1,8 mi, o maior valor desta demonstração.'}]); return; }
+  P.orcMax += 100000; S.chat.adj.budget++; S.freshKey='orcamento';
+  const prev = S.chat.last;
+  aiSeq([{who:'ai', text:`Subi o teto para ${brl(P.orcMax)}. Veja o que mudou:`}, ()=>recMsg(prev)]);
+  render();
+}
+function adjPraia(typed){
+  if(S.chat.typing) return;
+  pushMsg({who:'me', text: typed || 'Quero mais perto da praia'});
+  const P = S.profile;
+  if(P.prioridades.includes('praia')){ aiSeq([{who:'ai', text:'A praia já está entre as suas prioridades. Quer que eu suba o orçamento para chegar mais perto do mar?'}]); return; }
+  P.prioridades = [...(P.prioridades.length?P.prioridades:['restaurantes']), 'praia']; S.chat.adj.praia = true; S.freshKey='prioridades';
+  const prev = S.chat.last;
+  aiSeq([{who:'ai', text:'Dei mais peso à distância até a praia. A lista foi reordenada:'}, ()=>recMsg(prev)]);
+  render();
+}
+function quickOpts(){
+  if(S.chat.typing) return [];
+  if(S.chat.phase==='steps') return curStep().opts.map((o,i)=>({t:o.t, a:'ans', id:i}));
+  const o = [];
+  o.push({t:'Pode subir um pouco o orçamento', a:'adjb'});
+  if(!S.chat.adj.praia) o.push({t:'Quero mais perto da praia', a:'adjp'});
+  o.push({t:'Abrir o Mapa Vivo', a:'tab', id:'map', ghost:true});
+  return o;
+}
+function handleText(raw){
+  const t0 = raw.trim(); if(!t0 || S.chat.typing) return;
+  if(SAMPLE && !AI_OFF) return aiTurn(t0);
+  return legacyText(raw);
+}
+function legacyText(raw){
+  const t = raw.trim(); if(!t || S.chat.typing) return;
+  const n = ' ' + norm(t) + ' ';
+  if(S.chat.phase==='steps'){
+    const st = curStep();
+    if(st.k==='trajeto'){ const m = n.match(/(\d+)\s*(min|minuto)/) || n.match(/\b(\d{1,2})\b/); if(m){ const v = +m[1]; const o = st.opts.reduce((a,b)=>Math.abs(b.set.trajeto-v)<Math.abs(a.set.trajeto-v)?b:a); return answer({...o, set:{trajeto:v}, ack:`Combinado: até ${v} min no pico. Vou estimar o trajeto de cada imóvel.`}, t); } }
+    if(st.k==='orcamento'){ const v = parseMoney(n); if(v){ return answer({t, set:{orcMin:Math.round(v*0.75/10000)*10000, orcMax:v}, ack:`Faixa registrada: até ${brl(v)}.`}, t); } }
+    const o = st.opts.find(o=>o.kw.some(k=>n.includes(k)));
+    if(o) return answer(o, t);
+    return sideNote(n, t, true);
+  }
+  if(/praia|mar\b|beira/.test(n)) return adjPraia(t);
+  if(/orcamento|subir|caro|valor|mil\b|grana|pagar/.test(n)) return adjBudget(t);
+  if(/mapa/.test(n)){ pushMsg({who:'me', text:t}); aiSeq([{who:'ai', text:'Abrindo o Mapa Vivo com os bairros coloridos pela sua compatibilidade.'}], ()=>go('map')); render(); return; }
+  if(/corretor|visita|falar/.test(n)){ pushMsg({who:'me', text:t}); const p = top3()[0].p; aiSeq([{who:'ai', text:`Vou abrir o ${p.nome}. Lá você pode falar com o corretor.`}], ()=>{ openDetail(p.id); }); render(); return; }
+  return sideNote(n, t, false);
+}
+function parseMoney(n){
+  let m = n.match(/(\d+[.,]?\d*)\s*(mil|k)\b/); if(m) return Math.round(parseFloat(m[1].replace(',','.'))*1000);
+  m = n.match(/(\d+[.,]?\d*)\s*(mi|milhao|milhoes)\b/); if(m) return Math.round(parseFloat(m[1].replace(',','.'))*1000000);
+  m = n.match(/(\d{3}\.?\d{3})/); if(m) return +m[1].replace('.','');
+  return 0;
+}
+function sideNote(n, t, reask){
+  pushMsg({who:'me', text:t});
+  const P = S.profile; let reply;
+  if(/academia|treino|musculacao/.test(n)){ if(!P.extras.includes('Academia perto')) P.extras.push('Academia perto'); reply = 'Anotei academia perto como um extra.'; }
+  else if(/praia/.test(n)){ if(!P.prioridades.includes('praia')) P.prioridades=[...P.prioridades,'praia']; reply = 'Anotei praia perto como prioridade também.'; }
+  else if(/pet|cachorro|cao|gato/.test(n)){ P.pets = /gato/.test(n) ? 'pequeno' : 'grande'; if(!P.familia) P.familia='Sem filhos'; reply = 'Anotado sobre o pet.'; }
+  else if(/orcamento|valor|mil\b/.test(n)){ reply = 'Já chego no orçamento, é uma das próximas perguntas.'; }
+  else reply = reask ? 'Entendi. Para eu seguir, escolha uma das opções abaixo ou me conte com outras palavras.' : 'Posso ajustar a busca por você. Tente, por exemplo: "quero mais perto da praia" ou "pode subir um pouco o orçamento".';
+  const list = [{who:'ai', text:reply}];
+  if(reask && !/Entendi/.test(reply)) list.push({who:'ai', text:curStep().q});
+  aiSeq(list); render();
+}
+
+
+/* ===== IA real (Claude via capability "sample") com reserva local ===== */
+let SAMPLE = null, AI_OFF = false, AI_OK = false;
+try { if(window.claude && window.claude.use) window.claude.use('sample').then(f=>{ SAMPLE = f || null; render(); }).catch(()=>{}); } catch(e) {}
+const ENUMS = {trabalho:['Aldeota','Meireles','Remoto'], estilo:['tranquilidade','meio','movimento'], familia:['Sem filhos','Com filhos'], pets:['grande','pequeno','nenhum'], objetivo:['morar','investir','ambos'], prazo:['3m','6m','pesq'], tipo:['Apartamento','Casa','Tanto faz']};
+function sanitize(u){
+  const out = {}; if(!u || typeof u!=='object') return out;
+  for(const k in ENUMS) if(ENUMS[k].includes(u[k])) out[k] = u[k];
+  if(Array.isArray(u.prioridades)){ const p = u.prioridades.filter(x=>['restaurantes','praia','lazer'].includes(x)); if(p.length) out.prioridades = [...new Set(p)]; }
+  const n = v => typeof v==='number' ? v : parseFloat(String(v||'').replace(/[^\d.]/g,''));
+  if(u.trajeto!=null){ const v = Math.round(n(u.trajeto)); if(v>=5 && v<=120) out.trajeto = v; }
+  if(u.orcMax!=null){ const v = Math.round(n(u.orcMax)); if(v>=150000 && v<=8000000) out.orcMax = v; }
+  if(u.orcMin!=null){ const v = Math.round(n(u.orcMin)); if(v>=0 && v<=8000000) out.orcMin = v; }
+  if(out.orcMax && (out.orcMin==null || out.orcMin>out.orcMax)) out.orcMin = Math.round(out.orcMax*0.8/10000)*10000;
+  if(out.orcMin && !out.orcMax && !S.profile.orcMax) out.orcMax = Math.round(out.orcMin*1.25/10000)*10000;
+  if(Array.isArray(u.extras)) out.extras = u.extras.map(x=>String(x).slice(0,40)).filter(Boolean).slice(0,5);
+  return out;
+}
+function aiPrompt(text){
+  const P = S.profile, missing = STEPS.filter(st=>!stepFilled(st));
+  const hist = S.chat.msgs.slice(-14).map(m => m.who==='me' ? 'Cliente: '+m.text : m.who==='ai' ? 'IA: '+m.text : m.who==='recs' ? 'IA: [mostrou recomendações: '+m.recs.map(r=>byId(r.id).nome+' '+r.s+'%').join(', ')+']' : '').filter(Boolean).join('\n');
+  const props = PROPS.map(p=>{ const c = crit(p,P); return `${p.id} | ${p.nome} | ${p.bairro} | ${p.tipo} | ${p.area} m² | ${p.q} quartos (${p.suites} suíte) | ${p.v} vaga(s) | R$ ${p.preco.toLocaleString('pt-BR')} | pets: ${p.pet==='grande'?'aceita grandes':'só pequenos'} | trabalho no pico: ${c.pico} min | praia a ${p.praia} km | ${p.feats.join(', ')} | compatibilidade atual ${score(p,P)}%`; }).join('\n');
+  const top = top3().map(r=>`${r.p.nome} (${r.s}%)`).join(', ');
+  return `Você é a IA da Konexya, assistente imobiliária em Fortaleza (CE), conversando com ${S.auth.name||'Marina'} pelo app.
+Regras:
+- Português do Brasil, tom próximo e direto, 1 a 3 frases curtas. Escreva sempre "para", nunca "pra".
+- Responda ao que a pessoa escreveu de verdade: se for pergunta, responda; se contar algo da vida dela, reconheça o detalhe específico que ela disse. Nunca use uma frase genérica que serviria para qualquer mensagem.
+- Use só os DADOS abaixo para falar de imóveis, preços e bairros. Se não souber, diga que não tem essa informação. Não dê nota de segurança de bairro nem prometa valorização.
+- Assunto fora de imóveis: responda em uma frase e volte para a busca.
+- Média do m² (referência de mercado): Meireles R$ 13.194, Aldeota R$ 11.841, Dionísio Torres R$ 9.226 (FipeZAP set/2026); Cocó R$ 9.444 (anúncios out/2026).
+
+PERFIL ATUAL (null = ainda não informado): ${JSON.stringify({prioridades:P.prioridades, trabalho:P.trabalho, trajeto:P.trajeto, estilo:P.estilo, familia:P.familia, pets:P.pets, objetivo:P.objetivo, prazo:P.prazo, orcMin:P.orcMin, orcMax:P.orcMax, tipo:P.tipo, extras:P.extras})}
+FASE: ${S.chat.phase==='results' ? 'recomendações já mostradas. Top 3 atual: '+top : 'entrevista'}
+CAMPOS QUE FALTAM, em ordem (chave: pergunta-padrão):
+${missing.length ? missing.map(st=>`${st.k}: ${st.q}`).join('\n') : '(nenhum)'}
+
+IMÓVEIS (dados de demonstração):
+${props}
+
+CONVERSA RECENTE:
+${hist}
+
+NOVA MENSAGEM DO CLIENTE: """${text.slice(0,1500)}"""
+
+Responda SOMENTE com um objeto JSON:
+{"reply": string, "updates": object, "asked": string|null, "action": "none"|"open_map"|"open_property", "property_id": string|null}
+- updates: só os campos que a mensagem informou com clareza (pode ser vários de uma vez). Valores permitidos: prioridades = lista COMPLETA atualizada com "restaurantes", "praia", "lazer"; trabalho = "Aldeota" | "Meireles" | "Remoto" (outro bairro: escolha o mais próximo dos dois e diga isso na reply); trajeto = minutos (número); estilo = "tranquilidade" | "meio" | "movimento"; familia = "Sem filhos" | "Com filhos"; pets = "grande" | "pequeno" | "nenhum"; objetivo = "morar" | "investir" | "ambos"; prazo = "3m" | "6m" | "pesq"; orcMin e orcMax = reais, número inteiro (ex.: 900000); tipo = "Apartamento" | "Casa" | "Tanto faz"; extras = lista completa de desejos que não cabem nos campos (ex.: "Academia perto", "Varanda").
+- Se ainda faltar algum campo depois dos seus updates, termine a reply com UMA pergunta natural sobre o primeiro campo que continuar faltando e coloque a chave dele em "asked". Se não faltar nada, "asked": null e não faça pergunta (o app mostra as recomendações).
+- Na fase de recomendações: se a pessoa pedir mudança (orçamento, praia, quartos...), aplique em updates e comente na reply o que muda; o app mostra a lista nova logo depois.
+- action "open_map" se ela pedir para ver no mapa; "open_property" com property_id (ex.: "p1") se pedir para abrir ou ver um imóvel específico ou falar com o corretor sobre ele.`;
+}
+async function aiTurn(text){
+  pushMsg({who:'me', text}); S.chat.typing = true; S.flags.chat = true; render();
+  const g = GEN;
+  let res;
+  try {
+    res = await SAMPLE.json(aiPrompt(text), {modelTier:'quick', cache:false});
+  } catch(e){
+    if(g!==GEN) return;
+    S.chat.typing = false;
+    S.chat.msgs.pop();
+    if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e && e.code)){ AI_OFF = true; toast('<b>IA ao vivo indisponível</b>Seguindo com as respostas do roteiro.'); }
+    else if(e && e.code==='rate_limited') toast('<b>Muitas mensagens seguidas</b>Respondendo pelo roteiro desta vez.');
+    legacyText(text); return;
+  }
+  if(g!==GEN) return;
+  AI_OK = true;
+  const reply = (res && typeof res.reply==='string' && res.reply.trim()) ? res.reply.trim().replace(/\bpra\b/gi,'para') : null;
+  const up = sanitize(res && res.updates);
+  const before = JSON.stringify(S.profile);
+  const prevTop = S.chat.last;
+  if(up.extras) S.profile.extras = up.extras;
+  delete up.extras;
+  Object.assign(S.profile, up);
+  const changed = JSON.stringify(S.profile) !== before;
+  const ks = Object.keys(up); if(ks.length) S.freshKey = ks[0]==='orcMax'||ks[0]==='orcMin' ? 'orcamento' : ks[0];
+  if(S.profile.prioridades.includes('praia')) S.chat.adj.praia = true;
+  S.chat.typing = false;
+  if(!reply){ S.chat.msgs.pop(); legacyText(text); return; }
+  pushMsg({who:'ai', text:reply, live:true});
+  if(S.chat.phase==='steps'){
+    const j = nextIndex();
+    if(j >= STEPS.length){
+      S.chat.phase = 'results'; S.chat.i = j;
+      aiSeq([{who:'ai', text:'Com isso eu já consigo te mostrar os imóveis que mais combinam com você:'}, ()=>recMsg(null), {who:'ai', text:'Quer ajustar alguma coisa? Pode pedir do seu jeito.'}]);
+    } else {
+      const askedIdx = STEPS.findIndex(st=>st.k===res.asked);
+      S.chat.i = (askedIdx>=0 && !stepFilled(STEPS[askedIdx])) ? askedIdx : j;
+      if(askedIdx<0 || stepFilled(STEPS[askedIdx])) pushMsg({who:'ai', text:STEPS[S.chat.i].q});
+    }
+  } else if(changed){
+    aiSeq([()=>recMsg(prevTop)]);
+  }
+  render();
+  if(res && res.action==='open_map') later(()=>go('map'), 900);
+  if(res && res.action==='open_property' && byId(String(res.property_id))) later(()=>openDetail(String(res.property_id)), 900);
+}
+
+/* ===== Navegação ===== */
+function go(tab){ S.tab = tab; S.overlay = null; if(tab==='map'){ S.flags.map = true; } render(); if(tab==='map') setTimeout(()=>{ initMap(); updateMap(); if(LMAP) LMAP.invalidateSize(); }, 30); }
+function openDetail(id){ S.overlay = {t:'detail', id}; S.flags.detail = true; render(); const g=$('#ov .scroll'); if(g) g.scrollTop=0; }
+function setView(v){ S.view = v; S.menu=false; if(v==='agency'){ S.unseenLead=false; if(S.lead && S.auth.a) S.flags.agency = true; } render(); if(v==='client' && S.tab==='map') setTimeout(()=>{ if(LMAP) LMAP.invalidateSize(); updateMap(); }, 30); }
+
+/* ===== Toasts ===== */
+function toast(html, o={}){
+  const box = $('#toasts'); const el = document.createElement('div');
+  el.className = 'toast' + (o.big?' big':''); el.setAttribute('role','status');
+  el.innerHTML = `${o.icon? `<div class="av" style="background:#fff;color:#0b0b0c">${o.icon}</div>`:''}<div class="grow">${html}</div>${o.act?`<button data-a="${o.act.a}" data-id="${o.act.id||''}">${o.act.l}</button>`:''}`;
+  box.prepend(el); while(box.children.length>2) box.lastElementChild.remove(); setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),320); }, o.ms||2800);
+}
+
+/* ===== Lead (imobiliária) ===== */
+const NOW = () => { const d = new Date(); return d.toLocaleTimeString('pt-BR',{hour:'2-digit', minute:'2-digit'}); };
+function suggestion(alt){
+  const p = byId(S.lead.propId), c = crit(p, S.profile);
+  const P = eff(S.profile);
+  const pet = P.pets==='grande' ? ', com espaço para o seu cão' : '';
+  if(alt) return `Oi, Marina! Lia, da ${AGENCY}. Separei o ${p.nome}, no ${p.bairro}: ${p.q} quartos, ${p.area} m² e ${p.feats[0].toLowerCase()}. Quer visitar no sábado (24/10) de manhã?`;
+  return `Oi, Marina! Aqui é a Lia, da ${AGENCY}. Vi que você procura um lugar ${P.estilo==='movimento'?'com movimento':'tranquilo'} perto do trabalho${pet}. O ${p.nome} fica a ${c.pico} min do seu trabalho no pico e tem ${p.feats[0].toLowerCase()}. Posso te mostrar no sábado (24/10) às 10h ou às 15h. Qual horário fica melhor?`;
+}
+function createLead(propId, origem){
+  if(!S.saved.includes(propId)) S.saved.push(propId);
+  const hist = [];
+  S.chat.msgs.forEach(m=>{
+    if(m.who==='ai') hist.push({w:'ai', t:m.text});
+    else if(m.who==='me') hist.push({w:'cl', t:m.text});
+    else if(m.who==='recs') hist.push({w:'ai', t:'Enviou recomendações: ' + m.recs.map(r=>`${byId(r.id).nome} (${r.s}%)`).join(', ')});
+  });
+  hist.push({w:'ev', t:`Marina autorizou compartilhar perfil e imóveis salvos (LGPD) · ${NOW()}`});
+  const p = byId(propId);
+  const aiMsg = `Oi, Marina! Sou a IA da ${AGENCY}. Recebi seu perfil e o seu interesse no ${p.nome}. A corretora Lia Montenegro vai continuar com você em instantes.`;
+  hist.push({w:'ai', t:aiMsg, auto:true});
+  S.lead = {propId, origem, stage:'novo', at:NOW(), hist, msg:{state:'pending', text:'', alt:false}, replied:false, actDone:false, visit:null, proposal:null, arrive:true};
+  S.lead.msg.text = suggestion(false);
+  S.broker.msgs = [
+    {id:MID++, who:'sys', text:`Você autorizou compartilhar seu perfil com a ${AGENCY}.`},
+    {id:MID++, who:'ai', text:aiMsg},
+    {id:MID++, who:'sys', text:'Lia Montenegro está vendo o seu perfil…'}
+  ];
+  S.flags.consent = true; S.unseenLead = true;
+}
+function approveMsg(){
+  const L = S.lead; if(!L || L.msg.state==='approved') return;
+  L.msg.state = 'approved';
+  L.hist.push(L.msg.auto ? {w:'ai', t:L.msg.text, auto:true} : {w:'br', t:L.msg.text});
+  S.broker.msgs = S.broker.msgs.filter(m=>!(m.who==='sys' && /está vendo/.test(m.text)));
+  S.broker.msgs.push({id:MID++, who:L.msg.auto?'ai':'br', text:L.msg.text});
+  if(L.stage==='novo'){ L.stage='atendimento'; L.hist.push({w:'ev', t:'Etapa alterada para Em atendimento'}); }
+  S.flags.approved = true;
+  toast(L.msg.auto ? '<b>A IA enviou a primeira mensagem</b>Modo automático ligado em IA da imobiliária.' : '<b>Mensagem enviada para a Marina</b>Você aprovou o texto sugerido pela IA.');
+  render();
+  later(()=>{
+    L.replied = true;
+    L.hist.push({w:'cl', t:'Sábado às 10h é perfeito!'});
+    S.broker.msgs.push({id:MID++, who:'me', text:'Sábado às 10h é perfeito!'});
+    toast('<b>Marina respondeu</b>"Sábado às 10h é perfeito!"', {act:{l:'Ver lead', a:'openlead', id:'marina'}});
+    render();
+  }, 2200);
+}
+function setStage(id, stage){
+  if(id!=='marina'){ const l = S.leads.find(x=>x.id===id); if(l){ l.stage = stage; } render(); return; }
+  const L = S.lead; if(!L || L.stage===stage) { render(); return; }
+  L.stage = stage; L.arrive = false;
+  L.hist.push({w:'ev', t:`Etapa alterada para ${STAGES.find(s=>s.id===stage).nome}`});
+  if(stage==='visita' && !L.visit){
+    L.visit = {dia:'Sáb, 24/10', hora:'10h', propId:L.propId};
+    L.actDone = false;
+    L.hist.push({w:'ev', t:`Visita confirmada pelo corretor: sáb, 24/10, 10h · ${byId(L.propId).nome}`});
+    S.broker.msgs.push({id:MID++, who:'visit', text:''});
+    S.flags.visit = true;
+    toast(`<b>Visita agendada</b>Sáb, 24/10, 10h · ${byId(L.propId).nome}. A Marina já vê a confirmação no app.`);
+  }
+  render();
+}
+function sendProposal(){
+  const L = S.lead; if(!L || L.proposal) return;
+  const pv = Math.round(byId(L.propId).preco*0.96/10000)*10000; L.proposal = {valor:pv, state:'aguardando'};
+  S.broker.msgs.push({id:MID++, who:'me', text:`Quero fazer uma proposta de ${brl(pv)} pelo imóvel.`});
+  L.hist.push({w:'cl', t:`Quero fazer uma proposta de ${brl(pv)} pelo imóvel.`});
+  S.broker.msgs.push({id:MID++, who:'sys', text:'Proposta enviada. O corretor precisa aprovar antes de encaminhar ao proprietário.'});
+  S.unseenLead = true;
+  render();
+}
+function forwardProposal(){
+  const L = S.lead; if(!L || !L.proposal || L.proposal.state!=='aguardando') return;
+  L.proposal.state = 'encaminhada';
+  L.hist.push({w:'ev', t:`Proposta de ${brl(L.proposal.valor)} encaminhada ao proprietário pelo corretor`});
+  setStage('marina','proposta');
+  S.broker.msgs.push({id:MID++, who:'br', text:`Encaminhei sua proposta de ${brl(L.proposal.valor)} ao proprietário. Te aviso assim que ele responder.`});
+  render();
+  later(()=>{
+    const ct = Math.round((L.proposal.valor + byId(L.propId).preco)/2/5000)*5000;
+    L.proposal.state = 'contraproposta'; L.proposal.contra = ct;
+    L.hist.push({w:'ev', t:`Proprietário respondeu com contraproposta de ${brl(ct)}`});
+    S.broker.msgs.push({id:MID++, who:'br', text:`O proprietário fez uma contraproposta de ${brl(ct)}, mantendo as 2 vagas. Quer conversar sobre isso?`});
+    setStage('marina','negociacao');
+  }, 2500);
+}
+
+/* ===== Render: barra superior ===== */
+function renderTop(){
+  $('#v-client').setAttribute('aria-pressed', S.view==='client');
+  $('#v-agency').setAttribute('aria-pressed', S.view==='agency');
+  $('#lead-dot').classList.toggle('on', S.unseenLead && S.view==='client');
+  $('#menu').hidden = !S.menu;
+  $('#client').hidden = S.view!=='client';
+  $('#agency').hidden = S.view!=='agency';
+}
+
+/* ===== Render: cliente ===== */
+function renderClient(){
+  ['chat','map','saved','broker','profile'].forEach(t=>{ $('#s-'+t).hidden = S.tab!==t; });
+  const savedN = S.saved.length;
+  const brN = S.broker.msgs.filter(m=>m.who==='br').length;
+  $('#tabs').innerHTML = [
+    ['chat','chat','Conversa'],['map','map','Mapa'],['saved','heart','Salvos', savedN],['broker','broker','Corretor', S.lead? (brN||'') : ''],['profile','user','Perfil']
+  ].map(([id,icn,l,b])=>`<button data-a="tab" data-id="${id}" ${S.tab===id?'aria-current="page"':''}>${ic(icn)}<span>${l}</span>${b?`<span class="badge">${b}</span>`:''}</button>`).join('');
+  if(S.tab==='chat') renderChat();
+  if(S.tab==='map') renderMapUI();
+  if(S.tab==='saved') renderSaved();
+  if(S.tab==='broker') renderBroker();
+  if(S.tab==='profile') renderProfile();
+  renderOverlay();
+  renderSide();
+}
+function renderChat(){
+  const P = S.profile;
+  const chip = $('#ai-chip'); if(chip){ const live = SAMPLE && !AI_OFF; chip.textContent = live ? 'IA ao vivo' : 'Demonstração'; chip.classList.toggle('live', !!live); chip.title = live ? 'Mensagens escritas são respondidas pelo Claude. Botões seguem o roteiro.' : 'Respostas do roteiro de demonstração'; }
+  $('#pstrip').innerHTML = `<span class="lbl num">Perfil ${filled()}/${PFIELDS.length}</span>` + PFIELDS.map(f=>{ const v=f.f(P); return `<span class="chip ${v?'on':''}">${v?esc(v):f.l}</span>`; }).join('');
+  const seen = S.chat.seen;
+  let h = '';
+  S.chat.msgs.forEach(m=>{
+    const nw = m.id>seen ? ' new' : '';
+    if(m.who==='recs'){
+      h += `<div class="recs${nw}">` + m.recs.map(r=>{ const p=byId(r.id), s=sc(p), rs=reasons(p,S.profile);
+        return `<button class="rec" data-a="detail" data-id="${p.id}"><div class="art">${art(p)}</div><div><div class="hd"><h4>${esc(p.nome)}${m.mv[p.id]?`<span class="mv">${m.mv[p.id]}</span>`:''}</h4><span class="pct ${band(r.s)}">${r.s}%</span></div><div class="meta">${p.bairro} · ${p.q} quartos · ${brl(p.preco)}</div><ul>${rs.pos.slice(0,2).map(x=>`<li>${ic('check','s okc')}${x}</li>`).join('')}${rs.neg.slice(0,1).map(x=>`<li>${ic('alert','s badc')}${x}</li>`).join('')}</ul></div></button>`; }).join('') + (()=>{ const ids = m.recs.map(r=>r.id); const out = ranked(S.profile).filter(r=>!ids.includes(r.p.id)); const open = S.outs[m.id];
+        return `<button class="linkb" style="justify-self:start" data-a="outs" data-id="${m.id}">${open?'Esconder':'Ver'} os ${out.length} que ficaram de fora</button>${open?`<ul class="outs">${out.map(r=>{ const rs=reasons(r.p,S.profile); return `<li><span class="pct ${band(r.s)}">${r.s}%</span><div><b>${esc(r.p.nome)}</b><span>${rs.neg[0]||'Combina, mas menos que os 3 primeiros'}</span></div></li>`; }).join('')}</ul>`:''}`; })() + `</div>`;
+    } else {
+      h += `<div class="m ${m.who}${nw}">${esc(m.text)}</div>`;
+    }
+  });
+  if(S.chat.typing) h += `<div class="typing" aria-label="digitando"><i></i><i></i><i></i></div>`;
+  const q = quickOpts();
+  $('#chat-msgs').innerHTML = h;
+  $('#chat-quick').innerHTML = q.map(o=>`<button class="qb ${o.ghost?'ghost':''}" data-a="${o.a}" data-id="${o.id??''}">${esc(o.t)}</button>`).join('');
+  const changed = S.chat.msgs.length && S.chat.msgs[S.chat.msgs.length-1].id>seen;
+  S.chat.seen = S.chat.msgs.length ? S.chat.msgs[S.chat.msgs.length-1].id : 0;
+  const sc_ = $('#chat-scroll');
+  if(changed || S.chat.typing) requestAnimationFrame(()=>{ sc_.scrollTop = sc_.scrollHeight; });
+}
+function renderSide(){
+  const P = S.profile;
+  const fk = S.freshKey; S.freshKey = null;
+  $('#side-profile').innerHTML = `<h3>Perfil da Marina · ao vivo</h3><div class="pf">${PFIELDS.map(f=>{const v=f.f(P);return `<div class="row ${fk && f.k===fk?'fresh':''}"><span>${f.l}</span><b class="${v?'':'none'}">${v?esc(v):'a IA preenche na conversa'}</b></div>`;}).join('')}${P.extras.length?`<div class="row"><span>Extras</span><b>${P.extras.join(', ')}</b></div>`:''}</div>`;
+  const F = S.flags;
+  const steps = [
+    ['Conversar com a IA','Toque nas opções ou escreva', F.chat],
+    ['Perfil se preenche','A cada resposta', filled()===PFIELDS.length],
+    ['3 recomendações','Com nota e motivos', S.chat.phase==='results'],
+    ['Abrir o Mapa Vivo','Bairros, % e trajeto', F.map],
+    ['Abrir um imóvel','Nota explicada por critério', F.detail],
+    ['Falar com o corretor','Tela de consentimento', F.consent],
+    ['Lead chega no painel','Já qualificado', F.agency],
+    ['Aprovar e agendar','Mensagem + Visita agendada', F.approved && F.visit]
+  ];
+  const now = steps.findIndex(s=>!s[2]);
+  $('#side-steps').innerHTML = `<h3>Roteiro da apresentação</h3><ol class="steps">${steps.map((s,i)=>`<li class="${s[2]?'done':i===now?'now':''}"><span class="n">${s[2]?'✓':i+1}</span><div><b>${s[0]}</b>${s[1]}</div></li>`).join('')}</ol>`;
+}
+function renderSaved(){
+  const list = S.saved.map(id=>byId(id));
+  let h = `<div class="ahead"><div class="grow"><h2>Salvos</h2><div class="sub">Imóveis que você guardou</div></div><span class="demo">Dados de demonstração</span></div><div class="scroll"><div class="pad">`;
+  if(!list.length) h += `<div class="empty">${ic('heart')}<b>Nenhum imóvel salvo ainda</b>Abra um imóvel e toque em Salvar. Ele aparece aqui com a sua compatibilidade.<button class="btn sm line" data-a="tab" data-id="chat">Ver recomendações</button></div>`;
+  else {
+    h += list.map(p=>{ const s=sc(p); return `<div class="fav"><button class="art" data-a="detail" data-id="${p.id}" style="border:0;padding:0" aria-label="Abrir ${esc(p.nome)}">${art(p)}</button><div style="min-width:0"><h4>${esc(p.nome)}</h4><div class="meta">${p.bairro} · ${brl(p.preco)}</div><label class="ck"><input type="checkbox" data-a="cmpck" data-id="${p.id}" ${S.compare.includes(p.id)?'checked':''}> Comparar</label></div><span class="pct ${band(s)}">${s}%</span></div>`; }).join('');
+    h += `<button class="btn full" data-a="compare" ${S.compare.length<2?'disabled':''}>${ic('cmp')} Comparar ${S.compare.length} imóveis</button><p class="fine">Escolha 2 ou 3 imóveis para ver lado a lado.</p>`;
+  }
+  h += `</div></div>`;
+  $('#s-saved').innerHTML = h;
+}
+function renderBroker(){
+  const L = S.lead;
+  let h = '';
+  if(!L){
+    h = `<div class="ahead"><div class="grow"><h2>Corretor</h2><div class="sub">${AGENCY}</div></div></div><div class="scroll"><div class="pad"><div class="empty">${ic('shield')}<b>Fale com um corretor quando quiser</b>Seu perfil só é compartilhado com a imobiliária se você autorizar. Abra um imóvel e toque em "Falar com o corretor".<button class="btn sm line" data-a="detail" data-id="${top3()[0].p.id}">Abrir o mais compatível</button></div></div></div>`;
+    $('#s-broker').innerHTML = h; return;
+  }
+  const states = ['Contato','Visita agendada','Proposta enviada','Contraproposta'];
+  const lvl = L.proposal ? (L.proposal.state==='contraproposta'?3:2) : L.visit ? 1 : 0;
+  h = `<div class="ahead"><div class="av">LM</div><div class="grow"><h2>Lia Montenegro</h2><div class="sub">Corretora · ${AGENCY} (fictícia)</div></div><span class="demo">Demonstração</span></div>
+  <div class="track">${states.map((s,i)=>`${i?'<em></em>':''}<span class="${i<=lvl?'on':''}"><i></i>${s}</span>`).join('')}</div>
+  <div class="scroll" id="br-scroll"><div class="msgs">`;
+  const seen = S.broker.seen;
+  S.broker.msgs.forEach(m=>{
+    const nw = m.id>seen?' new':'';
+    if(m.who==='visit'){ const p=byId(L.visit.propId); h += `<div class="visit-card${nw}"><span class="pill ok">${ic('check','s')} Visita confirmada</span><b>${L.visit.dia}, ${L.visit.hora}</b><span>${esc(p.nome)} · ${p.bairro}</span><span class="fine">Confirmada pela corretora. Você recebe um lembrete na véspera.</span></div>`; }
+    else if(m.who==='ai') h += `<div class="m ai${nw}"><span class="who">IA da ${AGENCY}</span>${esc(m.text)}</div>`;
+    else if(m.who==='br') h += `<div class="m br${nw}"><span class="who">Lia · corretora</span>${esc(m.text)}</div>`;
+    else h += `<div class="m ${m.who}${nw}">${esc(m.text)}</div>`;
+  });
+  h += `</div>`;
+  if(L.visit && !L.proposal) h += `<div class="quick"><button class="qb" data-a="proposal">Enviar proposta de ${brl(Math.round(byId(L.propId).preco*0.96/10000)*10000)} (simulação)</button></div>`;
+  h += `</div>`;
+  $('#s-broker').innerHTML = h;
+  const changed = S.broker.msgs.length && S.broker.msgs[S.broker.msgs.length-1].id>seen;
+  S.broker.seen = S.broker.msgs.length ? S.broker.msgs[S.broker.msgs.length-1].id : 0;
+  const el = $('#br-scroll'); if(changed && el) requestAnimationFrame(()=>{ el.scrollTop = el.scrollHeight; });
+}
+function renderProfile(){
+  const P = S.profile;
+  let h = `<div class="ahead"><div class="av">M</div><div class="grow"><h2>Marina</h2><div class="sub">Perfil inteligente · persona fictícia</div></div><span class="demo">Demonstração</span></div><div class="scroll"><div class="pad">`;
+  h += `<p class="fine">A IA monta este perfil durante a conversa. Toque em Editar para mudar qualquer item: as recomendações se atualizam na hora.</p>`;
+  PFIELDS.forEach(f=>{
+    const v = f.f(P); const st = STEPS[f.step]; const open = S.editProf===f.k;
+    h += `<div class="prow"><div class="h"><div><span>${f.l}</span><b>${v?esc(v):'<span style="color:var(--muted2);font-weight:400">Ainda não informado</span>'}</b></div><button class="linkb" data-a="editp" data-id="${f.k}">${open?'Fechar':'Editar'}</button></div>${open?`<div class="opts">${st.opts.map((o,i)=>`<button class="opt" data-a="setp" data-id="${f.step}:${i}" aria-pressed="${isOptOn(o)}">${esc(o.t)}</button>`).join('')}</div>`:''}</div>`;
+  });
+  h += `<div class="sec-t">Seu top 3 agora</div>` + top3().map(r=>`<button class="fav" data-a="detail" data-id="${r.p.id}"><div class="art">${art(r.p)}</div><div><h4>${esc(r.p.nome)}</h4><div class="meta">${r.p.bairro} · ${brl(r.p.preco)}</div></div><span class="pct ${band(r.s)}">${r.s}%</span></button>`).join('');
+  h += `<div class="sec-t" style="margin-top:6px">Em desenvolvimento</div>
+  <div class="devc">${ic('camera')}<div><b>Busca por foto</b><p>Você envia a foto de um lugar que gosta e a Konexya procura imóveis com estilo parecido.</p><span class="tag">Em desenvolvimento</span></div></div>
+  <div class="devc">${ic('memory')}<div><b>IA com memória</b><p>A IA vai lembrar das suas preferências entre conversas, sem você repetir tudo.</p><span class="tag">Em desenvolvimento</span></div></div>
+  <div class="devc">${ic('cube')}<div><b>Tour 3D</b><p>Visitar o imóvel em 3D antes de agendar a visita presencial.</p><span class="tag">Em desenvolvimento</span></div></div>`;
+  h += `</div></div>`;
+  $('#s-profile').innerHTML = h;
+}
+function isOptOn(o){ return Object.entries(o.set).every(([k,v])=> JSON.stringify(S.profile[k])===JSON.stringify(v)); }
+
+let LASTOV='';
+function renderOverlay(){
+  const o = S.overlay; const box = $('#ov');
+  if(!o){ box.innerHTML=''; LASTOV=''; return; }
+  const key = o.t==='compare' ? 'cmp' : 'd'+o.id; const same = key===LASTOV; LASTOV = key;
+  box.classList.toggle('noanim', same);
+  box.classList.toggle('noanim-modal', same && !!(S.overlay.t!=='consent' || S.overlay._seen===S.overlay.sent));
+  if(o.t==='consent') o._seen = o.sent;
+  if(o.t==='detail' || o.t==='consent'){
+    const p = byId(o.id), c = crit(p, S.profile), s = sc(p), rs = reasons(p, S.profile);
+    const saved = S.saved.includes(p.id), cmp = S.compare.includes(p.id);
+    const C = [['Rotina e trajeto',c.rotina],['Orçamento',c.orc],['Estilo de vida',c.estilo],['Lazer por perto',c.lazer],['Potencial de investimento',c.invest]];
+    const R = 30, L = 2*Math.PI*R;
+    const col = {g:'#1f7a4d', y:'#d89a1e', r:'#b3261e'}[band(s)];
+    let h = `<div class="overlay" role="dialog" aria-label="${esc(p.nome)}"><div class="scroll"><div style="position:relative"><div class="dhead"><button class="round" data-a="close" aria-label="Voltar">${ic('back')}</button><button class="round" data-a="save" data-id="${p.id}" aria-label="${saved?'Remover dos salvos':'Salvar'}">${ic(saved?'heartF':'heart')}</button></div>
+      <div class="gal">${[['Fachada',0],['Sala',1],['Varanda',2]].map(([l,v])=>`<div class="shot">${art(p,v)}<span class="cap">${l} · ilustração</span></div>`).join('')}</div></div>
+      <div class="pad">
+        <div><div class="sec-t">${p.tipo} · ${p.bairro}</div><h2 style="font-size:21px;font-weight:800;margin-top:2px">${esc(p.nome)}</h2><div style="font-size:19px;font-weight:700;margin-top:4px" class="num">${brlFull(p.preco)}</div><div class="fine">${brlFull(Math.round(p.preco/p.area))} por m² · valores ilustrativos</div></div>
+        <div class="facts"><div class="fact"><b class="num">${p.area}</b><span>m²</span></div><div class="fact"><b>${p.q}</b><span>quartos</span></div><div class="fact"><b>${p.suites}</b><span>suítes</span></div><div class="fact"><b>${p.v}</b><span>vagas</span></div></div>
+        <div class="feats">${p.feats.map(f=>`<span>${f}</span>`).join('')}<span>${p.pet==='grande'?'Aceita pets grandes':'Só pets pequenos'}</span></div>
+        <div class="bigscore"><svg class="ring" viewBox="0 0 72 72"><circle cx="36" cy="36" r="${R}" fill="none" stroke="#ebebe8" stroke-width="7"/><circle cx="36" cy="36" r="${R}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${L*s/100} ${L}" transform="rotate(-90 36 36)"/><text x="36" y="41" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="16" fill="#151516">${s}%</text></svg><div><b style="font-size:15px">Compatível com a sua vida</b><p class="fine" style="margin-top:2px">Nota calculada a partir do seu perfil. Veja o peso de cada critério abaixo.</p></div></div>
+        <div class="crit">${C.map(([l,v])=>`<div class="cr"><span>${l}</span><b class="num">${v}%</b><div class="bar"><i class="${band(v)}" style="width:${v}%"></i></div></div>`).join('')}</div>
+        <div><div class="sec-t" style="margin-bottom:8px">Por que combina com você</div><ul class="whys">${rs.pos.map(x=>`<li>${ic('check','s okc')}${x}</li>`).join('')}${rs.neg.map(x=>`<li>${ic('alert','s badc')}${x}</li>`).join('')}</ul></div>
+        ${marketBox(p)}
+        ${finBox(p)}
+        <p class="fine">Trajeto: ${p.fora} min fora do pico e ${c.pico} min no pico (estimativas fictícias). Potencial de investimento é uma estimativa com dados de demonstração, não uma garantia de valorização.</p>
+      </div></div>
+      <div class="actions"><button class="btn line sm ${saved?'on':''}" data-a="save" data-id="${p.id}">${ic(saved?'heartF':'heart','s')} ${saved?'Salvo':'Salvar'}</button><button class="btn line sm ${cmp?'on':''}" data-a="cmp" data-id="${p.id}">${ic('cmp','s')} ${cmp?'Na comparação':'Comparar'}</button>
+      <button class="btn line" data-a="consent" data-id="${p.id}" data-o="Agendar visita">${ic('cal','s')} Agendar visita</button><button class="btn" data-a="consent" data-id="${p.id}" data-o="Falar com o corretor">${ic('broker','s')} Falar com o corretor</button></div></div>`;
+    if(o.t==='consent'){
+      if(!o.sent) h += `<div class="modal-bg" data-a="noconsent"><div class="sheet" role="dialog" aria-label="Compartilhar perfil" data-stop="1"><div class="av">${ic('shield','s')}</div><h3>Compartilhar seu perfil?</h3><p>Para o corretor te atender melhor, vamos compartilhar com a ${AGENCY} o seu perfil e os imóveis que você salvou. Seus dados não são vendidos.</p><ul><li>${ic('check','s')}Seu perfil: rotina, orçamento, pets e prioridades</li><li>${ic('check','s')}Os imóveis salvos, incluindo o ${esc(p.nome)}</li><li>${ic('check','s')}Um resumo da sua conversa com a IA</li></ul><button class="btn full" data-a="share" data-id="${p.id}">Compartilhar e continuar</button><button class="btn line full" data-a="noconsent">Agora não</button></div></div>`;
+      else h += `<div class="modal-bg"><div class="sheet"><div class="sent"><div class="check-big">${ic('check')}</div><h3>Perfil enviado</h3><p>A ${AGENCY} recebeu o seu perfil. A corretora Lia Montenegro vai falar com você por aqui, na aba Corretor.</p><p class="fine">Abrindo o painel da imobiliária…</p><button class="btn full" data-a="view" data-id="agency">Ver o lado da imobiliária agora</button></div></div></div>`;
+    }
+    box.innerHTML = h; return;
+  }
+  if(o.t==='compare'){
+    const ps = S.compare.map(byId);
+    const rows = [['Compatibilidade',p=>`<span class="pct ${band(sc(p))}">${sc(p)}%</span>`],['Preço',p=>brl(p.preco)],['Bairro',p=>p.bairro],['Área',p=>p.area+' m²'],['Quartos',p=>p.q+' ('+p.suites+' suíte'+(p.suites>1?'s':'')+')'],['Vagas',p=>p.v],['Trajeto no pico',p=>crit(p,S.profile).pico+' min'],['Pets',p=>p.pet==='grande'?'Aceita grandes':'Só pequenos'],['Destaque',p=>p.destaque]];
+    const best = ps.slice().sort((a,b)=>sc(b)-sc(a));
+    const b = best[0], o2 = best[1], rb = reasons(b,S.profile), ro = reasons(o2,S.profile);
+    const P = eff(S.profile);
+    const para = `Para a sua rotina, o ${b.nome} combina mais (${sc(b)}%). ${rb.pos.slice(0,2).join(' e ').toLowerCase().replace(/^./,c=>c.toUpperCase())}${P.pets==='grande' && b.pet==='grande'?', e o seu cão é bem-vindo':''}. O ${o2.nome} ${ro.neg.length? 'perde pontos porque ' + ro.neg[0].charAt(0).toLowerCase()+ro.neg[0].slice(1) : o2.preco<b.preco ? `custa ${brl(b.preco-o2.preco)} a menos, o que pode valer a pena se o orçamento apertar` : 'também é uma boa opção, com diferenças pequenas'}${ps[2] ? `. O ${best[2].nome} fica em terceiro (${sc(best[2])}%)` : ''}.`;
+    box.innerHTML = `<div class="overlay" role="dialog" aria-label="Comparação"><div class="ahead"><button class="round" data-a="close" aria-label="Voltar" style="box-shadow:none;background:var(--paper)">${ic('back')}</button><div class="grow"><h2>Comparação</h2><div class="sub">${ps.length} imóveis lado a lado</div></div><span class="demo">Demonstração</span></div><div class="scroll"><div class="pad">
+      <div class="ai-box"><div class="h"><span class="av" style="width:24px;height:24px">${Y()}</span>O que a IA acha</div><p>${esc(para)}</p></div>
+      <div class="cmp"><table><thead><tr><th></th>${ps.map(p=>`<td><div style="width:64px;height:48px;border-radius:8px;overflow:hidden">${art(p)}</div><b>${esc(p.nome)}</b></td>`).join('')}</tr></thead><tbody>${rows.map(([l,f])=>`<tr><th>${l}</th>${ps.map(p=>`<td>${f(p)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    </div></div></div>`;
+  }
+}
+
+/* ===== Mapa ===== */
+let LMAP = null, MAPMODE = null, DYN = null, TILES_OK = false;
+function mapReady(){ return MAPMODE!==null; }
+function initMap(){
+  if(mapReady()) return;
+  if(window.L){
+    MAPMODE = 'osm';
+    LMAP = L.map('map', {zoomControl:false, attributionControl:true, zoomSnap:.25}).fitBounds([[-3.7165,-38.5130],[-3.7610,-38.4720]]);
+    LMAP.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    const tl = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(LMAP);
+    tl.on('tileload', ()=>{ TILES_OK = true; });
+    tl.on('tileerror', ()=>{ if(!TILES_OK) illustrative(tl); });
+    setTimeout(()=>{ if(!TILES_OK) illustrative(tl); }, 3500);
+    DYN = L.layerGroup().addTo(LMAP);
+  } else {
+    MAPMODE = 'svg';
+    window.addEventListener('resize', ()=>{ if(S.tab==='map') updateMap(); });
+  }
+}
+function illustrative(tl){
+  if(MAPMODE!=='osm') return;
+  MAPMODE = 'ilus';
+  LMAP.removeLayer(tl);
+  LMAP.attributionControl.addAttribution('Base ilustrativa');
+  LMAP.attributionControl.removeAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>');
+  const base = L.layerGroup();
+  L.polygon([...COAST, [-3.6900,-38.4400],[-3.6900,-38.5400],[-3.7180,-38.5400]], {stroke:false, fillColor:'#d9e0e2', fillOpacity:1, interactive:false}).addTo(base);
+  L.polygon(PARK, {stroke:false, fillColor:'#d7e2d6', fillOpacity:1, interactive:false}).addTo(base);
+  ROADS.forEach(r=>{ L.polyline(r.pts, {color:'#ffffff', weight:6, opacity:1, interactive:false}).addTo(base); });
+  ROADS.forEach(r=>{ const m = r.pts[Math.floor(r.pts.length/2)-(r.pts.length>2?0:1)]; L.marker(r.pts.length>2?r.pts[1]:[(r.pts[0][0]+r.pts[1][0])/2,(r.pts[0][1]+r.pts[1][1])/2], {icon:L.divIcon({className:'', html:`<div class="rlab">${r.nome}</div>`, iconSize:[0,0]}), interactive:false}).addTo(base); });
+  L.marker([-3.7650,-38.4815], {icon:L.divIcon({className:'', html:'<div class="rlab" style="color:#5b7a5a">Parque do Cocó</div>', iconSize:[0,0]}), interactive:false}).addTo(base);
+  L.marker([-3.7120,-38.4980], {icon:L.divIcon({className:'', html:'<div class="rlab" style="color:#6d8187;font-size:11px;letter-spacing:.2em">OCEANO ATLÂNTICO</div>', iconSize:[0,0]}), interactive:false}).addTo(base);
+  base.addTo(LMAP); const bl=[]; base.eachLayer(l=>{ if(l.bringToBack) bl.push(l); }); bl.reverse().forEach(l=>l.bringToBack());
+  renderMapUI();
+}
+function routePts(p){ return [[p.lat,p.lng],[p.lat,WORK.lng],[WORK.lat,WORK.lng]]; }
+function bairroScore(nome){ const xs = PROPS.filter(p=>p.bairro===nome).map(sc); return Math.max(...xs); }
+const BCOL = {g:'#1f7a4d', y:'#c98a12', r:'#b3261e'};
+function pinHtml(p){ const s = sc(p); return `<div class="pin ${S.map.sel===p.id?'sel':''}" data-a="mapsel" data-id="${p.id}" role="button" aria-label="${esc(p.nome)}, ${s}%">${Y()}<span class="num">${s}%</span><i class="bd ${band(s)}"></i></div>`; }
+function updateMap(){
+  if(!mapReady()) return;
+  const rp = S.map.sel ? byId(S.map.sel) : top3()[0].p;
+  const showRoute = S.profile.trabalho!=='Remoto';
+  if(MAPMODE==='svg'){ svgMap(rp, showRoute); return; }
+  DYN.clearLayers();
+  BAIRROS.forEach(b=>{ const s=bairroScore(b.nome), c=BCOL[band(s)];
+    L.polygon(b.poly, {color:c, weight:1.5, opacity:.9, fillColor:c, fillOpacity:.2, interactive:false}).addTo(DYN);
+    L.marker(b.c, {icon:L.divIcon({className:'', html:`<div class="blab">${b.nome} · ${s}%</div>`, iconSize:[0,0]}), interactive:false}).addTo(DYN);
+  });
+  if(showRoute){
+    L.polyline(routePts(rp), {color:'#0b0b0c', weight:4, dashArray:'2 8', lineCap:'round', interactive:false}).addTo(DYN);
+    L.marker([WORK.lat,WORK.lng], {icon:L.divIcon({className:'', html:`<div class="work-pin">${ic('brief','s')}Trabalho</div>`, iconSize:[0,0]}), interactive:false, zIndexOffset:500}).addTo(DYN);
+  }
+  S.map.layers.forEach(id=>{ const ly = LAYERS.find(x=>x.id===id); ly.pts.forEach(pt=>L.marker(pt, {icon:L.divIcon({className:'', html:`<div class="poi" title="${ly.nome} (ilustrativo)"></div>`, iconSize:[0,0]}), interactive:false}).addTo(DYN)); });
+  PROPS.forEach(p=>{ L.marker([p.lat,p.lng], {icon:L.divIcon({className:'', html:pinHtml(p), iconSize:[0,0]}), zIndexOffset: S.map.sel===p.id?1000:0, keyboard:false}).addTo(DYN); });
+}
+function svgMap(rp, showRoute){
+  const box = $('#map'); const w = box.clientWidth || 370, h = box.clientHeight || 600;
+  const c = {lat:-3.7385, lng:-38.4925}; const k = w/0.046;
+  const X = lng => (lng - c.lng)*k + w/2, Yy = lat => (c.lat - lat)*k + h/2;
+  const pts = arr => arr.map(([a,b])=>`${X(b).toFixed(1)},${Yy(a).toFixed(1)}`).join(' ');
+  let s = `<svg viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="#eef0ee"/>`;
+  s += `<polygon points="${pts([...COAST,[-3.68,-38.44],[-3.68,-38.54],[-3.718,-38.54]])}" fill="#d9e0e2"/><polygon points="${pts(PARK)}" fill="#d7e2d6"/>`;
+  ROADS.forEach(r=>{ s += `<polyline points="${pts(r.pts)}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`; });
+  BAIRROS.forEach(b=>{ const col = BCOL[band(bairroScore(b.nome))]; s += `<polygon points="${pts(b.poly)}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="1.5"/>`; });
+  if(showRoute) s += `<polyline points="${pts(routePts(rp))}" fill="none" stroke="#0b0b0c" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round"/>`;
+  s += `</svg><div class="pins">`;
+  const at = (lat,lng,html) => `<div style="position:absolute;left:${X(lng)}px;top:${Yy(lat)}px">${html}</div>`;
+  ROADS.forEach(r=>{ const m = r.pts.length>2?r.pts[1]:[(r.pts[0][0]+r.pts[1][0])/2,(r.pts[0][1]+r.pts[1][1])/2]; s += at(m[0],m[1],`<div class="rlab">${r.nome}</div>`); });
+  BAIRROS.forEach(b=>{ s += at(b.c[0],b.c[1],`<div class="blab">${b.nome} · ${bairroScore(b.nome)}%</div>`); });
+  S.map.layers.forEach(id=>{ LAYERS.find(x=>x.id===id).pts.forEach(pt=>{ s += at(pt[0],pt[1],'<div class="poi"></div>'); }); });
+  if(showRoute) s += at(WORK.lat,WORK.lng,`<div class="work-pin">${ic('brief','s')}Trabalho</div>`);
+  PROPS.slice().sort((a,b)=>(a.id===S.map.sel)-(b.id===S.map.sel)).forEach(p=>{ s += at(p.lat,p.lng,pinHtml(p)); });
+  s += `</div>`;
+  box.innerHTML = `<div class="svgmap">${s}</div>`;
+}
+function renderMapUI(){
+  const sel = S.map.sel ? byId(S.map.sel) : null;
+  const rp = sel || top3()[0].p, c = crit(rp, S.profile);
+  let h = `<div class="map-top"><div class="layers-row" role="group" aria-label="Camadas">${LAYERS.map(l=>`<button class="lchip" data-a="layer" data-id="${l.id}" aria-pressed="${S.map.layers.includes(l.id)}">${l.nome}</button>`).join('')}</div>
+  <div class="map-flags">${MAPMODE!=='osm'?'<span class="flag strong">Mapa ilustrativo — protótipo</span>':''}<span class="flag">Limites aproximados — protótipo</span><span class="flag">Dados de demonstração</span>${S.map.layers.length?'<span class="flag">Pontos das camadas são ilustrativos</span>':''}</div></div>`;
+  if(sel){
+    const rs = reasons(sel, S.profile), s = sc(sel);
+    h += `<div class="pcard"><button class="x" data-a="mapsel" data-id="" aria-label="Fechar">${ic('x','s')}</button><div class="art">${art(sel)}</div><div style="min-width:0;display:grid;gap:2px"><h4>${esc(sel.nome)}</h4><div class="meta">${sel.tipo} · ${sel.q} quartos · ${sel.bairro}</div><div style="display:flex;gap:8px;align-items:center"><b class="num">${brl(sel.preco)}</b><span class="pct ${band(s)}">${s}%</span></div><div class="why">${rs.pos[0]?ic('check','s okc')+rs.pos[0]:ic('alert','s badc')+rs.neg[0]}</div><button class="btn sm" style="margin-top:6px;justify-self:start" data-a="detail" data-id="${sel.id}">Ver detalhes ${ic('arrow','s')}</button></div></div>`;
+  } else {
+    if(S.profile.trabalho!=='Remoto') h += `<div class="route-card"><b>Trajeto até o trabalho</b>${esc(rp.nome)}<br>Fora do pico ${rp.fora} min · No pico ${c.pico} min<br><small>Tempos fictícios · linha ilustrativa</small></div>`;
+    h += `<button class="legend-btn" data-a="legend">${ic('info','s')} Como ler o mapa</button>`;
+    if(S.map.legend) h += `<div class="legend"><b>Como ler o mapa</b><div class="lg"><span class="sw" style="background:#1f7a4d"></span>Bairro com 85% ou mais de compatibilidade</div><div class="lg"><span class="sw" style="background:#c98a12"></span>Bairro entre 75% e 84%</div><div class="lg"><span class="sw" style="background:#b3261e"></span>Bairro abaixo de 75%</div><div class="lg"><span class="pin" style="position:static;transform:none;padding:2px 5px">${Y()}</span>Imóvel e a nota dele para você</div><div class="lg"><svg width="28" height="8"><path d="M2 4h24" stroke="#0b0b0c" stroke-width="3" stroke-dasharray="2 5" stroke-linecap="round"/></svg>Trajeto até o trabalho</div></div>`;
+  }
+  $('#map-ui').innerHTML = h;
+  $('#mapwrap').classList.toggle('has-card', !!sel);
+}
+
+/* ===== Render: imobiliária ===== */
+function allLeads(){
+  const arr = S.leads.slice();
+  if(S.lead) arr.unshift({id:'marina', nome:'Marina', stage:S.lead.stage, busca:leadBusca(), faixa:PFIELDS.find(f=>f.k==='orcamento').f(S.profile)||'—', comp:sc(byId(S.lead.propId)), broker:'lia', quando:'agora', marina:true});
+  return arr;
+}
+function leadBusca(){ const P = eff(S.profile); return `${P.tipo==='Casa'?'Casa':'3 quartos'} perto ${P.trabalho==='Remoto'?'da praia':DA(P.trabalho)}${P.pets==='grande'?', cão grande':''}`; }
+function renderAgency(){
+  const leads = allLeads();
+  const cnt = st => leads.filter(l=>l.stage===st).length;
+  const waiting = S.lead && (S.lead.msg.state==='pending' || (S.lead.replied && !S.lead.visit) || (S.lead.proposal && S.lead.proposal.state==='aguardando')) ? 1 : 0;
+  const nav = [['painel','grid','Painel'],['funil','kanban','Funil'],['lead','lead','Lead aberto'],['agenda','cal','Agenda de visitas'],['imoveis','home','Imóveis anunciados'],['intel','bulb','Inteligência de procura'],['metricas','chart','Métricas'],['ia','shield','IA da imobiliária']];
+  $('#sb').innerHTML = `<div class="org"><div class="av">MA</div><div><b>${AGENCY}</b><small>Imobiliária fictícia · Fortaleza</small></div></div>` +
+    nav.map(([id,icn,l])=>`<button class="nav-b" data-a="agtab" data-id="${id}" ${S.agTab===id?'aria-current="page"':''}>${ic(icn)}${l}${id==='funil'&&cnt('novo')?`<span class="cnt ${S.lead&&S.lead.arrive?'bump':''}">${cnt('novo')}</span>`:''}${id==='lead'&&waiting?`<span class="cnt">${waiting}</span>`:''}</button>`).join('') +
+    `<div class="foot">Corretores: ${BROKERS.map(b=>b.nome).join(', ')} (fictícios).<br>Todos os dados são de demonstração.</div>`;
+  const m = $('#main');
+  if(S.agTab==='painel') m.innerHTML = agPainel(leads, cnt);
+  if(S.agTab==='funil') m.innerHTML = agFunil(leads);
+  if(S.agTab==='lead') m.innerHTML = agLead();
+  if(S.agTab==='agenda') m.innerHTML = agAgenda();
+  if(S.agTab==='imoveis') m.innerHTML = agImoveis();
+  if(S.agTab==='intel') m.innerHTML = agIntel();
+  if(S.agTab==='ia') m.innerHTML = agIA();
+  if(S.agTab==='metricas') m.innerHTML = agMetricas();
+}
+const H = (t, p, extra='') => `<div class="main-h"><div><h1>${t}</h1><p>${p}</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${extra}<span class="demo">Dados de demonstração</span></div></div>`;
+function agPainel(leads, cnt){
+  const vis = cnt('visita');
+  const hot = S.lead && S.lead.arrive;
+  let h = H('Painel', 'Terça, 20 de outubro · visão geral do atendimento');
+  h += `<div class="kpis">
+    <div class="kpi ${hot?'hot':''}"><span>Leads novos</span><b class="${hot?'bump':''}">${cnt('novo')}</b><small>${S.lead?'Marina acabou de chegar':'Aguardando conversas'}</small></div>
+    <div class="kpi"><span>Em atendimento</span><b>${cnt('atendimento')}</b><small>IA + corretores</small></div>
+    <div class="kpi"><span>Qualificados</span><b>${cnt('qualificado')}</b><small>Prontos para visita</small></div>
+    <div class="kpi"><span>Primeira resposta</span><b>12 s</b><small>Tempo da IA nesta demonstração</small></div>
+    <div class="kpi"><span>Visitas agendadas</span><b>${vis}</b><small>Nesta semana</small></div></div>`;
+  const F = [['Conversas iniciadas',120],['Qualificadas pela IA',64],['Visitas agendadas',22],['Propostas',7],['Em negociação',3]];
+  h += `<div class="grid2"><div class="card"><h3>Conversão por etapa <span class="demo">Últimos 30 dias · demonstração</span></h3><div class="funnel">${F.map(([l,v],i)=>`<div class="fr"><span>${l}</span><div class="b"><i style="width:${v/120*100}%"></i></div><span class="v">${v}</span>${i?`<small>${Math.round(v/F[i-1][1]*100)}% da etapa anterior</small>`:''}</div>`).join('')}</div></div>
+  <div class="card"><h3>Chegaram por último</h3><ul class="feed">${leads.slice().sort((a,b)=>(b.marina?1:0)-(a.marina?1:0)).slice(0,5).map(l=>`<li class="${l.marina&&hot?'hot':''}"><div class="av ${l.marina?'':'lt'}">${l.nome.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><b>${l.nome}</b><small>${esc(l.busca)} · ${l.quando}</small></div><button class="btn sm ${l.marina?'':'line'}" data-a="openlead" data-id="${l.id}">Abrir</button></li>`).join('')}</ul></div></div>`;
+  return h;
+}
+function agFunil(leads){
+  let h = H('Funil', 'Arraste os cartões entre as etapas ou use as setas');
+  h += `<div class="kanban">${STAGES.map((st,si)=>{ const ls = leads.filter(l=>l.stage===st.id);
+    return `<div class="col" data-drop="${st.id}"><div class="col-h">${st.nome}<span>${ls.length}</span></div>${ls.map(l=>`<div class="kc ${l.marina?'marina':''} ${l.marina&&S.lead.arrive&&st.id==='novo'?'arrive':''}" draggable="true" data-drag="${l.id}"><h4><button style="border:0;background:none;padding:0;font-weight:700;text-align:left" data-a="openlead" data-id="${l.id}">${l.nome}</button><span class="pct ${band(l.comp)}">${l.comp}%</span></h4><div class="meta">${esc(l.busca)}</div>${l.marina?`<div class="aiflags"><span class="pill dark">Qualificado pela IA</span>${S.lead.msg.state==='pending'?'<span class="pill wait">Aguardando você</span>':''}</div>`:''}<div class="row"><span class="meta">${BROKERS.find(b=>b.id===l.broker).nome.split(' ')[0]} · ${l.quando}</span><span style="display:flex;gap:4px">${si>0?`<button class="mvb" data-a="mv" data-id="${l.id}:${STAGES[si-1].id}" aria-label="Voltar etapa">${ic('back','s')}</button>`:''}${si<STAGES.length-1?`<button class="mvb" data-a="mv" data-id="${l.id}:${STAGES[si+1].id}" aria-label="Avançar etapa">${ic('arrow','s')}</button>`:''}</span></div></div>`).join('')}</div>`; }).join('')}</div>`;
+  return h;
+}
+function agLead(){
+  const id = S.openLead;
+  if(id==='marina' && !S.lead){
+    return H('Lead aberto','Nenhum lead da Marina ainda') + `<div class="empty" style="background:var(--white)">${ic('lead')}<b>O lead da Marina ainda não chegou</b>No app do cliente, abra um imóvel e toque em "Falar com o corretor". Ela autoriza o compartilhamento e o lead chega aqui já qualificado.<button class="btn sm" data-a="view" data-id="client">Ir para o app do cliente</button></div>`;
+  }
+  if(id!=='marina') return agLeadOther(S.leads.find(l=>l.id===id));
+  const L = S.lead, P = eff(S.profile), p = byId(L.propId), c = crit(p,S.profile);
+  const stName = STAGES.find(s=>s.id===L.stage).nome;
+  const sum = [
+    `Procura ${P.tipo==='Casa'?'casa':P.tipo==='Apartamento'?'apartamento':'imóvel'} para ${P.objetivo==='investir'?'investir':P.objetivo==='ambos'?'morar e investir':'morar'}${P.trabalho!=='Remoto'?`, trabalha ${NA(P.trabalho)} e aceita até ${P.trajeto} min de trajeto no pico`:', trabalha de casa'}.`,
+    P.pets==='grande' ? 'Tem um cão de porte grande: o condomínio precisa aceitar pets grandes.' : P.familia==='Com filhos' ? 'Tem filhos: prioriza 3 quartos e estrutura para crianças.' : 'Sem filhos e sem pets.',
+    `Prefere ${({tranquilidade:'tranquilidade',meio:'um meio-termo',movimento:'movimento'})[P.estilo]} com ${PFIELDS[0].f(S.profile)?.toLowerCase()||'restaurantes a pé'}; orçamento de ${brl(P.orcMin)} a ${brl(P.orcMax)}. Interesse principal: ${p.nome}.`
+  ];
+  let next;
+  if(L.msg.state!=='approved') next = {t:'Revisar e aprovar a primeira mensagem para a Marina', btn:null};
+  else if(!L.replied) next = {t:'Aguardar a resposta da Marina', btn:null};
+  else if(!L.visit) next = {t:`Confirmar visita: sáb, 24/10, 10h · ${p.nome}`, btn:{l:'Confirmar visita', a:'confirmvisit'}};
+  else if(!L.proposal) next = {t:'Enviar ficha do imóvel e lembrete na sexta-feira', check:true};
+  else if(L.proposal.state==='aguardando') next = {t:`Revisar a proposta de ${brl(L.proposal.valor)} antes de encaminhar`, btn:null};
+  else next = {t:'Conversar com a Marina sobre a contraproposta', check:true};
+  let h = `<div class="main-h"><div><h1>Marina <span style="font-weight:500;color:var(--muted);font-size:16px">(persona fictícia)</span></h1><p>Chegou às ${L.at} pelo app Konexya · ${L.origem} · Atribuído à Lia Montenegro pela regra de distribuição (especialista em Aldeota e Meireles)</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill dark">${stName}</span><span class="pill ok">${ic('check','s')}Atendido pela IA em 12 s</span>${L.msg.state!=='approved'||(L.replied&&!L.visit)||(L.proposal&&L.proposal.state==='aguardando')?'<span class="pill wait">'+ic('clock','s')+'Aguardando você</span>':''}<span class="demo">Dados de demonstração</span></div></div>`;
+  h += `<div class="lead">
+  <div class="col2">${qualBox(L)}<div class="card"><h3>Perfil e necessidades</h3><div class="kv">${PFIELDS.map(f=>`<div class="r"><span>${f.l}</span><b>${esc(f.f(S.profile)||'—')}</b></div>`).join('')}${S.profile.extras.length?`<div class="r"><span>Extras</span><b>${S.profile.extras.join(', ')}</b></div>`:''}</div></div>
+    <div class="card"><h3>Consentimento</h3><div class="next">${ic('shield')}<span>Marina autorizou compartilhar perfil, imóveis salvos e resumo da conversa às ${L.at} (LGPD).</span></div></div></div>
+  <div class="col2">
+    <div class="card"><h3>Resumo da conversa <span class="pill lt">Feito pela IA</span></h3><ul class="summary">${sum.map(s=>`<li>${ic('check','s')}<span>${esc(s)}</span></li>`).join('')}</ul></div>
+    ${suggBox(L)}
+    <div class="card"><h3>Histórico completo</h3><div class="hleg"><span><i style="background:var(--paper)"></i>IA</span><span><i style="border:1px solid var(--line2)"></i>Cliente</span><span><i style="background:var(--black)"></i>Corretor</span></div><div class="hist" id="hist" style="margin-top:10px">${L.hist.map(x=> x.w==='ev' ? `<div class="hm ev">${esc(x.t)}</div>` : `<div class="hm ${x.w}"><div class="av ${x.w==='cl'?'lt':''}">${x.w==='ai'?Y():x.w==='cl'?'M':'LM'}</div><div class="bub"><small>${x.w==='ai'?(x.auto?'IA · enviada automaticamente':'IA Konexya'):x.w==='cl'?'Marina':'Lia · corretora'}</small>${esc(x.t)}</div></div>`).join('')}</div></div>
+  </div>
+  <div class="rcol col2">
+    <div class="card"><h3>Quem está atendendo</h3><div class="next">${L.human?ic('user'):Y('s20')}<span>${L.human?'Você assumiu a conversa. A IA só sugere respostas.':'A IA responde dúvidas simples e chama você para decisões.'}</span></div><button class="btn sm ${L.human?'line':''} full" style="margin-top:12px" data-a="takeover">${L.human?'Devolver para a IA':'Assumir conversa'}</button></div>
+    <div class="card"><h3>Etapa do funil</h3><select class="stage-sel" id="stage-sel" data-c="stage">${STAGES.map(s=>`<option value="${s.id}" ${s.id===L.stage?'selected':''}>${s.nome}</option>`).join('')}</select></div>
+    <div class="card"><h3>Próxima ação recomendada</h3>${next.check?`<label class="next ${L.actDone?'done':''}"><input type="checkbox" data-a="actdone" ${L.actDone?'checked':''}><span>${esc(next.t)}</span></label>`:`<div class="next">${ic('arrow')}<span>${esc(next.t)}</span></div>`}${next.btn?`<button class="btn full" style="margin-top:12px" data-a="${next.btn.a}">${ic('cal','s')} ${next.btn.l}</button><p class="fine" style="margin-top:8px">Visitas só são confirmadas com a sua aprovação.</p>`:''}</div>
+    ${L.proposal?`<div class="card"><h3>Proposta</h3><div style="display:grid;gap:8px;font-size:13.5px"><b style="font-size:18px" class="num">${brlFull(L.proposal.valor)}</b><span>${L.proposal.state==='aguardando'?'<span class="pill wait">Aguardando você</span>':L.proposal.state==='encaminhada'?'<span class="pill lt">Encaminhada ao proprietário</span>':`<span class="pill lt">Contraproposta: ${brlFull(L.proposal.contra)}</span>`}</span>${L.proposal.state==='aguardando'?`<button class="btn" data-a="forward">Encaminhar ao proprietário</button><p class="fine">A Konexya não fecha negócios sozinha: propostas sempre passam pelo corretor.</p>`:''}</div></div>`:''}
+    <div class="card"><h3>Anotações internas</h3><textarea class="note" data-c="note" placeholder="Só a equipe vê. Ex.: preferiu visita pela manhã." aria-label="Anotações internas">${esc(L.note||'')}</textarea></div>
+    <div class="card"><h3>Imóveis compatíveis</h3>${top3().map(r=>`<div class="mini-prop"><div class="art">${art(r.p)}</div><div><b>${esc(r.p.nome)}</b><small>${r.p.bairro} · ${brl(r.p.preco)}${r.p.id===L.propId?' · interesse':''}</small></div><span class="pct ${band(r.s)}">${r.s}%</span></div>`).join('')}</div>
+  </div></div>`;
+  return h;
+}
+function suggBox(L){
+  const st = L.msg.state;
+  if(st==='approved') return `<div class="sugg done"><div class="h"><b>${ic('check','s')} Mensagem aprovada e enviada</b><span class="pill ok">${L.msg.auto?'Enviada pela IA':'Enviada por você'}</span></div><div class="txt">${esc(L.msg.text)}</div></div>`;
+  if(st==='discarded') return `<div class="sugg done"><div class="h"><b>Sugestão descartada</b></div><div class="acts"><button class="btn sm" data-a="regen">Gerar outra sugestão</button></div></div>`;
+  return `<div class="sugg"><div class="h"><b><span class="av" style="width:26px;height:26px">${Y()}</span>Mensagem sugerida pela IA</b><span class="pill wait">${ic('clock','s')}Aguardando você</span></div>${st==='editing'?`<textarea id="msg-edit" data-c="draft" aria-label="Editar mensagem">${esc(L.msg.text)}</textarea>`:`<div class="txt">${esc(L.msg.text)}</div>`}<div class="acts">${st==='editing'?`<button class="btn sm" data-a="saveedit">Salvar e aprovar</button><button class="btn sm line" data-a="canceledit">Cancelar</button>`:`<button class="btn sm" data-a="approve">${ic('check','s')} Aprovar e enviar</button><button class="btn sm line" data-a="edit">${ic('edit','s')} Editar</button><button class="btn sm line" data-a="discard">${ic('trash','s')} Descartar</button>`}</div><p class="fine">Nada é enviado à cliente sem a sua aprovação.</p></div>`;
+}
+function agLeadOther(l){
+  const b = BROKERS.find(x=>x.id===l.broker);
+  return `<div class="main-h"><div><h1>${l.nome} <span style="font-weight:500;color:var(--muted);font-size:16px">(fictício)</span></h1><p>Corretor: ${b.nome} · chegou ${l.quando}</p></div><div style="display:flex;gap:8px;align-items:center"><span class="pill dark">${STAGES.find(s=>s.id===l.stage).nome}</span><span class="demo">Dados de demonstração</span></div></div>
+  <div class="grid2"><div class="card"><h3>Resumo</h3><ul class="summary"><li>${ic('check','s')}<span>Busca: ${esc(l.busca)}.</span></li><li>${ic('check','s')}<span>Faixa: ${l.faixa}.</span></li><li>${ic('check','s')}<span>Compatibilidade com o melhor imóvel da carteira: ${l.comp}%.</span></li></ul><p class="fine" style="margin-top:12px">Lead de demonstração com dados resumidos. O lead completo da apresentação é o da Marina.</p></div>
+  <div class="card"><h3>Etapa do funil</h3><select class="stage-sel" data-c="stage-other" data-id="${l.id}">${STAGES.map(s=>`<option value="${s.id}" ${s.id===l.stage?'selected':''}>${s.nome}</option>`).join('')}</select>${S.lead?`<button class="btn sm line" style="margin-top:12px" data-a="openlead" data-id="marina">Abrir o lead da Marina</button>`:''}</div></div>`;
+}
+function agAgenda(){
+  const days = [['Seg','19/10'],['Ter','20/10'],['Qua','21/10'],['Qui','22/10'],['Sex','23/10'],['Sáb','24/10'],['Dom','25/10']];
+  const ev = {
+    1:[{f:1,h:'17h',t:'Ligar para Henrique Assis',d:'Retorno sobre a contraproposta'}],
+    2:[{f:1,h:'9h',t:'Enviar comparativo para Júlia Sampaio',d:'3 imóveis no Cocó'}],
+    3:[{h:'15h',t:'Visita · Otto Ramalho',d:'Casa Vila Aldeota · Caio'}],
+    4:[{f:1,h:'16h',t:'Lembrete para Lívia Prado',d:'Retomar conversa'}],
+    5:[]
+  };
+  if(S.lead && S.lead.visit){ ev[4] = [...ev[4], {f:1,h:'18h',t:'Lembrete de visita para Marina',d:'Enviado pela IA, aprovado por você'}]; ev[5] = [{h:'10h',t:'Visita · Marina',d:`${byId(S.lead.visit.propId).nome} · Lia`, nw:1}]; }
+  let h = H('Agenda de visitas', 'Semana de 19 a 25 de outubro');
+  h += `<div class="week">${days.map((d,i)=>`<div class="day ${i===1?'today':''}"><h4>${d[0]} <span>${d[1]}</span></h4>${(ev[i]||[]).map(e=>`<div class="ev ${e.f?'f':'v'} ${e.nw?'new':''}"><b>${e.h} · ${e.t}</b>${e.d}</div>`).join('') || '<span class="fine">Livre</span>'}</div>`).join('')}</div>
+  <p class="fine" style="margin-top:12px">Preto: visitas confirmadas pelo corretor. Tracejado: lembretes de acompanhamento.</p>`;
+  return h;
+}
+function agImoveis(){
+  const base = {p1:[640,48,9],p2:[580,52,11],p3:[410,31,6],p4:[720,44,7],p5:[260,15,3],p6:[390,22,4],p7:[510,19,2],p8:[300,27,5],p9:[350,24,6],p10:[470,36,5]};
+  let h = H('Imóveis anunciados', 'Desempenho dos últimos 30 dias');
+  h += `<div class="card tbl-wrap"><table class="tbl"><thead><tr><th>Imóvel</th><th>Bairro</th><th class="n">Preço</th><th class="n">Visualizações</th><th class="n">Salvamentos</th><th class="n">Leads gerados</th></tr></thead><tbody>${PROPS.map(p=>{ const [v,s,l]=base[p.id]; const ms = S.saved.includes(p.id)?1:0, ml = S.lead&&S.lead.propId===p.id?1:0; return `<tr><td><div class="pn"><div class="art">${art(p)}</div><b>${esc(p.nome)}</b></div></td><td>${p.bairro}</td><td class="n">${brl(p.preco)}</td><td class="n">${v}</td><td class="n">${s+ms}</td><td class="n">${l+ml}${ml?' <span class="pill dark">+ Marina</span>':''}</td></tr>`; }).join('')}</tbody></table></div>`;
+  return h;
+}
+function agIntel(){
+  const C = [
+    {b:'Aldeota', t:'Muita procura por 2 quartos pet-friendly', bars:[['2 quartos',46],['Aceita pets',38],['Até 15 min do trabalho',52]]},
+    {b:'Meireles', t:'Querem praia a pé, mas o orçamento médio fica abaixo do preço anunciado', bars:[['Praia a pé',61],['Orçamento abaixo do anúncio',44],['Para investir',29]]},
+    {b:'Cocó', t:'Famílias buscando área verde e escola perto', bars:[['Com filhos',48],['Área verde',57],['3 quartos',41]]},
+    {b:'Varjota', t:'"Restaurantes a pé" é o motivo mais citado', bars:[['Restaurantes a pé',63],['Movimento à noite',31],['2 quartos',45]]},
+    {b:'Dionísio Torres', t:'Procura por tranquilidade com preço menor por m²', bars:[['Tranquilidade',58],['Até R$ 700 mil',49],['3 quartos',37]]},
+    {b:'Mucuripe', t:'Interesse maior de investidores do que de moradores', bars:[['Para investir',54],['Vista mar',47],['Para morar',28]]}
+  ];
+  let h = H('Inteligência de procura', 'O que os clientes pedem nas conversas com a IA, por região');
+  h += `<div class="ins">${C.map(c=>`<div class="card insc"><span class="sec-t">${c.b}</span><span class="big">${c.t}</span>${c.bars.map(([l,v])=>`<div class="hb"><span>${l}</span><div class="b"><i style="width:${v}%"></i></div><span class="v">${v}%</span></div>`).join('')}<span class="fine">% das conversas sobre o bairro · demonstração</span></div>`).join('')}</div>`;
+  return h;
+}
+
+
+/* ===== v2: mercado, financiamento, qualificação, IA, login ===== */
+function marketBox(p){
+  const m = M2[p.bairro], pm = Math.round(p.preco/p.area), d = Math.round((pm/m.v-1)*100);
+  const est = /Estimativa/.test(m.f);
+  return `<div class="mk"><div class="sec-t">Preço comparado ao bairro</div>
+    <div class="mk-row"><div><b class="num">${brlFull(pm)}</b><span>por m² neste imóvel</span></div><div><b class="num">${brlFull(m.v)}</b><span>média ${DA(p.bairro)}</span></div></div>
+    <div class="mk-bar"><i style="left:${Math.max(4,Math.min(96,50+d*2))}%"></i><em></em></div>
+    <p class="fine"><b style="color:var(--ink)">${d===0?'Na média do bairro':d<0?Math.abs(d)+'% abaixo da média do bairro':d+'% acima da média do bairro'}</b>${p.feats.some(f=>/mar/i.test(f))&&d>0?' (vista para o mar costuma custar mais)':''}. Média: ${m.f}${est?'':', preço pedido em anúncios'}. ${est?'Sem fonte pública por bairro: valor ilustrativo.':''}</p></div>`;
+}
+const DA = b => (['Aldeota','Varjota'].includes(b)?'da ':b==='Meireles'?'de ':'do ')+b;
+const NA = b => (['Aldeota','Varjota'].includes(b)?'na ':b==='Meireles'?'em ':'no ')+b;
+const TAXA = 0.1149; // a.a., ilustrativa
+function finCalc(p){
+  const e = S.fin.e/100, n = S.fin.n*12, fin = p.preco*(1-e), im = Math.pow(1+TAXA,1/12)-1;
+  const amort = fin/n, p1 = amort + fin*im, pn = amort + amort*im;
+  return {ent:p.preco*e, fin, p1, pn, renda:p1/0.3};
+}
+function finOut(p){ const f = finCalc(p);
+  return `<div class="fin-grid"><div><span>Entrada</span><b class="num">${brl(f.ent)}</b></div><div><span>Financiado</span><b class="num">${brl(f.fin)}</b></div><div><span>1ª parcela (SAC)</span><b class="num">${brlFull(Math.round(f.p1))}</b></div><div><span>Última parcela</span><b class="num">${brlFull(Math.round(f.pn))}</b></div></div><p class="fine">Renda familiar sugerida para começar: cerca de <b style="color:var(--ink)">${brlFull(Math.round(f.renda/100)*100)}</b> por mês (parcela de até 30% da renda).</p>`; }
+function finBox(p){
+  return `<div class="fin"><div class="sec-t">Simular financiamento</div>
+    <label class="rng" for="fin-e"><span>Entrada</span><b id="fin-e-v" class="num">${S.fin.e}%</b></label>
+    <input type="range" id="fin-e" min="20" max="60" step="5" value="${S.fin.e}" data-c="fin-e" data-id="${p.id}" aria-label="Percentual de entrada">
+    <div class="opts" role="group" aria-label="Prazo">${[20,30,35].map(n=>`<button class="opt" data-a="finn" data-id="${n}" aria-pressed="${S.fin.n===n}">${n} anos</button>`).join('')}</div>
+    <div id="fin-out">${finOut(p)}</div>
+    <p class="fine">Simulação ilustrativa com taxa de ${(TAXA*100).toFixed(2).replace('.',',')}% ao ano, sem seguros nem tarifas. Não é oferta de crédito: os valores reais dependem do banco.</p></div>`;
+}
+function qualBox(L){
+  const P = eff(S.profile);
+  const items = [
+    ['ok','Orçamento informado', PFIELDS.find(f=>f.k==='orcamento').f(S.profile)||'—'],
+    ['ok','Necessidade clara', `${P.trabalho==='Remoto'?'Trabalha de casa':'Trabalho '+NA(P.trabalho)}${P.pets==='grande'?', cão grande':''}`],
+    [P.prazo==='pesq'?'mid':'ok','Prazo', PFIELDS.find(f=>f.k==='prazo').f(S.profile)||'—'],
+    ['ok','Consentimento LGPD', 'Autorizado no app'],
+    ['mid','Forma de pagamento', 'A confirmar na conversa']
+  ];
+  const sc_ = items.filter(i=>i[0]==='ok').length;
+  return `<div class="card"><h3>Por que está qualificado <span class="pill dark num">${sc_}/5</span></h3><ul class="qual">${items.map(([st,l,v])=>`<li class="${st}"><i>${st==='ok'?ic('check','s'):'…'}</i><div><b>${l}</b><span>${esc(v)}</span></div></li>`).join('')}</ul></div>`;
+}
+function agIA(){
+  const A = S.ai;
+  const perms = [
+    ['Responder dúvidas sobre os imóveis', 'on', 'Preço, condomínio, aceita pets, vagas.'],
+    ['Qualificar o cliente com perguntas sobre a rotina', 'on', 'Trabalho, trajeto, família, orçamento e prazo.'],
+    ['Sugerir horários de visita', 'on', 'Com base na agenda do corretor.'],
+    ['Enviar a primeira mensagem sem aprovação', A.auto?'on':'off', 'Desligado: o corretor aprova antes. Ligado: a IA envia sozinha.', 'auto'],
+    ['Confirmar visitas', 'lock', 'Sempre exige o corretor.'],
+    ['Enviar, aceitar ou recusar propostas', 'lock', 'Sempre exige o corretor. A Konexya não fecha negócios sozinha.']
+  ];
+  let h = H('IA da imobiliária', 'O que a IA pode fazer sozinha e o que sempre passa por você');
+  h += `<div class="grid2"><div class="card"><h3>Permissões</h3><ul class="perm">${perms.map(([t,st,d,k])=>`<li><div><b>${t}</b><span>${d}</span></div>${st==='lock'?`<span class="pill lt">${ic('shield','s')} Sempre o corretor</span>`:`<button class="sw2" role="switch" aria-checked="${st==='on'}" ${k?`data-a="aiauto"`:'disabled'} aria-label="${t}"><i></i></button>`}</li>`).join('')}</ul></div>
+  <div style="display:grid;gap:16px;align-content:start"><div class="card"><h3>Tom de voz</h3><div class="opts">${[['proximo','Próximo e direto'],['formal','Formal'],['leve','Leve, com emoji']].map(([id,l])=>`<button class="opt" data-a="tone" data-id="${id}" aria-pressed="${A.tone===id}">${l}</button>`).join('')}</div><div class="txt-ex">${A.tone==='formal'?'"Olá, Marina. Recebemos o seu perfil e um de nossos corretores entrará em contato em breve."':A.tone==='leve'?'"Oi, Marina! 🏡 Recebi seu perfil, a Lia já vem falar com você!"':'"Oi, Marina! Recebi seu perfil. A Lia vai continuar com você em instantes."'}</div></div>
+  <div class="card"><h3>Distribuição de leads</h3><ul class="perm">${[['Lia Montenegro','Aldeota, Meireles'],['Caio Ribamar','Varjota, Mucuripe'],['Bento Aquino','Cocó, Dionísio Torres']].map(([n,b])=>`<li><div><b>${n}</b><span>${b}</span></div><span class="pill lt">Por bairro</span></li>`).join('')}</ul><p class="fine" style="margin-top:10px">O lead vai para o corretor especialista no bairro do imóvel de interesse. Fora do horário, a IA atende e agenda o retorno.</p></div></div></div>`;
+  return h;
+}
+let LASTAUTH='';
+function renderAuth(){
+  const A = S.auth, box = $('#auth');
+  box.classList.toggle('noanim', A.c===LASTAUTH); LASTAUTH = A.c;
+  if(A.c==='done') box.innerHTML = '';
+  else if(A.c==='splash') box.innerHTML = `<div class="auth splash"><div class="sp-mark">${Y()}</div><div class="sp-wm">${WM('wm wm-w')}</div><p class="sp-sl">Você conversa.<br>A Konexya encontra.</p><div class="sp-acts"><button class="btn inv full" data-a="au" data-id="login">Começar</button><button class="btn ghost-w full" data-a="au" data-id="login">Já tenho conta</button></div><span class="sp-demo">Protótipo · dados de demonstração</span></div>`;
+  else if(A.c==='login') box.innerHTML = `<div class="auth"><button class="round flat" data-a="au" data-id="splash" aria-label="Voltar">${ic('back')}</button><h2>Entre com seu celular</h2><p class="fine">Enviamos um código por SMS. Sem senha para lembrar.</p>
+    <label class="fld"><span>Celular</span><input id="au-phone" type="tel" value="(85) 90000-0000" inputmode="tel" autocomplete="off"></label>
+    <label class="ckl"><input type="checkbox" data-a="terms" ${A.terms?'checked':''}><span>Li e aceito os Termos de Uso e a Política de Privacidade. A Konexya só compartilha meus dados com uma imobiliária quando eu autorizar.</span></label>
+    <button class="btn full" data-a="au" data-id="sms" ${A.terms?'':'disabled'}>Receber código por SMS</button>
+    <div class="or"><span>ou</span></div><button class="btn line full" data-a="au" data-id="email" ${A.terms?'':'disabled'}>Entrar com e-mail</button>
+    <p class="fine" style="text-align:center;margin-top:auto">Demonstração: nenhum SMS ou e-mail é enviado.</p></div>`;
+  else if(A.c==='email') box.innerHTML = `<div class="auth"><button class="round flat" data-a="au" data-id="login" aria-label="Voltar">${ic('back')}</button><h2>Entre com seu e-mail</h2><p class="fine">Enviamos um código de 6 dígitos para o seu e-mail.</p>
+    <label class="fld"><span>E-mail</span><input id="au-email" type="email" inputmode="email" placeholder="voce@email.com" value="${esc(A.email||'')}" autocomplete="off"></label>
+    <p class="fine err" id="au-err" ${A.err?'':'hidden'}>${esc(A.err||'')}</p>
+    <button class="btn full" data-a="au" data-id="emailgo">Enviar código</button>
+    <button class="linkb" style="justify-self:center" data-a="au" data-id="login">Usar celular</button>
+    <p class="fine" style="text-align:center;margin-top:auto">Demonstração: nenhum e-mail é enviado.</p></div>`;
+  else if(A.c==='code') box.innerHTML = `<div class="auth"><button class="round flat" data-a="au" data-id="login" aria-label="Voltar">${ic('back')}</button><h2>Digite o código</h2><p class="fine">Enviado para ${esc(A.dest||'(85) 90000-0000')}</p><div class="code">${[0,1,2,3,4,5].map(i=>`<span class="${A.code[i]?'f':''}">${A.code[i]||''}</span>`).join('')}</div><p class="fine">${A.code.length<6?'Preenchendo automaticamente…':'Código confirmado'}</p></div>`;
+  else if(A.c==='name') box.innerHTML = `<div class="auth"><h2>Como podemos te chamar?</h2><p class="fine">A IA usa seu nome na conversa.</p><label class="fld"><span>Nome</span><input id="au-name" value="${esc(A.name)}" autocomplete="off"></label><button class="btn full" data-a="au" data-id="done">Começar a conversa</button></div>`;
+  const ag = $('#ag-auth');
+  if(S.auth.a) ag.innerHTML = '';
+  else ag.innerHTML = `<div class="ag-login"><div class="ag-brand">${WM('wm wm-w')}<p class="big">A IA atende, qualifica e organiza.<br>Você fecha o negócio.</p><p class="fine-w">Painel para imobiliárias e corretores · protótipo</p></div>
+    <div class="ag-form"><div class="ag-f">${S.auth.pending?`<div class="pending">${ic('bell')}<span><b>1 novo lead esperando</b>Entre para ver.</span></div>`:''}<h2>Entrar no painel</h2><p class="fine">${AGENCY} (imobiliária fictícia)</p>
+    <div class="opts" role="group" aria-label="Perfil de acesso">${[['corretor','Corretora'],['gestor','Gestor(a)']].map(([id,l])=>`<button class="opt" data-a="role" data-id="${id}" aria-pressed="${S.auth.role===id}">${l}</button>`).join('')}</div>
+    <label class="fld"><span>E-mail</span><input value="${S.auth.role==='gestor'?'gestao@marealta.demo':'lia@marealta.demo'}" autocomplete="off"></label>
+    <label class="fld"><span>Senha</span><input type="password" value="demonstracao" autocomplete="off"></label>
+    <button class="btn full" data-a="aglogin">Entrar</button><p class="fine">Acesso de demonstração já preenchido.</p></div></div></div>`;
+}
+function codeFill(){
+  const g = GEN; let i = 0; const digits = '482915';
+  const t = () => { if(g!==GEN || S.auth.c!=='code') return; i++; S.auth.code = digits.slice(0,i); renderAuth(); if(i<6) setTimeout(t, 140); else setTimeout(()=>{ if(g===GEN && S.auth.c==='code'){ S.auth.c='name'; renderAuth(); } }, 450); };
+  setTimeout(t, 500);
+}
+function fastForward(){
+  if(S.chat.phase==='results' || S.chat.typing) return;
+  const pick = {prioridades:0, trabalho:0, trajeto:1, estilo:0, familia:0, objetivo:0, prazo:0, orcamento:1, tipo:2};
+  while(S.chat.i < STEPS.length){
+    const st = STEPS[S.chat.i], o = st.opts[pick[st.k]];
+    pushMsg({who:'me', text:o.t}); Object.assign(S.profile, JSON.parse(JSON.stringify(o.set)));
+    pushMsg({who:'ai', text:o.ack});
+    S.chat.i = nextIndex(S.chat.i);
+    if(S.chat.i < STEPS.length) pushMsg({who:'ai', text:STEPS[S.chat.i].q});
+  }
+  S.chat.phase='results'; S.flags.chat = true;
+  pushMsg({who:'ai', text:'Analisei 10 imóveis de demonstração em 6 bairros. Estes 3 combinam mais com a sua vida:'});
+  pushMsg(recMsg(null));
+  pushMsg({who:'ai', text:'Quer ajustar alguma coisa? Pode pedir do seu jeito.'});
+  S.auth.c='done'; S.view='client'; S.tab='chat'; S.overlay=null; S.menu=false;
+  render();
+}
+
+
+/* ===== Métricas (dados de demonstração) ===== */
+const DAILY = (()=>{ let x = 7; const r = () => (x = (x*9301+49297)%233280)/233280; const out=[];
+  for(let i=0;i<180;i++){ const dow = (i+2)%7; const base = 3.2 + i*0.012 + (dow===0?-1.6:dow===6?-0.6:0.4); out.push(Math.max(0, Math.round(base + (r()-0.5)*3))); } return out; })();
+const HOURS = [1,0,0,0,0,1,2,4,6,7,8,7,6,7,8,8,7,7,9,11,12,10,7,3];
+function metData(per){
+  const d = DAILY.slice(), L = S.lead;
+  if(L) d[179] += 1;
+  const cur = d.slice(180-per), prev = d.slice(180-2*per, 180-per);
+  const sum = a => a.reduce((x,y)=>x+y,0);
+  const leads = sum(cur), pleads = sum(prev);
+  const q = Math.round(leads*0.53) , v = Math.round(q*0.34) + (L&&L.visit?1:0), p = Math.round(v*0.32) + (L&&L.proposal?1:0), n = Math.round(p*0.43) + (L&&L.proposal&&L.proposal.state==='contraproposta'?1:0);
+  const tot = HOURS.reduce((a,b)=>a+b,0), fo = HOURS.reduce((a,b,h)=>a+((h<8||h>=18)?b:0),0);
+  return {cur, leads, pleads, q, v, p, n, fora: Math.round(fo/tot*100), conv: leads? v/leads : 0, pconv: 0.172};
+}
+const pct = x => Math.round(x*100)+'%';
+function delta(a, b, upGood=true){ if(!b) return ''; const d = Math.round((a/b-1)*100); const good = upGood ? d>=0 : d<=0; return `<small class="dl ${good?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d)}% vs. ${S.met.per} dias anteriores</small>`; }
+function lineChart(vals, per){
+  const W = 720, H = 220, pl = 34, pr = 14, pt = 14, pb = 26, max = Math.max(4, Math.ceil(Math.max(...vals)/2)*2);
+  const X = i => pl + (vals.length===1?0:i*(W-pl-pr)/(vals.length-1)), Yv = v => pt + (H-pt-pb)*(1 - v/max);
+  const pts = vals.map((v,i)=>`${X(i).toFixed(1)},${Yv(v).toFixed(1)}`).join(' ');
+  const end = new Date(2026,9,20); const dl = i => { const d = new Date(end); d.setDate(d.getDate()-(vals.length-1-i)); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); };
+  const ticks = [0, max/2, max];
+  const step = Math.ceil(vals.length/6);
+  let g = ticks.map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${Yv(t)}" y2="${Yv(t)}" stroke="#e2e2df" stroke-width="1"/><text x="${pl-8}" y="${Yv(t)+4}" text-anchor="end" class="ax">${t}</text>`).join('');
+  g += vals.map((v,i)=> (i%step===0 || i===vals.length-1) && !(i!==vals.length-1 && vals.length-1-i < step/2) ? `<text x="${X(i)}" y="${H-6}" text-anchor="middle" class="ax">${dl(i)}</text>` : '').join('');
+  const last = vals.length-1;
+  const band = (W-pl-pr)/Math.max(1,vals.length-1);
+  return `<div class="chart" data-line><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Leads por dia nos últimos ${per} dias">${g}
+    <polygon points="${X(0)},${Yv(0)} ${pts} ${X(last)},${Yv(0)}" fill="#0b0b0c" fill-opacity=".08"/>
+    <polyline points="${pts}" fill="none" stroke="#0b0b0c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <line class="xh" x1="0" x2="0" y1="${pt}" y2="${H-pb}" stroke="#8a8a86" stroke-width="1" visibility="hidden"/>
+    <circle class="xd" r="5" fill="#0b0b0c" stroke="#fff" stroke-width="2" visibility="hidden"/>
+    <circle cx="${X(last)}" cy="${Yv(vals[last])}" r="5" fill="#0b0b0c" stroke="#fff" stroke-width="2"/>
+    <text x="${X(last)-8}" y="${Yv(vals[last])-10}" text-anchor="end" class="ax strong">Hoje: ${vals[last]}</text>
+    ${vals.map((v,i)=>`<rect x="${X(i)-band/2}" y="${pt}" width="${band}" height="${H-pt-pb}" fill="transparent" data-tip="${v} lead${v===1?'':'s'} · ${dl(i)}" data-cx="${X(i)}" data-cy="${Yv(v)}"/>`).join('')}
+  </svg></div>`;
+}
+function hbars(rows, unit=''){
+  const max = Math.max(...rows.map(r=>r[1]));
+  return `<div class="hbars">${rows.map(([l,v,sub])=>`<div class="hbr" data-tip="${l}: ${v}${unit}${sub?' · '+sub:''}" tabindex="0"><span>${l}</span><div class="b"><i style="width:${v/max*100}%"></i></div><b class="num">${v}${unit}</b></div>`).join('')}</div>`;
+}
+function hourChart(tot){
+  const sumH = HOURS.reduce((a,b)=>a+b,0);
+  const vals = HOURS.map(h=>Math.round(h/sumH*tot));
+  const W = 720, H = 170, pl = 10, pb = 24, pt = 10, bw = (W-pl*2)/24, max = Math.max(...vals);
+  const out = h => h<8 || h>=18;
+  let g = `<line x1="${pl}" x2="${W-pl}" y1="${H-pb}" y2="${H-pb}" stroke="#d3d3cf"/>`;
+  vals.forEach((v,h)=>{ const bh = (H-pb-pt)*v/max, x = pl + h*bw + 2, w = Math.min(24, bw-2);
+    g += `<path d="M${x} ${H-pb} v${-Math.max(0,bh-4)} q0 -4 4 -4 h${w-8} q4 0 4 4 v${Math.max(0,bh-4)} z" fill="${out(h)?'#0b0b0c':'#c9c9c4'}" data-tip="${String(h).padStart(2,'0')}h: ${v} leads${out(h)?' · fora do horário comercial':''}"/>`;
+    if(h%3===0) g += `<text x="${x+w/2}" y="${H-7}" text-anchor="middle" class="ax">${String(h).padStart(2,'0')}h</text>`; });
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Leads por hora de chegada">${g}</svg></div><div class="lgd"><span><i style="background:#0b0b0c"></i>Fora do horário comercial (antes das 8h e depois das 18h)</span><span><i style="background:#c9c9c4"></i>Horário comercial</span></div>`;
+}
+function agMetricas(){
+  const per = S.met.per, D = metData(per);
+  const opts = [7,30,90].map(n=>`<button class="opt" data-a="per" data-id="${n}" aria-pressed="${per===n}">${n} dias</button>`).join('');
+  let h = H('Métricas', `Desempenho da IA e da equipe · últimos ${per} dias, até 20/10`, `<div class="opts" role="group" aria-label="Período">${opts}</div>`);
+  h += `<div class="hero-m card"><div><span class="sec-t">Leads atendidos fora do horário comercial</span><b class="hero-n num">${D.fora}%</b><p>${Math.round(D.leads*D.fora/100)} dos ${D.leads} leads chegaram com a imobiliária fechada. A IA respondeu todos em segundos e deixou a visita encaminhada para a manhã seguinte.</p></div></div>`;
+  h += `<div class="kpis">
+    <div class="kpi"><span>Leads recebidos</span><b>${D.leads}</b>${delta(D.leads, D.pleads)}</div>
+    <div class="kpi"><span>Qualificados pela IA</span><b>${pct(D.q/D.leads)}</b><small>${D.q} leads com orçamento, necessidade e prazo</small></div>
+    <div class="kpi"><span>Primeira resposta</span><b>12 s</b><small>Mediana da IA · 24 h por dia</small></div>
+    <div class="kpi"><span>Visitas agendadas</span><b>${D.v}</b><small>${pct(D.conv)} dos leads viram visita</small></div>
+    <div class="kpi"><span>Propostas</span><b>${D.p}</b><small>${D.n} em negociação</small></div></div>`;
+  h += `<div class="card" style="margin-bottom:16px"><h3>Leads por dia <button class="linkb" data-a="mettbl">${S.met.tbl?'Ver gráfico':'Ver como tabela'}</button></h3>${S.met.tbl ? `<div class="tbl-wrap" style="max-height:260px;overflow:auto"><table class="tbl" style="min-width:0"><thead><tr><th>Dia</th><th class="n">Leads</th></tr></thead><tbody>${D.cur.map((v,i)=>{ const d=new Date(2026,9,20); d.setDate(d.getDate()-(D.cur.length-1-i)); return `<tr><td>${d.toLocaleDateString('pt-BR')}</td><td class="n">${v}</td></tr>`; }).reverse().join('')}</tbody></table></div>` : lineChart(D.cur, per)}</div>`;
+  const F = [['Leads recebidos',D.leads],['Qualificados pela IA',D.q],['Visitas agendadas',D.v],['Propostas',D.p],['Em negociação',D.n]];
+  h += `<div class="grid2" style="margin-bottom:16px"><div class="card"><h3>Conversão por etapa</h3><div class="funnel">${F.map(([l,v],i)=>`<div class="fr" data-tip="${l}: ${v}${i?' · '+Math.round(v/F[i-1][1]*100)+'% da etapa anterior':''}"><span>${l}</span><div class="b"><i style="width:${v/F[0][1]*100}%"></i></div><span class="v">${v}</span>${i?`<small>${Math.round(v/F[i-1][1]*100)}% da etapa anterior</small>`:''}</div>`).join('')}</div></div>
+    <div class="card"><h3>Leads por bairro de interesse</h3>${hbars([['Aldeota',31],['Meireles',24],['Cocó',14],['Varjota',12],['Dionísio Torres',10],['Mucuripe',9]].map(([b,p])=>[b, Math.round(D.leads*p/100), p+'% do total']))}</div></div>`;
+  h += `<div class="card" style="margin-bottom:16px"><h3>Hora de chegada dos leads</h3>${hourChart(D.leads)}</div>`;
+  const ai = [['Aprovadas sem edição',72],['Editadas antes de enviar',21],['Descartadas',7]];
+  h += `<div class="grid2" style="margin-bottom:16px"><div class="card"><h3>Mensagens sugeridas pela IA</h3><div class="stack">${ai.map(([l,v],i)=>`<i style="width:${v}%;background:${['#0b0b0c','#8a8a86','#d3d3cf'][i]}" data-tip="${l}: ${v}%"></i>`).join('')}</div><div class="lgd">${ai.map(([l,v],i)=>`<span><i style="background:${['#0b0b0c','#8a8a86','#d3d3cf'][i]}"></i>${l} · <b class="num">${v}%</b></span>`).join('')}</div><p class="fine" style="margin-top:10px">Quanto mais sugestões aprovadas sem edição, melhor a IA conhece o jeito da equipe.</p></div>
+    <div class="card"><h3>Quem resolveu</h3>${hbars([['Só a IA (dúvidas simples)',41],['IA e corretor juntos',47],['Corretor assumiu',12]], '%')}<p class="fine" style="margin-top:10px">Visitas e propostas sempre passam pelo corretor, mesmo quando a IA conduz a conversa.</p></div></div>`;
+  const B = [['Lia Montenegro',0.42,'4 min',1],['Caio Ribamar',0.33,'7 min',0.85],['Bento Aquino',0.25,'11 min',0.7]];
+  h += `<div class="card tbl-wrap"><h3>Corretores</h3><table class="tbl"><thead><tr><th>Corretor</th><th class="n">Leads</th><th class="n">Resposta após a IA chamar</th><th class="n">Visitas</th><th class="n">Propostas</th><th class="n">Lead → visita</th></tr></thead><tbody>${B.map(([n,sh,t,f],i)=>{ const l=Math.round(D.leads*sh), v=Math.max(0,Math.round(D.v*sh*f*1.12)), p=Math.round(D.p*sh*f*1.1); return `<tr><td><b>${n}</b>${i===0&&S.lead?' <span class="pill dark">+ Marina</span>':''}</td><td class="n">${l}</td><td class="n">${t}</td><td class="n">${v}</td><td class="n">${p}</td><td class="n">${l?pct(v/l):'—'}</td></tr>`; }).join('')}</tbody></table><p class="fine" style="margin-top:10px">Tempo mediano entre a IA chamar o corretor e a primeira resposta dele.</p></div>`;
+  return h;
+}
+
+/* ===== Render geral ===== */
+function render(){
+  renderTop();
+  renderAuth();
+  if(S.view==='client') renderClient(); else renderAgency();
+  if(S.view==='client' && S.tab==='map') updateMap();
+  if(S.view==='agency' && S.agTab==='lead'){ const hs=$('#hist'); if(hs) hs.scrollTop = hs.scrollHeight; }
+}
+function reset(skipLogin){
+  GEN++; S = fresh(); MID = 1;
+  if(skipLogin){ S.auth.c='done'; S.auth.a=true; S.auth.terms=true; }
+  greet();
+  $('#toasts').innerHTML='';
+  $('#chat-input').value='';
+  render();
+  toast(skipLogin?'<b>Demonstração reiniciada</b>Sem login, direto na conversa.':'<b>Demonstração reiniciada</b>Os dois lados voltaram ao início.');
+}
+function greet(){
+  pushMsg({who:'ai', text:'Oi, Marina! Eu sou a IA da Konexya. Vou entender a vida que você quer ter e encontrar imóveis que combinem com ela, sem filtros complicados.'});
+  pushMsg({who:'ai', text:STEPS[0].q});
+}
+
+/* ===== Eventos ===== */
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-a]');
+  if(!el){ if(S.menu && !e.target.closest('.menu-wrap')){ S.menu=false; renderTop(); } return; }
+  if(el.dataset.a==='noconsent' && e.target.closest('[data-stop]') && !e.target.closest('button')) return;
+  const a = el.dataset.a, id = el.dataset.id;
+  switch(a){
+    case 'view': setView(id); if(id==='agency' && S.lead){ S.agTab = S.agTab==='painel' && S.lead.arrive ? 'funil' : S.agTab; render(); } break;
+    case 'menu': S.menu = !S.menu; renderTop(); break;
+    case 'reset': reset(id==='skip'); break;
+    case 'tab': go(id); break;
+    case 'ans': answer(curStep().opts[+id]); break;
+    case 'adjb': adjBudget(); break;
+    case 'adjp': adjPraia(); break;
+    case 'detail': openDetail(id); break;
+    case 'close': S.overlay=null; render(); break;
+    case 'save': { const i = S.saved.indexOf(id); if(i<0){ S.saved.push(id); toast('<b>Salvo</b>Você encontra este imóvel na aba Salvos.'); } else { S.saved.splice(i,1); S.compare = S.compare.filter(x=>x!==id); } render(); break; }
+    case 'cmp': { const i = S.compare.indexOf(id); if(i>=0) S.compare.splice(i,1); else { if(S.compare.length>=3){ toast('<b>Até 3 imóveis</b>Tire um da comparação para incluir outro.'); break; } S.compare.push(id); if(!S.saved.includes(id)) S.saved.push(id); if(S.compare.length>=2) toast(`<b>${S.compare.length} imóveis na comparação</b>`, {act:{l:'Comparar', a:'compare'}}); } render(); break; }
+    case 'cmpck': { const i = S.compare.indexOf(id); if(i>=0) S.compare.splice(i,1); else if(S.compare.length<3) S.compare.push(id); else { el.checked=false; toast('<b>Até 3 imóveis</b>Desmarque um para incluir outro.'); } render(); break; }
+    case 'compare': if(S.compare.length>=2){ if(S.view!=='client') setView('client'); S.overlay={t:'compare'}; render(); } break;
+    case 'consent':
+      if(S.lead){ S.overlay=null; S.tab='broker'; render(); toast('<b>Seu perfil já está com a corretora</b>Continue a conversa por aqui.'); break; }
+      S.overlay = {t:'consent', id, origem:el.dataset.o}; render(); break;
+    case 'noconsent': S.overlay = {t:'detail', id:S.overlay.id}; render(); toast('Tudo bem. Nada foi compartilhado.'); break;
+    case 'share': {
+      createLead(id, S.overlay.origem);
+      S.overlay = {...S.overlay, sent:true}; render();
+      later(()=>{ if(S.view==='client' && S.overlay && S.overlay.sent){ arriveAgency(); } }, 2400);
+      break; }
+    case 'mapsel': S.map.sel = id || null; renderMapUI(); updateMap(); break;
+    case 'layer': { const ls = S.map.layers, i = ls.indexOf(id); if(i>=0) ls.splice(i,1); else if(ls.length>=2){ toast('<b>Máximo de 2 camadas</b>Desligue uma para ligar outra.'); break; } else ls.push(id); renderMapUI(); updateMap(); break; }
+    case 'legend': S.map.legend = !S.map.legend; renderMapUI(); break;
+    case 'editp': S.editProf = S.editProf===id ? null : id; render(); break;
+    case 'setp': { const [si,oi] = id.split(':').map(Number); const o = STEPS[si].opts[oi]; const before = top3().map(r=>r.p.id).join(); Object.assign(S.profile, JSON.parse(JSON.stringify(o.set))); S.freshKey = STEPS[si].k; S.editProf=null; render(); const after = top3().map(r=>r.p.id).join(); toast(before!==after ? '<b>Recomendações atualizadas</b>Seu top 3 mudou.' : '<b>Perfil atualizado</b>As notas foram recalculadas.'); break; }
+    case 'proposal': sendProposal(); break;
+    case 'agtab': S.agTab = id; if(id==='lead' && !S.openLead) S.openLead='marina'; if(S.lead) S.lead.arrive=false; render(); break;
+    case 'openlead': if(S.view!=='agency') setView('agency'); S.openLead = id; S.agTab='lead'; if(S.lead) S.lead.arrive=false; render(); break;
+    case 'mv': { const [lid, st] = id.split(':'); setStage(lid, st); break; }
+    case 'approve': approveMsg(); break;
+    case 'edit': S.lead.msg.state='editing'; render(); const ta=$('#msg-edit'); if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } break;
+    case 'saveedit': { const ta=$('#msg-edit'); if(ta && ta.value.trim()) S.lead.msg.text = ta.value.trim(); S.lead.msg.state='pending'; approveMsg(); break; }
+    case 'canceledit': S.lead.msg.state='pending'; render(); break;
+    case 'discard': S.lead.msg.state='discarded'; render(); break;
+    case 'regen': S.lead.msg.alt = !S.lead.msg.alt; S.lead.msg.text = suggestion(S.lead.msg.alt); S.lead.msg.state='pending'; render(); break;
+    case 'confirmvisit': setStage('marina','visita'); break;
+    case 'actdone': S.lead.actDone = !S.lead.actDone; render(); break;
+    case 'forward': forwardProposal(); break;
+    case 'outs': S.outs[id] = !S.outs[id]; render(); break;
+    case 'takeover': S.lead.human = !S.lead.human; S.lead.hist.push({w:'ev', t:S.lead.human?'Lia assumiu a conversa':'Conversa devolvida para a IA'}); render(); break;
+    case 'finn': S.fin.n = +id; render(); break;
+    case 'mic': toast('<b>Busca por voz</b>Em desenvolvimento. Por enquanto, escreva ou toque nas opções.'); break;
+    case 'au': if(id==='sms'){ const ph=$('#au-phone'); const v=(ph&&ph.value.trim())||''; if(v.replace(/\D/g,'').length<10){ toast('<b>Celular incompleto</b>Digite o DDD e o número.'); break; } S.auth.dest=v; S.auth.c='code'; S.auth.code=''; renderAuth(); codeFill(); }
+      else if(id==='email'){ S.auth.c='email'; S.auth.err=''; renderAuth(); const e=$('#au-email'); if(e) e.focus(); }
+      else if(id==='emailgo'){ const e=$('#au-email'); const v=(e&&e.value.trim())||''; S.auth.email=v; if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ S.auth.err = v ? 'Esse e-mail não parece completo. Confira se tem @ e o domínio, como voce@email.com.' : 'Digite seu e-mail para receber o código.'; renderAuth(); const e2=$('#au-email'); if(e2){ e2.focus(); } break; } S.auth.dest=v; S.auth.c='code'; S.auth.code=''; renderAuth(); codeFill(); } else if(id==='done'){ const n=$('#au-name'); S.auth.name = (n&&n.value.trim())||'Marina'; S.auth.c='done'; if(S.auth.name!=='Marina'){ S.chat.msgs[0].text = S.chat.msgs[0].text.replace('Marina', S.auth.name.split(' ')[0]); } render(); } else { S.auth.c=id; renderAuth(); } break;
+    case 'terms': S.auth.terms = !S.auth.terms; renderAuth(); break;
+    case 'role': S.auth.role = id; renderAuth(); break;
+    case 'aglogin': S.auth.a = true; if(S.auth.role==='gestor') S.agTab='painel'; if(S.auth.pending){ S.auth.pending=false; arriveAgency(); } else render(); break;
+    case 'aiauto': S.ai.auto = !S.ai.auto; toast(S.ai.auto?'<b>Modo automático ligado</b>A IA envia a primeira mensagem sozinha.':'<b>Aprovação manual</b>Você aprova a primeira mensagem.'); render(); break;
+    case 'tone': S.ai.tone = id; render(); break;
+    case 'ff': fastForward(); break;
+    case 'per': S.met.per = +id; render(); break;
+    case 'mettbl': S.met.tbl = !S.met.tbl; render(); break;
+    case 'skiplogin': S.auth.c='done'; S.auth.a=true; S.auth.terms=true; S.menu=false; if(S.auth.pending){ S.auth.pending=false; arriveAgency(); } else render(); break;
+    case 'logout': S.menu=false; if(S.view==='agency'){ S.auth.a=false; } else { S.auth.c='splash'; } render(); break;
+
+  }
+});
+function arriveAgency(){
+  S.overlay = null; S.tab = 'broker';
+  S.view = 'agency'; S.agTab = 'funil'; S.unseenLead = false;
+  if(!S.auth.a){ S.auth.pending = true; render(); return; }
+  S.flags.agency = true;
+  render();
+  if(S.ai.auto) later(()=>{ if(S.lead && S.lead.msg.state==='pending'){ S.lead.msg.auto = true; approveMsg(); } }, 1600);
+  const p = byId(S.lead.propId);
+  toast(`<b>Novo lead qualificado: Marina</b>${sc(p)}% com o ${esc(p.nome)} · atendido pela IA em 12 s`, {big:true, ms:6500, icon:Y(), act:{l:'Abrir lead', a:'openlead', id:'marina'}});
+}
+document.addEventListener('change', e=>{
+  const c = e.target.dataset.c;
+  if(c==='stage') setStage('marina', e.target.value);
+  if(c==='stage-other') setStage(e.target.dataset.id, e.target.value);
+});
+document.addEventListener('input', e=>{
+  const c = e.target.dataset.c;
+  if(c==='fin-e'){ S.fin.e = +e.target.value; $('#fin-e-v').textContent = S.fin.e+'%'; $('#fin-out').innerHTML = finOut(byId(e.target.dataset.id)); }
+  if(c==='note' && S.lead) S.lead.note = e.target.value;
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ const m={'au-email':'emailgo','au-phone':'sms','au-name':'done'}[e.target.id]; if(m){ e.preventDefault(); const b=document.querySelector(`[data-a=au][data-id=${m}]`); if(b) b.click(); return; } }
+  if(e.key==='Escape'){ if(S.menu){ S.menu=false; renderTop(); } else if(S.overlay && S.view==='client'){ S.overlay = S.overlay.t==='consent' && !S.overlay.sent ? {t:'detail', id:S.overlay.id} : null; render(); } }
+  const pin = e.target.closest && e.target.closest('.pin'); if(pin && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); pin.click(); }
+});
+$('#compose').addEventListener('submit', e=>{ e.preventDefault(); const i = $('#chat-input'); const v = i.value; i.value=''; handleText(v); });
+// arrastar e soltar no funil
+document.addEventListener('dragstart', e=>{ const d = e.target.closest && e.target.closest('[data-drag]'); if(d){ e.dataTransfer.setData('text/plain', d.dataset.drag); e.dataTransfer.effectAllowed='move'; } });
+document.addEventListener('dragover', e=>{ const col = e.target.closest && e.target.closest('[data-drop]'); if(col){ e.preventDefault(); document.querySelectorAll('.col.over').forEach(x=>x!==col&&x.classList.remove('over')); col.classList.add('over'); } });
+document.addEventListener('dragleave', e=>{ const col = e.target.closest && e.target.closest('[data-drop]'); if(col && !col.contains(e.relatedTarget)) col.classList.remove('over'); });
+document.addEventListener('drop', e=>{ const col = e.target.closest && e.target.closest('[data-drop]'); if(col){ e.preventDefault(); col.classList.remove('over'); const id = e.dataTransfer.getData('text/plain'); if(id) setStage(id, col.dataset.drop); } });
+
+const TIP = document.createElement('div'); TIP.className='tip'; TIP.hidden = true; document.body.appendChild(TIP);
+function tipAt(el, x, y){ TIP.textContent = el.dataset.tip; TIP.hidden = false; const r = TIP.getBoundingClientRect(); TIP.style.left = Math.min(innerWidth - r.width - 8, Math.max(8, x - r.width/2)) + 'px'; TIP.style.top = Math.max(8, y - r.height - 14) + 'px';
+  const svg = el.ownerSVGElement; if(svg && el.dataset.cx){ const xh = svg.querySelector('.xh'), xd = svg.querySelector('.xd'); xh.setAttribute('x1', el.dataset.cx); xh.setAttribute('x2', el.dataset.cx); xh.setAttribute('visibility','visible'); xd.setAttribute('cx', el.dataset.cx); xd.setAttribute('cy', el.dataset.cy); xd.setAttribute('visibility','visible'); } }
+function tipHide(){ TIP.hidden = true; document.querySelectorAll('.xh,.xd').forEach(e=>e.setAttribute('visibility','hidden')); }
+document.addEventListener('pointermove', e=>{ const el = e.target.closest && e.target.closest('[data-tip]'); if(el) tipAt(el, e.clientX, e.clientY); else if(!TIP.hidden) tipHide(); });
+document.addEventListener('focusin', e=>{ const el = e.target.closest && e.target.closest('[data-tip]'); if(el){ const r = el.getBoundingClientRect(); tipAt(el, r.left + r.width/2, r.top); } });
+document.addEventListener('focusout', tipHide);
+document.addEventListener('scroll', tipHide, true);
+
+greet();
+render();
+
+</script>
+
+</body></html>

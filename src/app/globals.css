@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de design da Konexya (fonte: docs/prototipo.html e docs/mvp.md, "Padrões de interface").
+ * Preto e branco, muito espaço em branco. Cor só com significado:
+ * verde = atende ao perfil, amarelo = atenção, vermelho = não atende ou erro.
+ */
+@theme {
+  --color-*: initial;
+  --color-black: #0b0b0c;
+  --color-ink: #151516;
+  --color-white: #ffffff;
+  --color-paper: #f4f4f2;
+  --color-paper-2: #ebebe8;
+  --color-line: #e2e2df;
+  --color-line-2: #d3d3cf;
+  --color-muted: #5f5f5c;
+  --color-muted-2: #8a8a86;
+  --color-ok: #1f7a4d;
+  --color-ok-bg: #e3f1ea;
+  --color-warn: #a86a00;
+  --color-warn-bg: #fbf0d9;
+  --color-bad: #b3261e;
+  --color-bad-bg: #f8e3e1;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-sans: var(--font-montserrat), system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+  --radius-card: 18px;
+  --radius-field: 14px;
+
+  /* Área de toque mínima (acessibilidade e botão principal). */
+  --spacing-touch: 44px;
+
+  --shadow-pop: 0 18px 40px -16px rgb(0 0 0 / 0.5);
+
+  --animate-typing: typing 1.2s infinite;
+  --animate-toast-in: toast-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pulse-soft: pulse-soft 1.4s ease-in-out infinite;
+
+  @keyframes typing {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    30% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes pulse-soft {
+    50% {
+      opacity: 0.45;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    background: var(--color-white);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-black);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility num {
+  font-variant-numeric: tabular-nums;
+}
