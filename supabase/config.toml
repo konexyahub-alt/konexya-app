@@ -434,9 +434,35 @@ project_id = "xjxfqerqrscejpxqxspw"
 site_url = "https://konexya-app-git-claude-etapa-0-plano-yw5htw-konexya.vercel.app"
 additional_redirect_urls = ["https://*-konexya.vercel.app/**", "http://localhost:3000/**"]
 
+# E-mails de login pelo Resend (domínio mail.konexya.com.br). O plano gratuito do Supabase só aceita
+# o modelo de e-mail com código quando há SMTP próprio. A chave vem do segredo RESEND_API_KEY do GitHub.
+[remotes.teste.auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "nao-responda@mail.konexya.com.br"
+sender_name = "Konexya"
+
+[remotes.teste.auth.rate_limit]
+email_sent = 60
+
 [remotes.producao]
 project_id = "wryomdxaqvrzttavkfei"
 
 [remotes.producao.auth]
 site_url = "https://konexya-app.vercel.app"
 additional_redirect_urls = ["https://konexya-app.vercel.app/**", "https://*-konexya.vercel.app/**"]
+
+[remotes.producao.auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "nao-responda@mail.konexya.com.br"
+sender_name = "Konexya"
+
+[remotes.producao.auth.rate_limit]
+email_sent = 60

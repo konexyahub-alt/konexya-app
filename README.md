@@ -41,9 +41,10 @@ O CI (`.github/workflows/ci.yml`) roda as mesmas verificações e o build em cad
    - `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: valores do projeto de teste em Preview e do projeto de produção em Production.
 3. Faça um push numa branch e abra `/api/saude` no link de Preview: deve responder `{"ambiente":"teste","supabase":"ok"}`.
 
-As migrações do banco ficam em `supabase/migrations`. O workflow `Banco` (`.github/workflows/banco.yml`) as aplica junto com a configuração de login de `supabase/config.toml`: no projeto de teste a cada push numa branch de trabalho que mude `supabase/`, e na produção só no merge para a `main`. Ele precisa de três segredos no GitHub (*Settings → Secrets and variables → Actions*):
+As migrações do banco ficam em `supabase/migrations`. O workflow `Banco` (`.github/workflows/banco.yml`) as aplica junto com a configuração de login de `supabase/config.toml`: no projeto de teste a cada push numa branch de trabalho que mude `supabase/`, e na produção só no merge para a `main`. Ele precisa de quatro segredos no GitHub (*Settings → Secrets and variables → Actions*):
 
 - `SUPABASE_ACCESS_TOKEN`: token pessoal criado em *supabase.com → Account → Access Tokens*.
-- `SUPABASE_DB_PASSWORD_TESTE` e `SUPABASE_DB_PASSWORD_PRODUCAO`: a senha do banco de cada projeto (*Project Settings → Database → Reset database password*, se não tiver anotado).
+- `SUPABASE_DB_PASSWORD_TESTE` e `SUPABASE_DB_PASSWORD_PRODUCAO`: a senha do banco de cada projeto (*Database → Settings → Reset database password*, se não tiver anotado).
+- `RESEND_API_KEY`: chave do Resend com permissão de envio no domínio `mail.konexya.com.br`. O Supabase usa essa chave como SMTP para mandar o código de login (o plano gratuito não aceita o modelo de e-mail com código sem SMTP próprio).
 
 Nenhuma chave vai para o repositório. A lista completa de variáveis, por etapa, está em `.env.example`.

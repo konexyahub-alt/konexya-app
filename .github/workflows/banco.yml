@@ -3,7 +3,7 @@ name: Banco
 # Aplica as migrações e a configuração de login (supabase/config.toml) nos projetos remotos.
 # Teste: a cada push numa branch de trabalho que mude supabase/. Produção: só no merge para a main.
 # Segredos (GitHub > Settings > Secrets and variables > Actions):
-#   SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD_TESTE, SUPABASE_DB_PASSWORD_PRODUCAO
+#   SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD_TESTE, SUPABASE_DB_PASSWORD_PRODUCAO, RESEND_API_KEY
 
 on:
   push:
@@ -27,6 +27,7 @@ jobs:
     env:
       AMBIENTE: ${{ inputs.ambiente || (github.ref == 'refs/heads/main' && 'producao' || 'teste') }}
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       SUPABASE_YES: "1"
     steps:
       - uses: actions/checkout@v4
@@ -55,4 +56,7 @@ jobs:
       - name: Migrações
         run: npx supabase db push --linked --yes
       - name: Configuração de login
-        run: npx supabase config push --project-ref "$PROJECT_REF" --yes
+        run: |
+          # Sem a chave, o SMTP iria para o Supabase com a senha vazia e nenhum código de login chegaria.
+          [ -n "$RESEND_API_KEY" ] || { echo "::error::Falta o segredo RESEND_API_KEY (e-mails de login)"; exit 1; }
+          npx supabase config push --project-ref "$PROJECT_REF" --yes
