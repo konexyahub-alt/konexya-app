@@ -10,8 +10,12 @@ export type AppEnv = (typeof APP_ENVS)[number];
 
 const publicSchema = z.object({
   NEXT_PUBLIC_APP_ENV: z.enum(APP_ENVS).default("local"),
-  NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
+  // Remove a barra final: "https://x.supabase.co/" geraria "//auth/v1/..." nas chamadas.
+  NEXT_PUBLIC_SUPABASE_URL: z
+    .url()
+    .trim()
+    .transform((url) => url.replace(/\/+$/, "")),
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().trim().min(1),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;

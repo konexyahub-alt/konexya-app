@@ -29,4 +29,12 @@ describe("env", () => {
     expect(isSupabaseConfigured()).toBe(true);
     expect(publicEnv().NEXT_PUBLIC_SUPABASE_URL).toBe("https://exemplo.supabase.co");
   });
+
+  it("normaliza URL com barra final e espaços colados por engano", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", " https://exemplo.supabase.co/ ");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", " sb_publishable_x\n");
+    const env = publicEnv();
+    expect(env.NEXT_PUBLIC_SUPABASE_URL).toBe("https://exemplo.supabase.co");
+    expect(env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY).toBe("sb_publishable_x");
+  });
 });
