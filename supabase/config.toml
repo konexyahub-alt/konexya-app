@@ -161,7 +161,7 @@ site_url = "http://127.0.0.1:3000"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+additional_redirect_urls = ["http://127.0.0.1:3000/**", "http://localhost:3000/**"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -232,7 +232,7 @@ max_frequency = "1s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+otp_expiry = 600
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -243,6 +243,15 @@ otp_expiry = 3600
 # pass = "env(SENDGRID_API_KEY)"
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
+
+# Login sem senha: os e-mails mostram o código de 6 dígitos (não um link).
+[auth.email.template.magic_link]
+subject = "Seu código de acesso à Konexya"
+content_path = "./supabase/templates/codigo.html"
+
+[auth.email.template.confirmation]
+subject = "Seu código de acesso à Konexya"
+content_path = "./supabase/templates/codigo.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
@@ -414,3 +423,20 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# Ajustes por projeto remoto, aplicados com `supabase config push --project-ref <ref>` (workflow de deploy).
+# O login é por código, então site_url só aparece em links de e-mail; os endereços de redirecionamento
+# cobrem os links de teste (Preview) e de produção da Vercel.
+[remotes.teste]
+project_id = "xjxfqerqrscejpxqxspw"
+
+[remotes.teste.auth]
+site_url = "https://konexya-app-git-claude-etapa-0-plano-yw5htw-konexya.vercel.app"
+additional_redirect_urls = ["https://*-konexya.vercel.app/**", "http://localhost:3000/**"]
+
+[remotes.producao]
+project_id = "wryomdxaqvrzttavkfei"
+
+[remotes.producao.auth]
+site_url = "https://konexya-app.vercel.app"
+additional_redirect_urls = ["https://konexya-app.vercel.app/**", "https://*-konexya.vercel.app/**"]
