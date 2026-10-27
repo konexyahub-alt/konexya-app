@@ -6,7 +6,7 @@ export function Wordmark({ className }: { className?: string }) {
   return (
     <svg
       viewBox={`0 0 ${WORDMARK.width} ${WORDMARK.height}`}
-      className={cn("h-[22px] w-auto fill-black", className)}
+      className={cn("h-[22px] w-auto fill-current", className)}
       role="img"
       aria-label="Konexya"
     >

@@ -16,3 +16,8 @@ export function formatNumber(value: number | string | null | undefined): string 
 export function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
+
+/** Data ISO já passou? (usado no servidor, a cada requisição). */
+export function isPast(iso: string): boolean {
+  return new Date(iso).getTime() < Date.now();
+}

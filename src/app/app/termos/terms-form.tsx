@@ -1,15 +1,16 @@
 "use client";
 
+import { useFormAction } from "@/lib/use-form-action";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { Button, Icon } from "@/components/ui";
 import { acceptTerms, type FormState } from "../actions";
 
 export function TermsForm({ next }: { next: string }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(acceptTerms, {});
+  const { state, pending, onSubmit } = useFormAction<FormState>(acceptTerms, {});
   const [checked, setChecked] = useState(false);
   return (
-    <form action={action} className="flex flex-1 flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
       <input type="hidden" name="next" value={next} />
       <label className="flex min-h-touch items-start gap-3 text-[13px] text-muted">
         <input
