@@ -29,8 +29,8 @@ O CI (`.github/workflows/ci.yml`) roda as mesmas verificações e o build em cad
 | Ambiente | Vercel | Supabase | `NEXT_PUBLIC_APP_ENV` |
 | --- | --- | --- | --- |
 | Local | `npm run dev` | projeto de teste (ou `supabase start`) | `local` |
-| Teste | Preview (qualquer branch fora da `main`) | projeto **konexya-teste** | `teste` |
-| Produção | Production (`main`) | projeto **konexya-producao** | `producao` |
+| Teste | Preview (qualquer branch fora da `main`) | projeto **konexya teste** | `teste` |
+| Produção | Production (`main`) | projeto **konexya producao** | `producao` |
 
 ### Configuração inicial (uma vez)
 
