@@ -34,7 +34,8 @@ O CI (`.github/workflows/ci.yml`) roda as mesmas verificações e o build em cad
 
 ### Configuração inicial (uma vez)
 
-1. **Supabase**: crie dois projetos (região São Paulo), `konexya-teste` e `konexya-producao`. Em cada um, copie de *Project Settings → API* a URL e a *publishable key*.
+1. **Supabase**: na organização `konexya`, dois projetos na região São Paulo: `konexya teste` e `konexya producao`. Em ambos: *Enable Data API* ligado, *Automatically expose new tables* **desligado** (cada migração concede o acesso explicitamente) e *Enable automatic RLS* ligado. Em cada um, copie de *Project Settings → API* a URL e a *publishable key*.
+   - A etiqueta "main · PRODUCTION" que o painel do Supabase mostra é o nome do banco principal de **qualquer** projeto, não o nosso ambiente. O ambiente é definido pelo projeto (`konexya teste` ou `konexya producao`).
 2. **Vercel**: importe este repositório do GitHub. Em *Settings → Environment Variables*, cadastre:
    - `NEXT_PUBLIC_APP_ENV`: `teste` em Preview, `producao` em Production.
    - `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: valores do projeto de teste em Preview e do projeto de produção em Production.
