@@ -58,6 +58,13 @@ export async function acceptInvite(_: FormState, form: FormData): Promise<FormSt
   redirect("/painel");
 }
 
+/** Convite aberto com a conta errada: sai e volta ao mesmo convite pelo login. */
+export async function switchInviteAccount(token: string) {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect(`/painel/entrar?next=${encodeURIComponent(`/painel/convite/${token}`)}`);
+}
+
 export async function panelSignOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

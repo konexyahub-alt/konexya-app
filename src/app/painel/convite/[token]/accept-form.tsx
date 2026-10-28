@@ -2,7 +2,7 @@
 
 import { useFormAction } from "@/lib/use-form-action";
 import { Button, Icon, TextField } from "@/components/ui";
-import { acceptInvite, type FormState } from "../../actions";
+import { acceptInvite, switchInviteAccount, type FormState } from "../../actions";
 
 export function AcceptInviteForm({ token, email }: { token: string; email: string }) {
   const { state, pending, onSubmit } = useFormAction<FormState>(acceptInvite, {});
@@ -22,6 +22,13 @@ export function AcceptInviteForm({ token, email }: { token: string; email: strin
       <Button type="submit" fullWidth loading={pending}>
         Entrar na equipe
       </Button>
+      <button
+        type="button"
+        onClick={() => switchInviteAccount(token)}
+        className="min-h-touch text-[13px] font-semibold underline underline-offset-4"
+      >
+        Não é você? Entrar com outro e-mail
+      </button>
     </form>
   );
 }
