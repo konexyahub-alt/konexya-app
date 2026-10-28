@@ -99,6 +99,12 @@ async function Ficha({ params }: Pick<PageProps<"/app/imoveis/[id]">, "params">)
             {[TYPE_LABELS[p.type], p.neighborhood].filter(Boolean).join(" · ")}
           </p>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          {info ? (
+            <p className="text-[12.5px] text-muted">
+              Anunciado por <b className="font-semibold text-ink">{info.agency_name}</b>
+              {info.broker_name ? ` · ${info.broker_name}` : ""}
+            </p>
+          ) : null}
           {p.has_seal ? (
             <Tag tone="ok" className="w-fit">
               <Icon name="check" className="size-3" /> Anúncio completo

@@ -45,6 +45,15 @@ async function Conversation() {
         .select("id, title, type, neighborhood, bedrooms, area_m2, price, purpose, status, property_photos(storage_path, source_url, position, is_cover)")
         .in("id", ids)
     : { data: [] };
+  const infos = await Promise.all(
+    (props ?? [])
+      .filter((p) => p.status === "publicado")
+      .map(async (p) => {
+        const { data } = await supabase.rpc("property_public_info", { p_id: p.id }).maybeSingle();
+        return [p.id, data?.agency_name ?? null] as const;
+      }),
+  );
+  const agencyNames = Object.fromEntries(infos);
   const base = publicEnv().NEXT_PUBLIC_SUPABASE_URL;
   const properties: Record<string, CardProperty> = {};
   for (const p of props ?? []) {
@@ -59,6 +68,7 @@ async function Conversation() {
       purpose: p.purpose,
       photoUrl: cover ? photoUrl(cover, base) : null,
       available: p.status === "publicado",
+      agencyName: agencyNames[p.id] ?? null,
     };
   }
 

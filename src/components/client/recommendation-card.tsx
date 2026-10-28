@@ -13,6 +13,8 @@ export type CardProperty = {
   purpose: "venda" | "aluguel";
   photoUrl: string | null;
   available: boolean;
+  /** Imobiliária que anuncia (vem de property_public_info; o cliente não lê a tabela de imobiliárias). */
+  agencyName: string | null;
 };
 
 export type CardReason = { band: string; text: string };
@@ -78,6 +80,7 @@ export function RecommendationCard({
         <span className="min-w-0 flex-1 leading-tight">
           <span className="block truncate text-[13.5px] font-bold">{property.title}</span>
           <span className="block truncate text-[11px] text-muted">{facts.join(" · ")}</span>
+          {property.agencyName ? <span className="block truncate text-[11px] text-muted-2">{property.agencyName}</span> : null}
           {main ? (
             <span className={`mt-1 block truncate text-[11.5px] ${main.band === "ok" ? "text-ok" : main.band === "warn" ? "text-warn" : "text-bad"}`}>
               {main.text}
@@ -112,6 +115,7 @@ export function RecommendationCard({
         <div>
           <p className="text-[15.5px] font-bold">{property.title}</p>
           <p className="text-[11.5px] text-muted">{facts.join(" · ")}</p>
+          {property.agencyName ? <p className="text-[11.5px] text-muted-2">Anunciado por {property.agencyName}</p> : null}
         </div>
         <ul className="grid gap-1.5">
           {reasons.slice(0, 3).map((r) => (

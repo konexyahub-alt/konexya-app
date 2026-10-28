@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { AMENITIES, sealChecklist, missingSealItems, type SealRules } from "./property";
-import { parseBRNumber } from "./property-form";
+import { canonicalNeighborhood } from "./neighborhoods";
+import { MAX_AREA_M2, parseBRNumber } from "./property-form";
 
 /** Colunas da planilha modelo, na ordem. `key` é o nome normalizado do cabeçalho. */
 export const IMPORT_COLUMNS = [
@@ -121,7 +122,9 @@ const rowSchema = z
     valor: money("valor", true).refine((v) => v === null || v > 0, "valor precisa ser maior que zero"),
     condominio: money("condomínio"),
     iptu_mensal: money("IPTU"),
-    area_m2: money("área").refine((v) => v === null || v > 0, "área precisa ser maior que zero"),
+    area_m2: money("área")
+      .refine((v) => v === null || v > 0, "área precisa ser maior que zero")
+      .refine((v) => v === null || v <= MAX_AREA_M2, "área alta demais (até 100.000 m²)"),
     quartos: intField("quartos"),
     suites: intField("suítes"),
     banheiros: intField("banheiros"),
@@ -196,7 +199,7 @@ export function toPropertyInsert(row: ImportRow, agencyId: string) {
     street: row.rua,
     street_number: row.numero,
     complement: row.complemento,
-    neighborhood: row.bairro,
+    neighborhood: canonicalNeighborhood(row.bairro) ?? row.bairro,
     postal_code: row.cep,
     price: row.valor,
     condo_fee: row.condominio,

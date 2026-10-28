@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { canonicalNeighborhood } from "./neighborhoods";
 import { AMENITIES } from "./property";
 
 /** "685.000", "685000", "1.234,56", "R$ 780" → número. Vazio → null. */
@@ -36,6 +37,9 @@ const count = (label: string) =>
 const optionalText = (max: number) =>
   z.preprocess((v) => (typeof v === "string" && v.trim() ? v.trim() : null), z.string().max(max).nullable());
 
+/** Área máxima aceita (m²): evita erro de digitação como 6.000.000. */
+export const MAX_AREA_M2 = 100_000;
+
 export const stepBasicSchema = z.object({
   purpose: z.enum(["venda", "aluguel"]),
   type: z.enum(["apartamento", "casa", "cobertura", "studio", "sala_comercial", "terreno"]),
@@ -43,7 +47,8 @@ export const stepBasicSchema = z.object({
   street: optionalText(160),
   street_number: optionalText(20),
   complement: optionalText(80),
-  neighborhood: optionalText(80),
+  // "meireles" vira "Meireles": o bairro precisa bater com o perfil do cliente na nota.
+  neighborhood: optionalText(80).transform((v) => (v ? (canonicalNeighborhood(v) ?? v) : v)),
   postal_code: z.preprocess(
     (v) => (typeof v === "string" && v.replace(/\D/g, "") ? v.replace(/\D/g, "") : null),
     z.string().regex(/^\d{8}$/, "CEP com 8 números.").nullable(),
@@ -57,7 +62,10 @@ export const stepValuesSchema = z.object({
   price: money("Valor", { positive: true }),
   condo_fee: money("Condomínio"),
   iptu_monthly: money("IPTU mensal"),
-  area_m2: money("Área útil", { positive: true }),
+  area_m2: money("Área útil", { positive: true }).refine(
+    (v) => v === null || v <= MAX_AREA_M2,
+    "Área útil alta demais. Confira se está em m² (até 100.000).",
+  ),
   bedrooms: count("Quartos"),
   suites: count("Suítes"),
   bathrooms: count("Banheiros"),
