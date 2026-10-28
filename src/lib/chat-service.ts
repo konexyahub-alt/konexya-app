@@ -73,6 +73,9 @@ export async function processChatMessage(userId: string, text: string, opts: { r
       out.push({ author: "sistema", body: CHAT_LIMIT_TEXT });
     } else if (ai.kind === "sem_ia") {
       out.push({ author: "ia", body: "Não entendi. Toque numa das opções ou escreva de outro jeito." });
+    } else if (step) {
+      // Durante o roteiro, uma falha da IA não trava a conversa: a pergunta volta com os botões.
+      out.push({ author: "ia", body: "Não consegui entender essa resposta agora. Toque numa das opções ou escreva de outro jeito." });
     } else {
       out.push({ author: "sistema", body: CHAT_ERROR_TEXT });
       await insertMessages(userId, out);

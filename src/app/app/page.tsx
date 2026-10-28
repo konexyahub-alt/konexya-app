@@ -87,6 +87,7 @@ async function Conversation() {
       messages={messages}
       intro={intro}
       pendingStep={step?.key ?? null}
+      pendingOptions={step ? step.options(profile).map((o) => o.label) : []}
     />
   );
 }

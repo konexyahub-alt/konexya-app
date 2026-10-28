@@ -23,10 +23,12 @@ type Props = {
   messages: ChatMessage[];
   intro: { question: string; options: string[] } | null;
   pendingStep: string | null;
+  /** Respostas rápidas da pergunta em aberto (somem só quando o roteiro termina). */
+  pendingOptions: string[];
 };
 
 /** C-04 · Conversa. Uma pergunta por vez, respostas rápidas e campo livre sempre liberado. */
-export function ChatView({ name, chips, filled, messages, intro, pendingStep }: Props) {
+export function ChatView({ name, chips, filled, messages, intro, pendingStep, pendingOptions }: Props) {
   const [pending, startTransition] = useTransition();
   const [optimistic, addOptimistic] = useOptimistic(messages, (state, body: string) => [
     ...state,
@@ -56,7 +58,8 @@ export function ChatView({ name, chips, filled, messages, intro, pendingStep }: 
   }
 
   const last = optimistic.at(-1);
-  const quickReplies = pending ? [] : optimistic.length ? lastQuestionOptions(optimistic) : (intro?.options ?? []);
+  // Os botões da pergunta em aberto ficam sempre disponíveis, inclusive depois de um erro ou do aviso de limite.
+  const quickReplies = pending ? [] : optimistic.length ? pendingOptions : (intro?.options ?? []);
   const firstName = name.split(/\s+/)[0];
 
   return (
@@ -158,16 +161,6 @@ export function ChatView({ name, chips, filled, messages, intro, pendingStep }: 
       </form>
     </main>
   );
-}
-
-/** Respostas rápidas da última pergunta da IA (continuam valendo depois do aviso de limite). */
-function lastQuestionOptions(list: ChatMessage[]): string[] {
-  for (let i = list.length - 1; i >= 0; i--) {
-    const m = list[i];
-    if (m.author === "cliente") return [];
-    if (m.author === "ia" && m.quickReplies.length) return m.quickReplies;
-  }
-  return [];
 }
 
 function Message({
