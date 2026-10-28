@@ -31,5 +31,5 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
 - O texto do consentimento (C-10) avisa que a assistente da imobiliária vai fazer algumas perguntas.
 - Toda mensagem dela fica em `ai_action_log` (regra 10) e conta no limite diário de IA (regra 11).
 
-**Escopo:** a configuração da assistente (nome, boas-vindas, perguntas, liga/desliga) entra na etapa 2.
+**Escopo:** a configuração da assistente (nome, boas-vindas, perguntas, despedida, liga/desliga) entra na etapa 2.
 "Tom de voz personalizado" (mudar o jeito de a IA escrever) continua fora do MVP.
