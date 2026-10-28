@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Button, Icon, Tag, useToast } from "@/components/ui";
+import { Button, HelpTip, Icon, Tag, useToast } from "@/components/ui";
 import {
   ASSISTANT_NAME_TAG,
   CLIENT_NAME_TAG,
@@ -200,7 +200,13 @@ export function AssistantEditor({
           </section>
 
           <section className="grid gap-3 rounded-[20px] bg-white p-5 shadow-soft">
-            <h2 className="trk">Distribuição de leads</h2>
+            <h2 className="trk flex items-center gap-1.5">
+              Distribuição de leads
+              <HelpTip label="Distribuição de leads">
+                Rodízio: cada lead novo vai para o corretor ativo do rodízio que está há mais tempo sem receber lead. Manual: o lead chega sem
+                corretor e o gestor escolhe quem atende. Quem entra no rodízio é definido em Equipe.
+              </HelpTip>
+            </h2>
             <div className="flex flex-wrap gap-2">
               {(
                 [

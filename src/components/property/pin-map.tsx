@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Icon } from "@/components/ui";
+import { Button, HelpTip, Icon } from "@/components/ui";
 
 const FORTALEZA = { lat: -3.7319, lng: -38.5267 };
 
@@ -126,7 +126,13 @@ export function PinMap({
         >
           {confirmed ? "Pino confirmado" : "Confirmar pino aqui"}
         </Button>
-        <span className="text-xs text-muted">Arraste o pino até a entrada do prédio.</span>
+        <span className="flex items-center gap-1.5 text-xs text-muted">
+          Arraste o pino até a entrada do prédio.
+          <HelpTip label="Confirmar pino">
+            O pino marca onde o imóvel fica de verdade. É ele que vai calcular os tempos de trajeto para os clientes no
+            Mapa Vivo. Confirmar diz que você conferiu a posição, e conta para o selo Anúncio completo.
+          </HelpTip>
+        </span>
       </div>
     </div>
   );

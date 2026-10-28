@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { after } from "next/server";
 import { Suspense } from "react";
-import { Card, EmptyState, Icon, IconButton, ScoreRing, Skeleton, Tag, buttonClasses } from "@/components/ui";
+import { buttonClasses, Card, EmptyState, HelpTip, Icon, IconButton, ScoreRing, Skeleton, Tag } from "@/components/ui";
 import { PhotoGallery } from "@/components/property/photo-gallery";
 import { requireReadyClient } from "@/lib/auth";
 import { publicEnv } from "@/lib/env";
@@ -106,9 +106,15 @@ async function Ficha({ params }: Pick<PageProps<"/app/imoveis/[id]">, "params">)
             </p>
           ) : null}
           {p.has_seal ? (
-            <Tag tone="ok" className="w-fit">
-              <Icon name="check" className="size-3" /> Anúncio completo
-            </Tag>
+            <span className="flex items-center gap-1.5">
+              <Tag tone="ok" className="w-fit">
+                <Icon name="check" className="size-3" /> Anúncio completo
+              </Tag>
+              <HelpTip label="Anúncio completo">
+                A imobiliária preencheu tudo o que importa: fotos, metragem, valor, condomínio, IPTU, uma descrição
+                detalhada e a localização conferida no mapa. Não é uma avaliação do imóvel.
+              </HelpTip>
+            </span>
           ) : null}
           <p className="num text-[30px] tracking-tight">
             <span className="font-light">R$ </span>
@@ -123,8 +129,13 @@ async function Ficha({ params }: Pick<PageProps<"/app/imoveis/[id]">, "params">)
             <div className="flex items-center gap-3.5">
               <ScoreRing score={result.score} size={72} />
               <div className="grid gap-1">
-                <h2 id="compat" className="trk">
+                <h2 id="compat" className="trk flex items-center gap-1.5">
                   Compatível com a sua vida
+                  <HelpTip label="Compatível com a sua vida">
+                    O quanto este imóvel bate com o que você contou na conversa: orçamento, tipo, quartos, pets,
+                    bairro e o que é mais importante para você. Não é chance de fechar negócio nem avaliação do
+                    imóvel. Os motivos abaixo mostram de onde vem a porcentagem.
+                  </HelpTip>
                 </h2>
                 <p className="text-[12.5px] font-semibold">{compatHeadline(result.reasons)}</p>
               </div>

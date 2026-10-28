@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useOptimistic, useRef, useState, useTransition } from "react";
-import { Icon, ScoreRing, TypingIndicator, useToast } from "@/components/ui";
+import { HelpTip, Icon, ScoreRing, TypingIndicator, useToast } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { initials } from "@/lib/format";
 import { sendLeadMessage } from "../../actions";
@@ -194,9 +194,16 @@ function Bubble({ m, assistantName, brokerLine }: { m: Message; assistantName: s
       <p className="flex flex-wrap items-center gap-1.5 text-[11.5px] font-bold">
         {isAssistant ? assistantName : brokerLine.replace(/^Corretor\(a\) /, "")}
         {isAssistant ? (
-          <span className="rounded-full bg-paper-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em]">
-            Assistente virtual
-          </span>
+          <>
+            <span className="rounded-full bg-paper-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em]">
+              Assistente virtual
+            </span>
+            <HelpTip label="Assistente virtual">
+              Uma assistente automática da imobiliária, não uma pessoa. Ela faz algumas perguntas rápidas e responde
+              com os dados do anúncio. Preço, visita, financiamento e opiniões ficam com o corretor, que assume a
+              conversa quando enviar a primeira mensagem.
+            </HelpTip>
+          </>
         ) : null}
       </p>
       <p className="whitespace-pre-line text-[13.5px]">{m.body}</p>

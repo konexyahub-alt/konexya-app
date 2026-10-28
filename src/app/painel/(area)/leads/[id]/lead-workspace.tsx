@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Button, Icon, ScoreRing, Tag, useToast } from "@/components/ui";
+import { Button, HelpTip, Icon, ScoreRing, Tag, useToast } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { formatBRL } from "@/lib/format";
 import { CLOSED_STAGES, LOST_REASON_LABELS, OPEN_STAGES, STAGE_LABELS, type LeadStage, type LostReason } from "@/lib/leads";
@@ -112,10 +112,25 @@ export function LeadWorkspace(p: Props) {
   );
 }
 
-function Panel({ title, children, className }: { title?: string; children: React.ReactNode; className?: string }) {
+function Panel({
+  title,
+  help,
+  children,
+  className,
+}: {
+  title?: string;
+  help?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <section className={cn("grid gap-3 rounded-[20px] bg-white p-[18px] shadow-soft", className)}>
-      {title ? <h2 className="trk">{title}</h2> : null}
+      {title ? (
+        <h2 className="trk flex items-center gap-1.5">
+          {title}
+          {help ? <HelpTip label={title}>{help}</HelpTip> : null}
+        </h2>
+      ) : null}
       {children}
     </section>
   );
@@ -141,9 +156,18 @@ function ProfileColumn(p: Props) {
         )}
       </Panel>
 
-      <Panel title="Qualificação">
+      <Panel
+        title="Qualificação"
+        help="O que já se sabe para atender este cliente. Vem do perfil dele e das respostas à assistente virtual. “A confirmar” é o que ainda falta perguntar."
+      >
         <div className="flex items-center justify-between">
-          <span className="text-[12.5px] text-muted">Prontidão</span>
+          <span className="flex items-center gap-1.5 text-[12.5px] text-muted">
+            Prontidão
+            <HelpTip label="Prontidão">
+              Calculada pelo que o próprio cliente informou. Pronto para visitar: quer mudar em até 3 meses e informou o
+              orçamento. Pesquisando: até 6 meses, ou 3 meses sem orçamento. Curioso: sem prazo definido.
+            </HelpTip>
+          </span>
           <Tag tone={p.readiness === "pronto_para_visitar" ? "ok" : p.readiness === "pesquisando" ? "warn" : "neutral"}>
             {READINESS_LABELS[p.readiness]}
           </Tag>

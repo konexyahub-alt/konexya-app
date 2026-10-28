@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button, Chip, Icon, useToast } from "@/components/ui";
+import { Button, Chip, HelpTip, Icon, useToast } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import {
   KIND_LABELS,
@@ -423,7 +423,14 @@ export function AccountSection({
       </div>
 
       <section className="grid gap-2" aria-label="Compartilhado com">
-        <p className="px-1 text-[11.5px] font-semibold text-muted">Compartilhado com</p>
+        <p className="flex items-center gap-1.5 px-1 text-[11.5px] font-semibold text-muted">
+          Compartilhado com
+          <HelpTip label="Compartilhado com">
+            Imobiliárias que você autorizou a receber o seu perfil. Cada uma vê o seu perfil e os imóveis dela que você
+            viu ou salvou; nunca os seus endereços. Ao revogar, ela para de receber dados novos. O que já recebeu
+            continua com ela.
+          </HelpTip>
+        </p>
         {shares.length ? (
           shares.map((s) => (
             <div key={s.agencyId} className="flex items-center gap-3 rounded-[20px] bg-white p-4 shadow-soft">

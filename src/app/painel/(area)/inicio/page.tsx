@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AutoRefresh } from "@/components/panel/auto-refresh";
-import { EmptyState, Icon, Skeleton, Tag, buttonClasses } from "@/components/ui";
+import { buttonClasses, EmptyState, HelpTip, Icon, Skeleton, Tag } from "@/components/ui";
 import { requireApprovedMember } from "@/lib/auth";
 import { OPEN_STAGES, STAGE_LABELS, formatDuration, nowMs, timeAgo } from "@/lib/leads";
 import { loadLeadCards } from "@/lib/panel-leads";
@@ -67,15 +67,24 @@ async function Dashboard() {
         {[
           { label: "Leads novos hoje", value: String(newToday) },
           { label: "Aguardando resposta", value: String(awaiting.length) },
-          { label: "Parados há mais de 48 h", value: String(stalled), bad: stalled > 0 },
+          {
+            label: "Parados há mais de 48 h",
+            value: String(stalled),
+            bad: stalled > 0,
+            help: "Leads em aberto em que ninguém, nem o cliente nem a imobiliária, mandou mensagem nas últimas 48 horas. Lead parado esfria: são os primeiros a retomar.",
+          },
           {
             label: "Tempo médio até a primeira resposta",
             value: avgMs === null ? "—" : formatDuration(avgMs),
             hint: avgMs === null ? "Ainda sem respostas nos últimos 30 dias" : "Últimos 30 dias",
+            help: "Do momento em que o cliente autoriza o perfil até a primeira mensagem enviada ou aprovada por um corretor. As mensagens automáticas da assistente virtual não contam.",
           },
         ].map((n) => (
           <div key={n.label} className="grid gap-1 rounded-[20px] bg-white p-[18px] shadow-soft">
-            <span className="text-[11.5px] text-muted">{n.label}</span>
+            <span className="flex items-center gap-1.5 text-[11.5px] text-muted">
+              {n.label}
+              {"help" in n && n.help ? <HelpTip label={n.label}>{n.help}</HelpTip> : null}
+            </span>
             <span className={`num text-[30px] font-bold tracking-tight ${n.bad ? "text-bad" : ""}`}>{n.value}</span>
             {n.hint ? <span className="text-[11px] text-muted-2">{n.hint}</span> : null}
           </div>

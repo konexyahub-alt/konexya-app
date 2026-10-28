@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Button, Chip, EmptyState, ErrorState, IconButton, ScoreBadge, TextField, TOAST_DURATION_MS, ToastProvider, useToast } from ".";
+import { Button, Chip, EmptyState, ErrorState, HelpTip, IconButton, ScoreBadge, TextField, TOAST_DURATION_MS, ToastProvider, useToast } from ".";
 
 describe("Button", () => {
   it("é type=button por padrão e fica desativado enquanto carrega", () => {
@@ -102,5 +102,22 @@ describe("Toast", () => {
   it("exige o provider", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<Trigger />)).toThrow(/ToastProvider/);
+  });
+});
+
+describe("HelpTip", () => {
+  it("abre ao tocar, fecha com Esc e tocando de novo", async () => {
+    const user = userEvent.setup();
+    render(<HelpTip label="Prontidão">Calculada pelo que o cliente informou.</HelpTip>);
+    const btn = screen.getByRole("button", { name: "O que é: Prontidão" });
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    await user.click(btn);
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Calculada pelo que o cliente informou.");
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    await user.click(btn);
+    await user.click(btn);
+    expect(screen.queryByRole("tooltip")).toBeNull();
   });
 });

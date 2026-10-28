@@ -13,6 +13,7 @@ import {
   SLOGAN,
   ScoreBadge,
   ScoreRing,
+  HelpTip,
   SectionTitle,
   Skeleton,
   Tag,
@@ -162,6 +163,13 @@ export function ReferenceGallery() {
           <ScoreRing score={80} />
           <ScoreRing score={61} />
         </div>
+      </Section>
+
+      <Section title="Ajuda (?)">
+        <p className="flex items-center gap-1.5 text-[13px] text-muted">
+          Prontidão
+          <HelpTip label="Prontidão">Toque (ou passe o mouse) para ver a explicação. Use só onde o termo gera dúvida.</HelpTip>
+        </p>
       </Section>
 
       <Section title="Cartões">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition, type ReactNode } from "react";
-import { Button, Card, Chip, Icon, IconButton, SectionTitle, Tag, TextField, buttonClasses, useToast } from "@/components/ui";
+import { Button, buttonClasses, Card, Chip, HelpTip, Icon, IconButton, SectionTitle, Tag, TextField, useToast } from "@/components/ui";
 import { PinMap } from "@/components/property/pin-map";
 import { cn } from "@/lib/cn";
 import {
@@ -289,7 +289,13 @@ export function PropertyEditor({
 
       <aside className="h-fit xl:sticky xl:top-6">
         <Card className="grid gap-1.5">
-          <SectionTitle>Selo Anúncio completo</SectionTitle>
+          <SectionTitle className="flex items-center gap-1.5">
+            Selo Anúncio completo
+            <HelpTip label="Selo Anúncio completo">
+              O cliente vê o selo na ficha do imóvel. Na ordem das recomendações, ele só desempata imóveis com a mesma
+              compatibilidade: não sobe um imóvel que combina menos com o cliente.
+            </HelpTip>
+          </SectionTitle>
           <p className="text-[13px]">
             {missing === 0 ? (
               <b className="text-ok">Este anúncio tem o selo.</b>
