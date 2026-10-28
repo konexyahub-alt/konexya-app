@@ -59,3 +59,28 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
   no Mapa Vivo (etapa 3).
 - Os 3 primeiros aparecem em cartão grande; o 4º e o 5º, em cartão compacto.
 - O aviso de mudança passa a ser "Recomendações atualizadas: a lista mudou".
+
+## 2026-10-28 · Conversa de perfil orgânica e livre no piloto
+
+**Antes:** o fluxo F2 (docs/mvp.md) é um roteiro: uma pergunta por vez, sempre com botões de resposta rápida.
+
+**Agora:**
+- **No piloto** (primeira versão para o público e para os anunciantes), a conversa com a IA da Konexya é
+  **orgânica e livre**. A IA é o "corretor inteligente" do cliente: responde ao que ele escreveu, entende a rotina
+  e o que procura, e recomenda a partir dessa conversa. Ela não pode parecer um filtro com mensagens prontas.
+- **Mensagens prontas (respostas rápidas) continuam existindo, como segunda opção:** para o cliente que não quer
+  digitar, ou quando a conversa não está chegando ao resultado (por exemplo, falta uma informação essencial para
+  recomendar). Não são o caminho principal.
+- **No ambiente de teste**, a conversa com roteiro e botões pode continuar como está enquanto a versão livre não
+  fica pronta. A versão livre precisa estar pronta e aprovada antes de ir para produção.
+- Continua valendo: a nota de compatibilidade é calculada pelo código (regra 7); a IA responde só com dados da base
+  e do perfil (regra 8); toda resposta da IA fica em `ai_action_log` (regra 10); limite diário de IA (regra 11).
+
+**Consequências registradas:**
+- Sem crédito na Anthropic, a conversa livre não funciona; a conta de produção precisa de cobrança configurada antes
+  do piloto.
+- Toda mensagem do cliente passa a usar IA: o limite diário (padrão 60) passa a ser atingido por quem conversa muito.
+  Ao atingir, o cliente segue pelas mensagens prontas e pelo Perfil.
+- Pendente de definição com o dono do produto: se a IA puxa as informações essenciais que faltam para recomendar
+  (comprar ou alugar, faixa de valor, tipo, bairro ou trabalho) de forma natural, e se a assistente virtual da
+  imobiliária muda junto (por enquanto, continua com as perguntas configuradas pela imobiliária).
