@@ -85,3 +85,28 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
   valor, tipo, bairro ou onde trabalha), a IA pergunta ao cliente, de forma natural e encaixada na conversa.
 - **A assistente virtual da imobiliária (Lia) continua como está**, com as perguntas configuradas pela imobiliária.
   Pode mudar no futuro, por decisão do dono do produto.
+
+## 2026-10-28 · Nota: preferências do cliente somadas aos critérios de base
+
+**Antes:** a nota usa só critérios fixos (orçamento, tipo, quartos, vagas, pets, bairro, lazer), com os mesmos pesos
+para todos. Das prioridades perguntadas na conversa, só "lazer no prédio" muda a nota. Fora do bairro do trabalho, a
+localização não conta.
+
+**Agora (versão para o público, piloto):**
+- O ranking junta duas coisas: **as preferências que o cliente expressa** e **os critérios de base**. Não é só uma
+  lista de metas prontas.
+- Preferências são abertas: qualquer coisa que o cliente disser que importa para ele (perto do trabalho, perto da
+  praia, da escola dos filhos, andar alto, varanda, silêncio, serviços a pé…), não uma lista fechada. A praia é só um
+  exemplo entre muitos.
+- O que o cliente diz que é mais importante pesa mais na nota dele. Quem busca morar perto do trabalho tem o imóvel
+  mais perto do trabalho no topo.
+- A IA extrai as preferências da conversa livre; **o código calcula a nota** (regra 7 continua). Toda nota mostra os
+  motivos por critério. Preferência que a ficha do imóvel não informa aparece como "o anúncio não informa", nunca
+  como chute (regra 8).
+
+**No ambiente de teste, até lá:**
+- Critérios de base com pesos configuráveis, como hoje.
+- A prioridade escolhida pelo cliente ganha peso maior.
+- Proximidade do trabalho e da praia **estimada** pela distância entre bairros (linha reta), sempre marcada como
+  estimativa, até o Mapa Vivo (etapa 3) trazer o tempo real de trajeto.
+- "Serviços a pé" fica fora da nota até haver dado real.
