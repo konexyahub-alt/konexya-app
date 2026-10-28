@@ -13,6 +13,8 @@ A tese: a imobiliária responde mais rápido e fecha mais quando o lead chega qu
 3. `docs/mvp.md` (fonte da verdade de escopo, regras e telas).
 4. `docs/prototipo.html` (referência visual). Quando divergir do documento, vale o documento.
 
+`docs/DECISOES.md` registra mudanças aprovadas pelo dono do produto depois desses documentos e vale sobre eles.
+
 Os `.md` em `docs/` foram extraídos dos PDFs; em caso de dúvida de leitura, o PDF é o original.
 
 ## Processo
@@ -24,7 +26,7 @@ Os `.md` em `docs/` foram extraídos dos PDFs; em caso de dúvida de leitura, o 
 - Nunca mudar regra de negócio por conta própria. Se uma regra parecer errada ou impossível, parar e perguntar.
 - Nada fora do escopo: escaneamento 3D, estudo de mercado/sugestão de preço, inteligência de procura,
   revisão periódica de anúncios pela IA, conversa com a IA pelo WhatsApp, apps nativos, tom de voz
-  personalizado, cobrança automática, outras cidades, integrações com CRMs/portais além da importação.
+  personalizado (o jeito de a IA escrever; nome, mensagens e perguntas da assistente entram, ver DECISOES), cobrança automática, outras cidades, integrações com CRMs/portais além da importação.
 - Nada fictício em produção. Dados de exemplo só no ambiente de teste, marcados como tal. Nunca inventar
   números de mercado, de bairro ou de desempenho.
 
@@ -46,7 +48,11 @@ Os `.md` em `docs/` foram extraídos dos PDFs; em caso de dúvida de leitura, o 
    tabelas do cliente: recebe `leads.profile_snapshot`, atualizado só enquanto o consentimento está ativo.
 2. Endereços exatos da rotina nunca vão para a imobiliária, só os tempos de deslocamento.
 3. Nenhuma mensagem sai em nome do corretor sem aprovação dele. A IA sugere; o corretor aprova, edita ou
-   descarta. A única automática é a boas-vindas identificada como IA, se a imobiliária ativar.
+   descarta. Exceção: a assistente virtual da imobiliária (ligada por padrão, pode desligar) dá as boas-vindas
+   e faz as perguntas configuradas pela imobiliária (até 8), pulando o que o perfil já tem. Ela aparece com o
+   nome escolhido pela imobiliária e sempre com o selo "assistente virtual", nunca em nome do corretor. Não
+   agenda, não negocia, não promete. Para quando o corretor envia a primeira mensagem. As respostas preenchem
+   o perfil do lead na hora. Não contam na métrica central.
 4. Só o corretor confirma visitas. Propostas sempre passam pelo corretor antes de ir ao proprietário.
 5. Uma imobiliária nunca lê leads, imóveis não publicados ou métricas de outra. Testar contra o banco (pgTAP).
 6. Alerta de WhatsApp só com opt-in separado dos termos; no máximo 1 alerta de imóvel novo por usuário a
