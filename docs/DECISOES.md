@@ -16,8 +16,8 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
   imobiliária não pode remover. Ela nunca fala em nome do corretor.
 - **Mensagens personalizáveis:** boas-vindas, despedida (quando termina as perguntas) e o texto de cada
   pergunta são escritos pela imobiliária e enviados exatamente como estão, com o nome do cliente encaixado.
-  As respostas curtas entre uma pergunta e outra e o encaminhamento de dúvidas fora do roteiro ("a corretora
-  vai te responder") são gerados pela IA e não são personalizáveis.
+  As respostas curtas entre uma pergunta e outra e as respostas a dúvidas (ver abaixo) são geradas pela IA e
+  não são personalizáveis.
 - **Perguntas personalizáveis.** As perguntas vêm de uma lista padrão (forma de pagamento,
   crédito aprovado, uso do FGTS, precisa vender outro imóvel, melhor horário para contato) ou são escritas pela
   imobiliária. Limite de **8 perguntas**, com aviso a partir de 5. A assistente pula o que o cliente já
@@ -26,6 +26,17 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
   as escritas pela imobiliária aparecem em "Respostas para a imobiliária".
 - A assistente **não agenda, não negocia e não promete**. Visitas e propostas continuam só com o corretor
   (regra 4). Ela segue a regra 8 (só dados da base e do perfil).
+- **Dúvidas fora do roteiro** (decisão de 2026-10-28, opção A):
+  - **Responde** só com dados cadastrados na ficha dos imóveis do lead (metragem, quartos, vagas, condomínio,
+    IPTU, pets, andar, lazer etc.). Se o dado não estiver na ficha, diz que não tem a informação e que o
+    corretor responde. Nunca estima nem chuta.
+  - **Encaminha ao corretor, sem responder:** preço, desconto ou proposta; visita e horário; financiamento e
+    documentação; imóveis que não estão na conversa; opiniões (bom negócio, segurança do bairro, valorização).
+  - Depois de responder ou encaminhar, volta às perguntas configuradas.
+  - O painel do lead mostra um bloco **"Dúvidas do cliente"** com o que ficou para o corretor, marcado como
+    respondido quando o corretor envia mensagem.
+  - Testes automatizados cobrem: resposta só com dado da ficha, recusa a agendar/negociar/prometer e
+    encaminhamento dos temas proibidos.
 - Ela **para quando o corretor envia a primeira mensagem**.
 - As mensagens dela **não contam** no tempo até a primeira resposta humana (métrica central).
 - O texto do consentimento (C-10) avisa que a assistente da imobiliária vai fazer algumas perguntas.

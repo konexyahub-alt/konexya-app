@@ -51,7 +51,8 @@ Os `.md` em `docs/` foram extraídos dos PDFs; em caso de dúvida de leitura, o 
    descarta. Exceção: a assistente virtual da imobiliária (ligada por padrão, pode desligar) dá as boas-vindas
    e faz as perguntas configuradas pela imobiliária (até 8), pulando o que o perfil já tem. Ela aparece com o
    nome escolhido pela imobiliária e sempre com o selo "assistente virtual", nunca em nome do corretor. Não
-   agenda, não negocia, não promete. Para quando o corretor envia a primeira mensagem. As respostas preenchem
+   agenda, não negocia, não promete. Responde dúvidas só com dados da ficha dos imóveis do lead; o que não estiver
+   na ficha, ou envolver preço, visita, financiamento ou opinião, vai para o corretor. Para quando o corretor envia a primeira mensagem. As respostas preenchem
    o perfil do lead na hora. Não contam na métrica central.
 4. Só o corretor confirma visitas. Propostas sempre passam pelo corretor antes de ir ao proprietário.
 5. Uma imobiliária nunca lê leads, imóveis não publicados ou métricas de outra. Testar contra o banco (pgTAP).
