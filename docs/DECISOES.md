@@ -14,7 +14,11 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
 - Vem **ligada por padrão**; a imobiliária pode desligar.
 - **Nome personalizável** por imobiliária, sempre acompanhado do selo **"assistente virtual"**, que a
   imobiliária não pode remover. Ela nunca fala em nome do corretor.
-- **Mensagens e perguntas personalizáveis.** As perguntas vêm de uma lista padrão (forma de pagamento,
+- **Mensagens personalizáveis:** boas-vindas, despedida (quando termina as perguntas) e o texto de cada
+  pergunta são escritos pela imobiliária e enviados exatamente como estão, com o nome do cliente encaixado.
+  As respostas curtas entre uma pergunta e outra e o encaminhamento de dúvidas fora do roteiro ("a corretora
+  vai te responder") são gerados pela IA e não são personalizáveis.
+- **Perguntas personalizáveis.** As perguntas vêm de uma lista padrão (forma de pagamento,
   crédito aprovado, uso do FGTS, precisa vender outro imóvel, melhor horário para contato) ou são escritas pela
   imobiliária. Limite de **8 perguntas**, com aviso a partir de 5. A assistente pula o que o cliente já
   respondeu na conversa com a Konexya.
