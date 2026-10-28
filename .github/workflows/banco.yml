@@ -1,0 +1,62 @@
+name: Banco
+
+# Aplica as migrações e a configuração de login (supabase/config.toml) nos projetos remotos.
+# Teste: a cada push numa branch de trabalho que mude supabase/. Produção: só no merge para a main.
+# Segredos (GitHub > Settings > Secrets and variables > Actions):
+#   SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD_TESTE, SUPABASE_DB_PASSWORD_PRODUCAO, RESEND_API_KEY
+
+on:
+  push:
+    branches: [main, "claude/**"]
+    paths: ["supabase/**", ".github/workflows/banco.yml"]
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: Projeto de destino
+        type: choice
+        options: [teste, producao]
+        default: teste
+
+concurrency:
+  group: banco-${{ github.ref == 'refs/heads/main' && 'producao' || 'teste' }}
+  cancel-in-progress: false
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    env:
+      AMBIENTE: ${{ inputs.ambiente || (github.ref == 'refs/heads/main' && 'producao' || 'teste') }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      SUPABASE_YES: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Escolher projeto
+        run: |
+          if [ "$AMBIENTE" = producao ]; then
+            echo "PROJECT_REF=wryomdxaqvrzttavkfei" >> "$GITHUB_ENV"
+            echo "SUPABASE_DB_PASSWORD=${{ secrets.SUPABASE_DB_PASSWORD_PRODUCAO }}" >> "$GITHUB_ENV"
+          else
+            echo "PROJECT_REF=xjxfqerqrscejpxqxspw" >> "$GITHUB_ENV"
+            echo "SUPABASE_DB_PASSWORD=${{ secrets.SUPABASE_DB_PASSWORD_TESTE }}" >> "$GITHUB_ENV"
+          fi
+      - name: Conferir segredos
+        run: |
+          if [ "$AMBIENTE" = producao ] && [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo "::error::Produção só recebe migrações da main"; exit 1
+          fi
+          [ -n "$SUPABASE_ACCESS_TOKEN" ] || { echo "::error::Falta o segredo SUPABASE_ACCESS_TOKEN"; exit 1; }
+          [ -n "$SUPABASE_DB_PASSWORD" ] || { echo "::error::Falta a senha do banco de $AMBIENTE"; exit 1; }
+      - run: npx supabase link --project-ref "$PROJECT_REF"
+      - name: Migrações
+        run: npx supabase db push --linked --yes
+      - name: Configuração de login
+        run: |
+          # Sem a chave, o SMTP iria para o Supabase com a senha vazia e nenhum código de login chegaria.
+          [ -n "$RESEND_API_KEY" ] || { echo "::error::Falta o segredo RESEND_API_KEY (e-mails de login)"; exit 1; }
+          npx supabase config push --project-ref "$PROJECT_REF" --yes

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "claude/**"]
   pull_request:
 
 concurrency:
@@ -26,3 +26,17 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+  db:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Sobe o Supabase local (só os serviços que os testes usam)
+        run: npx supabase start -x studio,imgproxy,vector,logflare,supavisor,edge-runtime,realtime,postgres-meta,mailpit
+      - name: Testes de banco (RLS e regras de negócio)
+        run: npx supabase test db
