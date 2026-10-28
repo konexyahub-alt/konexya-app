@@ -113,3 +113,23 @@ export function parseBudget(text: string): ProfileUpdate | null {
   if (/mais de|acima de|a partir de|no minimo/.test(t)) return { budget_min: v, budget_max: null };
   return { budget_min: null, budget_max: v };
 }
+
+/**
+ * A pessoa respondeu outra pergunta antes da hora ("trabalho na aldeota" quando a pergunta era a prioridade)?
+ * Tenta as perguntas que ainda faltam, menos as de sim/não (um "não" solto é ambíguo).
+ */
+const UNAMBIGUOUS: StepKey[] = ["trabalho", "trajeto", "estilo", "objetivo", "prazo", "orcamento", "tipo", "prioridade"];
+
+export function parseAnyStep(pending: StepKey[], text: string): { step: StepKey; update: ProfileUpdate } | null {
+  for (const step of UNAMBIGUOUS) {
+    if (!pending.includes(step)) continue;
+    const update = parseStepAnswer(step, text);
+    if (update) return { step, update };
+  }
+  // Pets só com porte explícito ("cachorro grande", "gato"), nunca com um "não" solto.
+  if (pending.includes("pets") && !/^\s*(nao|não|n)\b/i.test(text)) {
+    const update = parseStepAnswer("pets", text);
+    if (update && update.pets !== "nenhum") return { step: "pets", update };
+  }
+  return null;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseBudget, parseMoneyValues, parseStepAnswer } from "./parse-answer";
+import { parseAnyStep, parseBudget, parseMoneyValues, parseStepAnswer } from "./parse-answer";
 import { findNeighborhoods } from "./neighborhoods";
 
 describe("respostas digitadas sem IA", () => {
@@ -35,5 +35,16 @@ describe("respostas digitadas sem IA", () => {
   it("devolve null quando não entende (o servidor pergunta à IA)", () => {
     expect(parseStepAnswer("trabalho", "num lugar perto do shopping")).toBeNull();
     expect(parseStepAnswer("orcamento", "depende")).toBeNull();
+  });
+});
+
+describe("resposta de outra pergunta antes da hora", () => {
+  it("anota o que dá para entender e não confunde com sim/não", () => {
+    expect(parseAnyStep(["prioridade", "trabalho", "pets"], "trabalho na aldeota")).toEqual({
+      step: "trabalho",
+      update: { work_neighborhood: "Aldeota", works_from_home: false },
+    });
+    expect(parseAnyStep(["prioridade", "pets"], "tenho um cachorro grande")).toEqual({ step: "pets", update: { pets: "grande" } });
+    expect(parseAnyStep(["prioridade", "filhos", "pets"], "não")).toBeNull();
   });
 });

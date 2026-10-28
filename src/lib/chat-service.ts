@@ -4,9 +4,10 @@ import { aiMessagesToday, dailyLimit, logAiAction } from "@/lib/ai/log";
 import { chatOutputSchema, chatSystemPrompt, fixPra, sanitizeChatUpdates } from "@/lib/ai/prompts";
 import { CHAT_ERROR_TEXT, CHAT_LIMIT_TEXT } from "@/lib/chat-texts";
 import { serverEnv } from "@/lib/env";
-import { parseStepAnswer } from "@/lib/parse-answer";
+import { parseAnyStep, parseStepAnswer } from "@/lib/parse-answer";
 import {
   applyUpdate,
+  describeUpdate,
   diffProfile,
   isMinimumProfile,
   nextStep,
@@ -61,6 +62,16 @@ export async function processChatMessage(userId: string, text: string, opts: { r
   if (step) {
     const option = step.options(before).find((o) => o.label.toLowerCase() === body.toLowerCase());
     update = option?.update ?? parseStepAnswer(step.key, body);
+    if (!update) {
+      // Respondeu outra pergunta antes da hora: anota e repete a pergunta em aberto.
+      const pendingKeys = STEPS.filter((s) => !s.filled(before) && !s.skip?.(before)).map((s) => s.key);
+      const other = parseAnyStep(pendingKeys, body);
+      if (other) {
+        update = other.update;
+        const said = describeUpdate(other.update, applyUpdate(before, other.update));
+        if (said.length) out.push({ author: "ia", body: `Anotado: ${said.join(", ")}.` });
+      }
+    }
   }
 
   // 2) Fora do roteiro (ou depois dele): a IA interpreta.
