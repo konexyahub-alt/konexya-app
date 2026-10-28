@@ -6,14 +6,14 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
   interactive?: boolean;
 };
 
-/** Cartão com borda fina cinza e cantos arredondados. */
+/** Cartão branco com sombra suave sobre o fundo papel, cantos arredondados. */
 export function Card({ interactive = false, className, ...rest }: CardProps) {
   return (
     <div
       className={cn(
-        "min-w-0 rounded-card border border-line bg-white p-[18px]",
+        "min-w-0 rounded-card bg-white p-[18px] shadow-card",
         interactive &&
-          "cursor-pointer transition-colors hover:border-black focus-within:border-black active:border-black",
+          "cursor-pointer outline outline-1 outline-transparent transition-[outline-color] hover:outline-black focus-within:outline-black active:outline-black",
         className,
       )}
       {...rest}

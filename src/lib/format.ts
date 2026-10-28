@@ -21,3 +21,14 @@ export function plural(n: number, one: string, many: string): string {
 export function isPast(iso: string): boolean {
   return new Date(iso).getTime() < Date.now();
 }
+
+/** Iniciais de um nome ("Imobiliária Exemplo Ltda." → "IE"), sem sufixos de empresa. */
+export function initials(name: string): string {
+  return name
+    .replace(/\b(ltda|me|eireli|s\/?a)\b\.?/gi, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+}

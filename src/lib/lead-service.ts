@@ -1,4 +1,5 @@
 import "server-only";
+import { after } from "next/server";
 import { AiError, generateStructured, isAiConfigured } from "@/lib/ai/client";
 import { aiMessagesToday, dailyLimit, logAiAction } from "@/lib/ai/log";
 import {
@@ -87,7 +88,10 @@ async function ask(admin: AdminClient, ctx: Loaded, q: AssistantQuestion) {
   await say(admin, ctx, q.text, { quickReplies: questionOptions(q.id) });
 }
 
-/** Depois do consentimento: boas-vindas e primeira pergunta, ou o aviso de que o corretor já recebeu. */
+/**
+ * Depois do consentimento: boas-vindas e primeira pergunta, ou o aviso de que o corretor já recebeu.
+ * O resumo para o corretor (refreshLeadBrief) roda depois, sem segurar a tela do cliente.
+ */
 export async function startLeadConversation(leadId: string) {
   const admin = createAdminClient();
   if (!admin) return;
@@ -104,7 +108,6 @@ export async function startLeadConversation(leadId: string) {
       await ask(admin, ctx, next.question);
     } else await finish(admin, ctx);
   }
-  await refreshLeadBrief(leadId);
 }
 
 async function finish(admin: AdminClient, ctx: Loaded) {
@@ -190,7 +193,7 @@ async function recordAnswer(
   if (next) await ask(admin, refreshed, next.question);
   else {
     await finish(admin, refreshed);
-    await refreshLeadBrief(ctx.lead.id);
+    after(() => refreshLeadBrief(ctx.lead.id));
   }
 }
 

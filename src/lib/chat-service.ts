@@ -2,6 +2,7 @@ import "server-only";
 import { AiError, generateStructured, isAiConfigured } from "@/lib/ai/client";
 import { aiMessagesToday, dailyLimit, logAiAction } from "@/lib/ai/log";
 import { chatOutputSchema, chatSystemPrompt, fixPra, sanitizeChatUpdates } from "@/lib/ai/prompts";
+import { CHAT_ERROR_TEXT, CHAT_LIMIT_TEXT } from "@/lib/chat-texts";
 import { serverEnv } from "@/lib/env";
 import { parseStepAnswer } from "@/lib/parse-answer";
 import {
@@ -9,6 +10,7 @@ import {
   diffProfile,
   isMinimumProfile,
   nextStep,
+  STEPS,
   toProfile,
   type Profile,
   type ProfileUpdate,
@@ -24,9 +26,6 @@ import type { Json } from "@/lib/supabase/database.types";
  * respostas que dá para entender sem IA não gastam IA. Quando o perfil mínimo fica completo, a conversa
  * mostra os 3 imóveis mais compatíveis (nota calculada pelo código, nunca pela IA).
  */
-export const CHAT_ERROR_TEXT = "Não consegui responder agora. Tente de novo.";
-export const CHAT_LIMIT_TEXT =
-  "Você usou as mensagens de hoje. Amanhã a conversa continua. As respostas rápidas seguem funcionando.";
 
 export type ChatCard = { property_id: string; score: number; reasons: { band: string; text: string }[] };
 
@@ -40,7 +39,18 @@ export async function processChatMessage(userId: string, text: string, opts: { r
   const { data: row } = await supabase.from("client_profiles").select("*").eq("user_id", userId).single();
   const before = toProfile(row);
   if (!opts.retry) {
-    await supabase.from("profile_chat_messages").insert({ user_id: userId, author: "cliente", body });
+    // A primeira pergunta aparece na tela antes de qualquer mensagem; grava junto com a primeira resposta.
+    const { count } = await supabase
+      .from("profile_chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId);
+    const first = STEPS[0];
+    await supabase.from("profile_chat_messages").insert([
+      ...(count === 0
+        ? [{ user_id: userId, author: "ia" as const, body: first.question(before), quick_replies: first.options(before).map((o) => o.label) }]
+        : []),
+      { user_id: userId, author: "cliente" as const, body },
+    ]);
   }
 
   const step = nextStep(before);
@@ -226,4 +236,17 @@ async function interpretWithAi(userId: string, profile: Profile, pending: string
     });
     return { kind: "erro" };
   }
+}
+
+/**
+ * Depois de uma edição no Perfil (C-05): se as recomendações já tinham aparecido na conversa, recalcula
+ * e avisa na própria conversa ("Recomendações atualizadas"). Devolve true quando houve recálculo.
+ */
+export async function refreshRecommendations(userId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: row } = await supabase.from("client_profiles").select("*").eq("user_id", userId).single();
+  const profile = toProfile(row);
+  if (!isMinimumProfile(profile) || nextStep(profile) || !(await lastCards(userId))) return false;
+  await insertMessages(userId, await recommendationMessages(userId, profile));
+  return true;
 }

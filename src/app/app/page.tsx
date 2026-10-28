@@ -1,34 +1,103 @@
 import { Suspense } from "react";
-import { EmptyState, PropertyCardSkeleton, Wordmark } from "@/components/ui";
+import { TabBar } from "@/components/client/tab-bar";
+import type { CardProperty } from "@/components/client/recommendation-card";
+import { Skeleton, TypingIndicator } from "@/components/ui";
 import { requireReadyClient } from "@/lib/auth";
-import { signOut } from "./actions";
+import type { ChatCard } from "@/lib/chat-service";
+import { publicEnv } from "@/lib/env";
+import { CHIPS, STEPS, chipValue, filledChips, nextStep, toProfile } from "@/lib/profile";
+import { TYPE_LABELS, photoUrl, sortPhotos } from "@/lib/property";
+import { createClient } from "@/lib/supabase/server";
+import { ChatView, type ChatMessage } from "./chat-view";
 
-/** Início do app do cliente. A Conversa (C-04) chega na etapa 2. */
-export default function ClientHome() {
+/** C-04 · Conversa: monta o perfil e entrega as recomendações. */
+export default function ConversationPage() {
   return (
-    <main className="flex flex-1 flex-col gap-6 px-[22px] pb-7 pt-6">
-      <Wordmark className="h-6" />
-      <Suspense fallback={<PropertyCardSkeleton />}>
-        <Home />
+    <>
+      <Suspense fallback={<ChatSkeleton />}>
+        <Conversation />
       </Suspense>
-    </main>
+      <TabBar />
+    </>
   );
 }
 
-async function Home() {
-  const { name } = await requireReadyClient("/app");
+async function Conversation() {
+  const { user, name } = await requireReadyClient("/app");
+  const supabase = await createClient();
+  const [{ data: row }, { data: rows }] = await Promise.all([
+    supabase.from("client_profiles").select("*").eq("user_id", user.id).single(),
+    supabase
+      .from("profile_chat_messages")
+      .select("id, author, body, quick_replies, cards")
+      .eq("user_id", user.id)
+      .order("id", { ascending: false })
+      .limit(80),
+  ]);
+  const profile = toProfile(row);
+  const history = (rows ?? []).reverse();
+
+  // Imóveis dos cartões (podem ter saído do ar depois de recomendados).
+  const ids = [...new Set(history.flatMap((m) => ((m.cards as ChatCard[] | null) ?? []).map((c) => c.property_id)))];
+  const { data: props } = ids.length
+    ? await supabase
+        .from("properties")
+        .select("id, title, type, neighborhood, bedrooms, area_m2, price, purpose, status, property_photos(storage_path, source_url, position, is_cover)")
+        .in("id", ids)
+    : { data: [] };
+  const base = publicEnv().NEXT_PUBLIC_SUPABASE_URL;
+  const properties: Record<string, CardProperty> = {};
+  for (const p of props ?? []) {
+    const cover = sortPhotos(p.property_photos)[0];
+    properties[p.id] = {
+      id: p.id,
+      title: p.title ?? TYPE_LABELS[p.type],
+      neighborhood: p.neighborhood,
+      bedrooms: p.bedrooms,
+      area_m2: p.area_m2,
+      price: p.price,
+      purpose: p.purpose,
+      photoUrl: cover ? photoUrl(cover, base) : null,
+      available: p.status === "publicado",
+    };
+  }
+
+  const messages: ChatMessage[] = history.map((m) => ({
+    id: m.id,
+    author: m.author,
+    body: m.body,
+    quickReplies: m.quick_replies,
+    cards: ((m.cards as ChatCard[] | null) ?? [])
+      .filter((c) => properties[c.property_id])
+      .map((c) => ({ property: properties[c.property_id], score: c.score, reasons: c.reasons })),
+  }));
+
+  // Primeira visita: a primeira pergunta já está na tela (fluxo F1, passo 5), sem gravar nada.
+  const step = nextStep(profile);
+  const firstQuestion = STEPS[0];
+  const intro = !messages.length
+    ? { question: firstQuestion.question(profile), options: firstQuestion.options(profile).map((o) => o.label) }
+    : null;
+
   return (
-    <>
-      <h1 className="text-[26px] font-bold tracking-tight">Olá, {name}!</h1>
-      <EmptyState
-        title="A conversa com a IA chega em breve."
-        description="Seu acesso está pronto. Avisaremos quando a Konexya puder começar a procurar imóveis com você."
-      />
-      <form action={signOut} className="mt-auto">
-        <button type="submit" className="min-h-touch text-sm font-semibold text-muted underline underline-offset-4">
-          Sair
-        </button>
-      </form>
-    </>
+    <ChatView
+      name={name ?? ""}
+      chips={CHIPS.map((c) => ({ key: c.key, label: c.label, value: chipValue(c.key, profile) }))}
+      filled={filledChips(profile)}
+      messages={messages}
+      intro={intro}
+      pendingStep={step?.key ?? null}
+    />
+  );
+}
+
+function ChatSkeleton() {
+  return (
+    <div className="grid gap-4 px-5 pt-14">
+      <Skeleton className="h-10 w-1/2" />
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="mt-6 h-16 w-3/4 rounded-[20px]" />
+      <TypingIndicator />
+    </div>
   );
 }

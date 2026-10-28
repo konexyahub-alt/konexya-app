@@ -10,7 +10,7 @@
   --color-black: #0b0b0c;
   --color-ink: #151516;
   --color-white: #ffffff;
-  --color-paper: #f4f4f2;
+  --color-paper: #f5f5f3;
   --color-paper-2: #ebebe8;
   --color-line: #e2e2df;
   --color-line-2: #d3d3cf;
@@ -34,6 +34,10 @@
   --spacing-touch: 44px;
 
   --shadow-pop: 0 18px 40px -16px rgb(0 0 0 / 0.5);
+  /* Cartões brancos sobre o fundo papel (visual v2, aprovado no Figma da etapa 2). */
+  --shadow-card: 0 1px 2px rgb(11 11 12 / 0.05), 0 10px 28px rgb(11 11 12 / 0.07);
+  --shadow-soft: 0 1px 2px rgb(11 11 12 / 0.06);
+  --shadow-bar: 0 -8px 24px rgb(11 11 12 / 0.06);
 
   --animate-typing: typing 1.2s infinite;
   --animate-toast-in: toast-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -84,7 +88,7 @@
     color-scheme: light;
   }
   body {
-    background: var(--color-white);
+    background: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: 14px;
@@ -120,4 +124,13 @@
 
 @utility num {
   font-variant-numeric: tabular-nums;
+}
+
+/* Rótulo de seção: caixa alta, espaçado, discreto. */
+@utility trk {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted-2);
 }
