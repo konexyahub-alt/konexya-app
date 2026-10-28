@@ -34,7 +34,7 @@ export function ScoreRing({ score, size = 52, className }: { score: number; size
           strokeDasharray={`${(c * s) / 100} ${c}`}
         />
       </svg>
-      <span className="num font-extrabold tracking-tight" style={{ fontSize: size >= 64 ? 20 : size >= 50 ? 14 : 11 }}>
+      <span className="num font-extrabold tracking-tight" style={{ fontSize: size >= 64 ? 20 : size >= 50 ? 13 : size >= 40 ? 10.5 : 9 }}>
         {s}%
       </span>
     </span>

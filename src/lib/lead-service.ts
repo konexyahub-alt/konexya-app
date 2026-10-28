@@ -244,11 +244,22 @@ async function interpret(
  * Resumo do perfil e mensagem sugerida para o corretor (P-04). Só enquanto o corretor ainda não respondeu;
  * a sugestão pendente é atualizada, nunca enviada (regra 3).
  */
-export async function refreshLeadBrief(leadId: string, opts: { force?: boolean } = {}) {
+export async function refreshLeadBrief(leadId: string, opts: { reply?: boolean } = {}): Promise<boolean> {
   const admin = createAdminClient();
-  if (!admin || !isAiConfigured()) return;
+  if (!admin || !isAiConfigured()) return false;
   const { data: lead } = await admin.from("leads").select("*").eq("id", leadId).single();
-  if (!lead || lead.consent_revoked_at || (lead.first_human_response_at && !opts.force)) return;
+  if (!lead || lead.consent_revoked_at || (lead.first_human_response_at && !opts.reply)) return false;
+  let history: string | undefined;
+  if (opts.reply) {
+    const { data: msgs } = await admin
+      .from("lead_messages")
+      .select("sender, body")
+      .eq("lead_id", leadId)
+      .order("id", { ascending: false })
+      .limit(20);
+    const who = { cliente: "Cliente", corretor: "Corretor", assistente: "Assistente virtual", sistema: "Sistema" } as const;
+    history = (msgs ?? []).reverse().map((m) => `${who[m.sender]}: ${m.body}`).join("\n");
+  }
 
   const profile = toProfile(lead.profile_snapshot as Record<string, unknown>);
   const [{ data: props }, { data: agency }, { data: broker }, { data: questions }, settings] = await Promise.all([
@@ -280,6 +291,7 @@ export async function refreshLeadBrief(leadId: string, opts: { force?: boolean }
           const s = scoreProperty(p, profile, settings.weights);
           return { ...p, score: s?.score ?? null, reasons: s?.reasons.map((r) => r.text) ?? [] };
         }),
+        history,
       }),
       messages: [{ role: "user", content: "Prepare o resumo e a primeira mensagem." }],
       effort: "medium",
@@ -309,6 +321,7 @@ export async function refreshLeadBrief(leadId: string, opts: { force?: boolean }
       outputTokens: result.outputTokens,
       output: { summary, suggestion },
     });
+    return true;
   } catch (error) {
     await logAiAction(admin, {
       actor: "resumo_lead",
@@ -320,5 +333,6 @@ export async function refreshLeadBrief(leadId: string, opts: { force?: boolean }
       reachedClient: false,
       output: { error: error instanceof Error ? error.message : String(error) },
     });
+    return false;
   }
 }

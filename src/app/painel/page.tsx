@@ -40,7 +40,7 @@ async function Router() {
     if (await isPlatformAdmin()) redirect("/admin");
     redirect("/painel/parceiro");
   }
-  if (membership.status === "aprovada") redirect("/painel/imoveis");
+  if (membership.status === "aprovada") redirect("/painel/inicio");
   const copy = STATUS_COPY[membership.status];
   return (
     <BrandSplit

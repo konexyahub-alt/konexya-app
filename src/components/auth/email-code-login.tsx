@@ -198,7 +198,9 @@ function CodeInput({
   disabled: boolean;
 }) {
   const ref = useRef<HTMLInputElement>(null);
-  useEffect(() => ref.current?.focus(), []);
+  useEffect(() => {
+    ref.current?.focus();
+  }, []);
   return (
     <label className={cn("relative block w-fit", invalid && "animate-shake")}>
       <span className="sr-only">Código de 6 dígitos</span>

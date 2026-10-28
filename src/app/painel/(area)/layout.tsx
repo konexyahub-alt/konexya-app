@@ -14,9 +14,14 @@ export default function PanelAreaLayout({ children }: { children: React.ReactNod
 
 async function Shell({ children }: { children: React.ReactNode }) {
   const { membership } = await requireApprovedMember("/painel");
+  const gestor = membership.role === "gestor";
   const items = [
+    { href: "/painel/inicio", label: "Painel", icon: "grid" as const },
+    { href: "/painel/funil", label: "Funil", icon: "kanban" as const },
+    { href: "/painel/leads", label: "Lead aberto", icon: "lead" as const },
     { href: "/painel/imoveis", label: "Imóveis anunciados", icon: "home" as const },
-    ...(membership.role === "gestor" ? [{ href: "/painel/equipe", label: "Equipe", icon: "user" as const }] : []),
+    ...(gestor ? [{ href: "/painel/equipe", label: "Equipe", icon: "user" as const }] : []),
+    ...(gestor ? [{ href: "/painel/assistente", label: "Assistente virtual", icon: "chat" as const }] : []),
   ];
   return (
     <PanelShell

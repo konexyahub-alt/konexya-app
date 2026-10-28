@@ -60,8 +60,7 @@ async function Ficha({ params }: Pick<PageProps<"/app/imoveis/[id]">, "params">)
 
   // Imóveis vistos entram no lead só se o cliente autorizar (lead_property_activity).
   after(async () => {
-    const db = await createClient();
-    await db.rpc("mark_property_viewed", { p_property: p.id });
+    await supabase.rpc("mark_property_viewed", { p_property: p.id });
   });
   const profile = toProfile(profileRow);
   const result = settings ? scoreProperty(p, profile, settings.weights) : null;
