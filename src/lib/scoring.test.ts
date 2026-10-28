@@ -145,3 +145,29 @@ describe("quantas recomendações mostrar", () => {
     expect(pickRecommendations(many([800_000, 850_000])).shown).toHaveLength(2);
   });
 });
+
+describe("prioridade do cliente pesa mais (docs/DECISOES.md)", () => {
+  const nearWork: Profile = { ...profile, priorities: ["perto_trabalho"] };
+
+  it("quem quer morar perto do trabalho tem o imóvel no bairro do trabalho no topo, sem distância inventada", () => {
+    const ranked = rankProperties(
+      [prop({ id: "varjota", neighborhood: "Varjota", price: 700_000 }), prop({ id: "aldeota", neighborhood: "Aldeota" })],
+      nearWork,
+    );
+    expect(ranked.map((r) => r.property.id)).toEqual(["aldeota", "varjota"]);
+    expect(ranked[0].score).toBe(100);
+    const other = ranked[1].reasons.find((r) => r.criterion === "localizacao")!;
+    expect(other.text).toBe("Em outro bairro: a distância até o trabalho entra com o Mapa Vivo");
+    expect(ranked[1].score).toBeLessThan(100);
+  });
+
+  it("sem essa prioridade, outro bairro não perde ponto (nada medido)", () => {
+    expect(scoreProperty(prop({ neighborhood: "Varjota" }), profile)!.score).toBe(100);
+  });
+
+  it("a prioridade dobra o peso do critério ligado a ela", () => {
+    const sem = scoreProperty(prop({ neighborhood: "Varjota" }), { ...profile, neighborhoods: ["Cocó"] })!.score;
+    const com = scoreProperty(prop({ neighborhood: "Varjota" }), { ...profile, neighborhoods: ["Cocó"], priorities: ["perto_trabalho"] })!.score;
+    expect(com).toBeLessThan(sem);
+  });
+});

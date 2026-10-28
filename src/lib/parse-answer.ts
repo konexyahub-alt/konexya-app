@@ -11,6 +11,7 @@ export function parseStepAnswer(step: StepKey, text: string): ProfileUpdate | nu
   switch (step) {
     case "prioridade": {
       const priorities: NonNullable<ProfileUpdate["priorities"]> = [];
+      if (/perto do (meu )?trabalho|perto de onde (eu )?trabalho|perto do (meu )?emprego/.test(t)) priorities.push("perto_trabalho");
       if (/restaurant|servico|a pe\b|padaria|mercado|comercio|farmacia/.test(t)) priorities.push("servicos_a_pe");
       if (/praia|beira.?mar|mar\b/.test(t)) priorities.push("praia");
       if (/lazer|piscina|academia|playground|area de lazer|clube/.test(t)) priorities.push("lazer_no_predio");

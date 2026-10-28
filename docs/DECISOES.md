@@ -104,9 +104,17 @@ localização não conta.
   motivos por critério. Preferência que a ficha do imóvel não informa aparece como "o anúncio não informa", nunca
   como chute (regra 8).
 
-**No ambiente de teste, até lá:**
+**Meta do piloto (o que precisa estar pronto antes de ir ao público):**
+- Conversa livre (seção anterior) extraindo as preferências abertas do cliente.
+- Nota = preferências do cliente + critérios de base, com mais peso para o que o cliente disse que importa mais.
+- **Proximidade real** (trabalho, praia, escola, o que o cliente citar) calculada pelo Google Maps (Mapa Vivo,
+  etapa 3): distância e tempo de trajeto do endereço do imóvel até o lugar. Depende da decisão de pagamento do
+  Google Maps.
+
+**No ambiente de teste, por enquanto (sem Google Maps):**
 - Critérios de base com pesos configuráveis, como hoje.
-- A prioridade escolhida pelo cliente ganha peso maior.
-- Proximidade do trabalho e da praia **estimada** pela distância entre bairros (linha reta), sempre marcada como
-  estimativa, até o Mapa Vivo (etapa 3) trazer o tempo real de trajeto.
-- "Serviços a pé" fica fora da nota até haver dado real.
+- Nova prioridade "Morar perto do trabalho". A prioridade que o cliente escolher pesa mais na nota.
+- Proximidade do trabalho só pelo bairro: imóvel no mesmo bairro do trabalho fica no topo; em outro bairro, o motivo
+  diz que a distância até o trabalho entra com o Mapa Vivo. Nada de distância estimada ou inventada.
+- "Perto da praia" e "Serviços a pé" ficam fora da nota até haver dado real (Google Maps).
+- Distância em linha reta entre bairros foi descartada: seria um quebra-galho jogado fora na etapa 3.

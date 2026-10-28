@@ -12,7 +12,7 @@ const neighborhood = z
 
 export const profileUpdateSchema = z
   .object({
-    priorities: z.array(z.enum(PRIORITIES)).max(3),
+    priorities: z.array(z.enum(PRIORITIES)).max(PRIORITIES.length),
     work_neighborhood: neighborhood.nullable(),
     works_from_home: z.boolean().nullable(),
     commute_max_min: z.number().int().min(5).max(180).nullable(),

@@ -13,7 +13,7 @@ export type ClientLifestyle = Enums["client_lifestyle"];
 export type ClientPets = Enums["client_pets"];
 export type ClientTimeline = Enums["client_timeline"];
 
-export const PRIORITIES = ["servicos_a_pe", "praia", "lazer_no_predio"] as const;
+export const PRIORITIES = ["perto_trabalho", "servicos_a_pe", "praia", "lazer_no_predio"] as const;
 export type Priority = (typeof PRIORITIES)[number];
 
 export type Profile = {
@@ -91,6 +91,7 @@ export function toProfile(row: Record<string, unknown> | null | undefined): Prof
 // Rótulos
 // ---------------------------------------------------------------------------------------------------
 export const PRIORITY_LABELS: Record<Priority, string> = {
+  perto_trabalho: "Morar perto do trabalho",
   servicos_a_pe: "Restaurantes e serviços a pé",
   praia: "Perto da praia",
   lazer_no_predio: "Espaço e lazer no prédio",
@@ -239,6 +240,7 @@ export const STEPS: Step[] = [
     chip: "prioridade",
     question: () => "O que é mais importante no lugar onde você vai morar?",
     options: () => [
+      { label: "Morar perto do trabalho", update: { priorities: ["perto_trabalho"] } },
       { label: "Restaurantes e serviços a pé", update: { priorities: ["servicos_a_pe"] } },
       { label: "Ficar perto da praia", update: { priorities: ["praia"] } },
       { label: "Espaço e lazer no prédio", update: { priorities: ["lazer_no_predio"] } },

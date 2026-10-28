@@ -126,12 +126,16 @@ export function criteria(p: ScoredProperty, profile: Profile) {
     else parts.push(part("pets", 100, profile.pets === "grande" ? "Aceita pets de porte grande" : "Aceita pets"));
   }
 
-  // Localização (bairros escolhidos ou bairro do trabalho; distância real entra com o Mapa Vivo)
+  // Localização (bairros escolhidos ou bairro do trabalho). Sem Google Maps não há distância: fora do bairro do
+  // trabalho, o motivo diz que a distância entra com o Mapa Vivo, sem estimativa (docs/DECISOES.md).
   const inChosen = profile.neighborhoods.some((n) => sameNeighborhood(n, p.neighborhood));
+  const worksOut = !profile.works_from_home && !!profile.work_neighborhood;
   if (inChosen) parts.push(part("localizacao", 100, `No ${p.neighborhood}, um dos bairros que você procura`));
-  else if (!profile.works_from_home && sameNeighborhood(profile.work_neighborhood, p.neighborhood))
+  else if (worksOut && sameNeighborhood(profile.work_neighborhood, p.neighborhood))
     parts.push(part("localizacao", 100, "No mesmo bairro do seu trabalho"));
   else if (profile.neighborhoods.length) parts.push(part("localizacao", 40, "Fora dos bairros que você indicou"));
+  else if (worksOut && profile.priorities.includes("perto_trabalho"))
+    parts.push(part("localizacao", 75, "Em outro bairro: a distância até o trabalho entra com o Mapa Vivo"));
 
   // Lazer no prédio, se for prioridade
   if (profile.priorities.includes("lazer_no_predio")) {
@@ -144,8 +148,26 @@ export function criteria(p: ScoredProperty, profile: Profile) {
   return parts;
 }
 
+/** Prioridade escolhida pelo cliente → critério que ganha peso dobrado na nota dele. */
+const PRIORITY_CRITERION: Partial<Record<Profile["priorities"][number], Criterion>> = {
+  perto_trabalho: "localizacao",
+  lazer_no_predio: "lazer",
+};
+export const PRIORITY_WEIGHT_FACTOR = 2;
+
+/** Pesos deste cliente: os configurados, com peso dobrado no que ele disse que é mais importante. */
+export function profileWeights(weights: Weights, profile: Profile): Weights {
+  const out = { ...weights };
+  for (const pr of profile.priorities) {
+    const c = PRIORITY_CRITERION[pr];
+    if (c) out[c] = weights[c] * PRIORITY_WEIGHT_FACTOR;
+  }
+  return out;
+}
+
 /** Nota geral (média ponderada dos critérios que se aplicam). Sem critério nenhum, não há nota. */
-export function scoreProperty(p: ScoredProperty, profile: Profile, weights: Weights = DEFAULT_WEIGHTS): ScoreResult | null {
+export function scoreProperty(p: ScoredProperty, profile: Profile, baseWeights: Weights = DEFAULT_WEIGHTS): ScoreResult | null {
+  const weights = profileWeights(baseWeights, profile);
   const parts = criteria(p, profile).filter((x) => weights[x.criterion] > 0);
   if (!parts.length) return null;
   const total = parts.reduce((s, x) => s + weights[x.criterion], 0);

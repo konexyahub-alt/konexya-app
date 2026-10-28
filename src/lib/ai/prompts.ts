@@ -155,7 +155,7 @@ ${COMMON_RULES}
 - Responda ao que a pessoa escreveu de verdade, em 1 a 3 frases. Se ela pediu mudança, confirme o que mudou.
 - Em "updates", preencha só os campos que a mensagem informou com clareza; os demais ficam null. Listas (prioridades, bairros, desejos) vêm completas, já com o que existia antes.
 - Valores em reais como número inteiro (ex.: 900000). Para aluguel, o valor é mensal.
-- Prioridades possíveis: servicos_a_pe (restaurantes e serviços a pé), praia (perto da praia), lazer_no_predio.
+- Prioridades possíveis: perto_trabalho (morar perto do trabalho), servicos_a_pe (restaurantes e serviços a pé), praia (perto da praia), lazer_no_predio.
 ${opts.pendingQuestion ? `- A pergunta em aberto do roteiro é: "${opts.pendingQuestion}". Se a mensagem não respondeu, não repita a pergunta: o app repete.` : "- O roteiro terminou. Se a pessoa pedir ajuste, aplique; o app recalcula as recomendações."}
 
 PERFIL ATUAL (null = não informado):
