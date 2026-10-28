@@ -37,6 +37,26 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"agency_assistant_settings": {
+                  Row: {
+                    "agency_id": string,"distribution": Database["public"]['Enums']["distribution_mode"],"enabled": boolean,"farewell_message": string,"name": string,"questions": NonNullable<Json>,"updated_at": string,"updated_by": string | null,"welcome_message": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agency_id": string,"distribution"?: Database["public"]['Enums']["distribution_mode"],"enabled"?: boolean,"farewell_message": string,"name"?: string,"questions": NonNullable<Json>,"updated_at"?: string,"updated_by"?: string | null,"welcome_message": string
+                  }
+                  Update: {
+                    "agency_id"?: string,"distribution"?: Database["public"]['Enums']["distribution_mode"],"enabled"?: boolean,"farewell_message"?: string,"name"?: string,"questions"?: NonNullable<Json>,"updated_at"?: string,"updated_by"?: string | null,"welcome_message"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "agency_assistant_settings_agency_id_fkey"
+      columns: ["agency_id"]
+isOneToOne: true
+      referencedRelation: "agencies"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"agency_invites": {
                   Row: {
                     "accepted_at": string | null,"agency_id": string,"created_at": string,"created_by": string,"email": string,"expires_at": string,"id": string,"role": Database["public"]['Enums']["member_role"],"token_hash": string
@@ -77,16 +97,62 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"client_profiles": {
+                },"ai_action_log": {
                   Row: {
-                    "created_at": string,"name": string | null,"updated_at": string,"user_id": string
+                    "actor": string,"agency_id": string | null,"client_id": string | null,"created_at": string,"id": number,"input_tokens": number | null,"lead_id": string | null,"model": string | null,"output": Json | null,"output_tokens": number | null,"reached_client": boolean,"status": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"name"?: string | null,"updated_at"?: string,"user_id": string
+                    "actor": string,"agency_id"?: string | null,"client_id"?: string | null,"created_at"?: string,"id"?: never,"input_tokens"?: number | null,"lead_id"?: string | null,"model"?: string | null,"output"?: Json | null,"output_tokens"?: number | null,"reached_client"?: boolean,"status": string
                   }
                   Update: {
-                    "created_at"?: string,"name"?: string | null,"updated_at"?: string,"user_id"?: string
+                    "actor"?: string,"agency_id"?: string | null,"client_id"?: string | null,"created_at"?: string,"id"?: never,"input_tokens"?: number | null,"lead_id"?: string | null,"model"?: string | null,"output"?: Json | null,"output_tokens"?: number | null,"reached_client"?: boolean,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_action_log_agency_id_fkey"
+      columns: ["agency_id"]
+isOneToOne: false
+      referencedRelation: "agencies"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ai_action_log_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"ai_suggestions": {
+                  Row: {
+                    "body": string,"created_at": string,"decided_at": string | null,"decided_by": string | null,"final_body": string | null,"id": string,"lead_id": string,"status": Database["public"]['Enums']["suggestion_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"final_body"?: string | null,"id"?: string,"lead_id": string,"status"?: Database["public"]['Enums']["suggestion_status"]
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"final_body"?: string | null,"id"?: string,"lead_id"?: string,"status"?: Database["public"]['Enums']["suggestion_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_suggestions_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"client_profiles": {
+                  Row: {
+                    "bedrooms_min": number | null,"budget_max": number | null,"budget_min": number | null,"commute_max_min": number | null,"created_at": string,"extras": (string)[],"goal": Database["public"]['Enums']["client_goal"] | null,"has_children": boolean | null,"lifestyle": Database["public"]['Enums']["client_lifestyle"] | null,"name": string | null,"neighborhoods": (string)[],"parking_min": number | null,"pets": Database["public"]['Enums']["client_pets"] | null,"priorities": (string)[],"property_kind": Database["public"]['Enums']["client_property_kind"] | null,"purpose": Database["public"]['Enums']["client_purpose"] | null,"timeline": Database["public"]['Enums']["client_timeline"] | null,"updated_at": string,"user_id": string,"work_neighborhood": string | null,"works_from_home": boolean | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "bedrooms_min"?: number | null,"budget_max"?: number | null,"budget_min"?: number | null,"commute_max_min"?: number | null,"created_at"?: string,"extras"?: (string)[],"goal"?: Database["public"]['Enums']["client_goal"] | null,"has_children"?: boolean | null,"lifestyle"?: Database["public"]['Enums']["client_lifestyle"] | null,"name"?: string | null,"neighborhoods"?: (string)[],"parking_min"?: number | null,"pets"?: Database["public"]['Enums']["client_pets"] | null,"priorities"?: (string)[],"property_kind"?: Database["public"]['Enums']["client_property_kind"] | null,"purpose"?: Database["public"]['Enums']["client_purpose"] | null,"timeline"?: Database["public"]['Enums']["client_timeline"] | null,"updated_at"?: string,"user_id": string,"work_neighborhood"?: string | null,"works_from_home"?: boolean | null
+                  }
+                  Update: {
+                    "bedrooms_min"?: number | null,"budget_max"?: number | null,"budget_min"?: number | null,"commute_max_min"?: number | null,"created_at"?: string,"extras"?: (string)[],"goal"?: Database["public"]['Enums']["client_goal"] | null,"has_children"?: boolean | null,"lifestyle"?: Database["public"]['Enums']["client_lifestyle"] | null,"name"?: string | null,"neighborhoods"?: (string)[],"parking_min"?: number | null,"pets"?: Database["public"]['Enums']["client_pets"] | null,"priorities"?: (string)[],"property_kind"?: Database["public"]['Enums']["client_property_kind"] | null,"purpose"?: Database["public"]['Enums']["client_purpose"] | null,"timeline"?: Database["public"]['Enums']["client_timeline"] | null,"updated_at"?: string,"user_id"?: string,"work_neighborhood"?: string | null,"works_from_home"?: boolean | null
                   }
                   Relationships: [
                     
@@ -111,6 +177,118 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"favorites": {
+                  Row: {
+                    "created_at": string,"property_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"property_id": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"property_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "favorites_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"internal_notes": {
+                  Row: {
+                    "author_id": string,"body": string,"created_at": string,"id": string,"lead_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string,"body": string,"created_at"?: string,"id"?: string,"lead_id": string
+                  }
+                  Update: {
+                    "author_id"?: string,"body"?: string,"created_at"?: string,"id"?: string,"lead_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "internal_notes_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"lead_messages": {
+                  Row: {
+                    "author_id": string | null,"body": string,"created_at": string,"id": number,"lead_id": string,"quick_replies": (string)[],"sender": Database["public"]['Enums']["message_sender"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"body": string,"created_at"?: string,"id"?: never,"lead_id": string,"quick_replies"?: (string)[],"sender": Database["public"]['Enums']["message_sender"]
+                  }
+                  Update: {
+                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"id"?: never,"lead_id"?: string,"quick_replies"?: (string)[],"sender"?: Database["public"]['Enums']["message_sender"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "lead_messages_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"lead_questions": {
+                  Row: {
+                    "answered_at": string | null,"body": string,"created_at": string,"id": string,"lead_id": string,"status": Database["public"]['Enums']["question_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answered_at"?: string | null,"body": string,"created_at"?: string,"id"?: string,"lead_id": string,"status"?: Database["public"]['Enums']["question_status"]
+                  }
+                  Update: {
+                    "answered_at"?: string | null,"body"?: string,"created_at"?: string,"id"?: string,"lead_id"?: string,"status"?: Database["public"]['Enums']["question_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "lead_questions_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"leads": {
+                  Row: {
+                    "agency_id": string,"ai_summary": string | null,"assistant_active": boolean,"assistant_finished_at": string | null,"assistant_queue": (string)[],"broker_id": string | null,"client_id": string | null,"client_name": string,"consent_id": string | null,"consent_revoked_at": string | null,"created_at": string,"custom_answers": NonNullable<Json>,"first_human_response_at": string | null,"id": string,"interest_property_ids": (string)[],"last_message_at": string,"lost_note": string | null,"lost_reason": Database["public"]['Enums']["lost_reason"] | null,"origin_property_id": string | null,"profile_snapshot": NonNullable<Json>,"qualification": NonNullable<Json>,"readiness": Database["public"]['Enums']["lead_readiness"] | null,"stage": Database["public"]['Enums']["lead_stage"],"stage_changed_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agency_id": string,"ai_summary"?: string | null,"assistant_active"?: boolean,"assistant_finished_at"?: string | null,"assistant_queue"?: (string)[],"broker_id"?: string | null,"client_id"?: string | null,"client_name": string,"consent_id"?: string | null,"consent_revoked_at"?: string | null,"created_at"?: string,"custom_answers"?: NonNullable<Json>,"first_human_response_at"?: string | null,"id"?: string,"interest_property_ids"?: (string)[],"last_message_at"?: string,"lost_note"?: string | null,"lost_reason"?: Database["public"]['Enums']["lost_reason"] | null,"origin_property_id"?: string | null,"profile_snapshot": NonNullable<Json>,"qualification"?: NonNullable<Json>,"readiness"?: Database["public"]['Enums']["lead_readiness"] | null,"stage"?: Database["public"]['Enums']["lead_stage"],"stage_changed_at"?: string
+                  }
+                  Update: {
+                    "agency_id"?: string,"ai_summary"?: string | null,"assistant_active"?: boolean,"assistant_finished_at"?: string | null,"assistant_queue"?: (string)[],"broker_id"?: string | null,"client_id"?: string | null,"client_name"?: string,"consent_id"?: string | null,"consent_revoked_at"?: string | null,"created_at"?: string,"custom_answers"?: NonNullable<Json>,"first_human_response_at"?: string | null,"id"?: string,"interest_property_ids"?: (string)[],"last_message_at"?: string,"lost_note"?: string | null,"lost_reason"?: Database["public"]['Enums']["lost_reason"] | null,"origin_property_id"?: string | null,"profile_snapshot"?: NonNullable<Json>,"qualification"?: NonNullable<Json>,"readiness"?: Database["public"]['Enums']["lead_readiness"] | null,"stage"?: Database["public"]['Enums']["lead_stage"],"stage_changed_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "leads_agency_id_fkey"
+      columns: ["agency_id"]
+isOneToOne: false
+      referencedRelation: "agencies"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leads_consent_id_fkey"
+      columns: ["consent_id"]
+isOneToOne: false
+      referencedRelation: "consents"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leads_origin_property_id_fkey"
+      columns: ["origin_property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"platform_admins": {
                   Row: {
                     "created_at": string,"user_id": string
@@ -121,6 +299,34 @@ isOneToOne: false
                   }
                   Update: {
                     "created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"platform_settings": {
+                  Row: {
+                    "ai_daily_limit": number,"alert_min_score": number,"id": number,"score_weights": NonNullable<Json>,"score_weights_version": number,"seal_rank_bonus": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "ai_daily_limit"?: number,"alert_min_score"?: number,"id"?: number,"score_weights"?: NonNullable<Json>,"score_weights_version"?: number,"seal_rank_bonus"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "ai_daily_limit"?: number,"alert_min_score"?: number,"id"?: number,"score_weights"?: NonNullable<Json>,"score_weights_version"?: number,"seal_rank_bonus"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"profile_chat_messages": {
+                  Row: {
+                    "author": Database["public"]['Enums']["chat_author"],"body": string,"cards": Json | null,"created_at": string,"id": number,"quick_replies": (string)[],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author": Database["public"]['Enums']["chat_author"],"body": string,"cards"?: Json | null,"created_at"?: string,"id"?: never,"quick_replies"?: (string)[],"user_id": string
+                  }
+                  Update: {
+                    "author"?: Database["public"]['Enums']["chat_author"],"body"?: string,"cards"?: Json | null,"created_at"?: string,"id"?: never,"quick_replies"?: (string)[],"user_id"?: string
                   }
                   Relationships: [
                     
@@ -165,6 +371,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"property_views": {
+                  Row: {
+                    "first_viewed_at": string,"last_viewed_at": string,"property_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "first_viewed_at"?: string,"last_viewed_at"?: string,"property_id": string,"user_id": string
+                  }
+                  Update: {
+                    "first_viewed_at"?: string,"last_viewed_at"?: string,"property_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "property_views_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"seal_rules": {
                   Row: {
                     "id": number,"min_description_chars": number,"min_photos": number,"updated_at": string
@@ -188,6 +414,14 @@ isOneToOne: false
             "accept_agency_invite":
 { Args: { "p_creci": string,"p_name": string,"p_token": string }; Returns: string
                            },
+"agency_team":
+{ Args: { "p_agency": string }; Returns: {
+              "active": boolean,"in_rotation": boolean,"name": string,"role": Database["public"]['Enums']["member_role"],"user_id": string
+            }[]
+                           },
+"build_profile_snapshot":
+{ Args: { "p_user": string }; Returns: Json
+                           },
 "can_edit_property":
 { Args: { "p_id": string }; Returns: boolean
                            },
@@ -196,6 +430,9 @@ isOneToOne: false
                            },
 "create_agency_invite":
 { Args: { "p_agency": string,"p_email": string,"p_role": Database["public"]['Enums']["member_role"] }; Returns: string
+                           },
+"default_assistant_questions":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "is_agency_approved":
 { Args: { "p_agency": string }; Returns: boolean
@@ -206,8 +443,33 @@ isOneToOne: false
 "is_agency_member":
 { Args: { "p_agency": string }; Returns: boolean
                            },
+"is_lead_client":
+{ Args: { "p_lead": string }; Returns: boolean
+                           },
+"is_lead_open":
+{ Args: { "p_lead": string }; Returns: boolean
+                           },
+"is_lead_staff":
+{ Args: { "p_lead": string }; Returns: boolean
+                           },
 "is_platform_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"lead_property_activity":
+{ Args: { "p_lead": string }; Returns: {
+              "property_id": string,"saved": boolean,"viewed_at": string
+            }[]
+                           },
+"mark_property_viewed":
+{ Args: { "p_property": string }; Returns: undefined
+                           },
+"my_conversations":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "agency_id": string,"agency_name": string,"assistant_active": boolean,"assistant_name": string,"broker_creci": string,"broker_name": string,"last_message_at": string,"lead_id": string,"origin_property_id": string,"revoked": boolean,"shared_at": string
+            }[]
+                           },
+"pick_broker":
+{ Args: { "p_agency": string }; Returns: string
                            },
 "property_public_info":
 { Args: { "p_id": string }; Returns: {
@@ -219,10 +481,16 @@ isOneToOne: false
                            },
 "review_agency":
 { Args: { "p_agency": string,"p_status": Database["public"]['Enums']["agency_status"] }; Returns: undefined
+                           },
+"revoke_share":
+{ Args: { "p_agency": string }; Returns: undefined
+                           },
+"share_profile":
+{ Args: { "p_property": string }; Returns: string
                            }
           }
           Enums: {
-            "agency_status": "pendente"|"aprovada"|"recusada"|"suspensa","consent_kind": "termos"|"compartilhamento"|"whatsapp","member_role": "gestor"|"corretor","pets_policy": "nao"|"pequeno"|"qualquer","property_purpose": "venda"|"aluguel","property_status": "rascunho"|"publicado"|"pausado"|"vendido"|"alugado","property_type": "apartamento"|"casa"|"cobertura"|"studio"|"sala_comercial"|"terreno"
+            "agency_status": "pendente"|"aprovada"|"recusada"|"suspensa","chat_author": "cliente"|"ia"|"sistema","client_goal": "morar"|"investir"|"ambos","client_lifestyle": "tranquilidade"|"meio_termo"|"movimento","client_pets": "nenhum"|"pequeno"|"grande","client_property_kind": "apartamento"|"casa"|"tanto_faz","client_purpose": "comprar"|"alugar","client_timeline": "ate_3_meses"|"ate_6_meses"|"pesquisando","consent_kind": "termos"|"compartilhamento"|"whatsapp","distribution_mode": "rodizio"|"manual","lead_readiness": "curioso"|"pesquisando"|"pronto_para_visitar","lead_stage": "novo"|"em_atendimento"|"qualificado"|"visita_agendada"|"proposta"|"negociacao"|"fechado"|"perdido","lost_reason": "preco"|"localizacao"|"desistiu"|"comprou_com_outro"|"sem_resposta"|"outro","member_role": "gestor"|"corretor","message_sender": "cliente"|"corretor"|"assistente"|"sistema","pets_policy": "nao"|"pequeno"|"qualquer","property_purpose": "venda"|"aluguel","property_status": "rascunho"|"publicado"|"pausado"|"vendido"|"alugado","property_type": "apartamento"|"casa"|"cobertura"|"studio"|"sala_comercial"|"terreno","question_status": "encaminhada"|"respondida","suggestion_status": "pendente"|"aprovada"|"editada"|"descartada"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -342,7 +610,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "agency_status": ["pendente", "aprovada", "recusada", "suspensa"],"consent_kind": ["termos", "compartilhamento", "whatsapp"],"member_role": ["gestor", "corretor"],"pets_policy": ["nao", "pequeno", "qualquer"],"property_purpose": ["venda", "aluguel"],"property_status": ["rascunho", "publicado", "pausado", "vendido", "alugado"],"property_type": ["apartamento", "casa", "cobertura", "studio", "sala_comercial", "terreno"]
+            "agency_status": ["pendente", "aprovada", "recusada", "suspensa"],"chat_author": ["cliente", "ia", "sistema"],"client_goal": ["morar", "investir", "ambos"],"client_lifestyle": ["tranquilidade", "meio_termo", "movimento"],"client_pets": ["nenhum", "pequeno", "grande"],"client_property_kind": ["apartamento", "casa", "tanto_faz"],"client_purpose": ["comprar", "alugar"],"client_timeline": ["ate_3_meses", "ate_6_meses", "pesquisando"],"consent_kind": ["termos", "compartilhamento", "whatsapp"],"distribution_mode": ["rodizio", "manual"],"lead_readiness": ["curioso", "pesquisando", "pronto_para_visitar"],"lead_stage": ["novo", "em_atendimento", "qualificado", "visita_agendada", "proposta", "negociacao", "fechado", "perdido"],"lost_reason": ["preco", "localizacao", "desistiu", "comprou_com_outro", "sem_resposta", "outro"],"member_role": ["gestor", "corretor"],"message_sender": ["cliente", "corretor", "assistente", "sistema"],"pets_policy": ["nao", "pequeno", "qualquer"],"property_purpose": ["venda", "aluguel"],"property_status": ["rascunho", "publicado", "pausado", "vendido", "alugado"],"property_type": ["apartamento", "casa", "cobertura", "studio", "sala_comercial", "terreno"],"question_status": ["encaminhada", "respondida"],"suggestion_status": ["pendente", "aprovada", "editada", "descartada"]
           }
         }
 } as const
