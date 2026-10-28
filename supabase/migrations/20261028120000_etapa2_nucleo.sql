@@ -22,7 +22,6 @@ create type public.chat_author as enum ('cliente', 'ia', 'sistema');
 create type public.lead_stage as enum (
   'novo', 'em_atendimento', 'qualificado', 'visita_agendada', 'proposta', 'negociacao', 'fechado', 'perdido'
 );
-create type public.lead_readiness as enum ('curioso', 'pesquisando', 'pronto_para_visitar');
 create type public.lost_reason as enum ('preco', 'localizacao', 'desistiu', 'comprou_com_outro', 'sem_resposta', 'outro');
 create type public.message_sender as enum ('cliente', 'corretor', 'assistente', 'sistema');
 create type public.suggestion_status as enum ('pendente', 'aprovada', 'editada', 'descartada');
@@ -112,7 +111,7 @@ create policy "cliente tira dos salvos" on public.favorites
 create table public.platform_settings (
   id smallint primary key default 1 check (id = 1),
   score_weights jsonb not null default
-    '{"orcamento": 30, "tipo": 15, "quartos": 15, "vagas": 10, "pets": 15, "localizacao": 15}'::jsonb
+    '{"orcamento": 30, "tipo": 15, "quartos": 15, "vagas": 10, "pets": 15, "localizacao": 15, "lazer": 10}'::jsonb
     check (jsonb_typeof(score_weights) = 'object'),
   score_weights_version smallint not null default 1,
   seal_rank_bonus smallint not null default 2 check (seal_rank_bonus between 0 and 10),
@@ -206,7 +205,6 @@ create table public.leads (
   stage public.lead_stage not null default 'novo',
   lost_reason public.lost_reason,
   lost_note text check (lost_note is null or char_length(lost_note) <= 300),
-  readiness public.lead_readiness,
   client_name text not null,
   profile_snapshot jsonb not null,
   ai_summary text check (ai_summary is null or char_length(ai_summary) <= 1200),

@@ -45,3 +45,22 @@ export function isSupabaseConfigured(): boolean {
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   }).success;
 }
+
+const serverSchema = z.object({
+  // Chave secreta do Supabase (papel service_role). Só no servidor: grava o que a IA e o sistema escrevem
+  // para o lead e o registro da IA. Nunca com prefixo NEXT_PUBLIC_.
+  SUPABASE_SECRET_KEY: z.string().trim().min(1).optional(),
+  ANTHROPIC_API_KEY: z.string().trim().min(1).optional(),
+  ANTHROPIC_MODEL: z.string().trim().min(1).default("claude-opus-5-5"),
+});
+
+export type ServerEnv = z.infer<typeof serverSchema>;
+
+/** Variáveis só do servidor. As ausentes desligam o recurso que depende delas, sem derrubar o app. */
+export function serverEnv(): ServerEnv {
+  return serverSchema.parse({
+    SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY || undefined,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || undefined,
+    ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || undefined,
+  });
+}
