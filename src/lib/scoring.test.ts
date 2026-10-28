@@ -128,16 +128,20 @@ describe("quantas recomendações mostrar", () => {
   const many = (prices: number[]) =>
     rankProperties(prices.map((price, i) => prop({ id: `p${i}`, price })), profile);
 
-  it("mostra no mínimo 5 quando existem", () => {
-    // Todos acima do orçamento (vermelhos): mesmo assim os 5 primeiros aparecem, nenhum além.
-    expect(pickRecommendations(many([1e6, 1.01e6, 1.02e6, 1.03e6, 1.04e6, 1.05e6, 1.06e6, 1.07e6]))).toHaveLength(5);
+  it("mostra no máximo 5, da maior nota para a menor", () => {
+    const { shown } = pickRecommendations(many([1.05e6, 800_000, 1.0e6, 850_000, 950_000, 1.1e6, 900_000]));
+    expect(shown).toHaveLength(5);
+    const scores = shown.map((r) => r.score);
+    expect(scores).toEqual([...scores].sort((a, b) => b - a));
   });
 
-  it("vai até 7 enquanto os seguintes forem verdes", () => {
-    expect(pickRecommendations(many(Array(9).fill(800_000)))).toHaveLength(7);
+  it("conta os outros compatíveis que ficaram de fora (para o aviso do Mapa Vivo)", () => {
+    // 7 dentro do orçamento + 1 muito acima (vermelho, não entra na contagem)
+    expect(pickRecommendations(many([...Array(7).fill(800_000), 2_000_000])).more).toBe(2);
   });
 
-  it("com menos de 5 elegíveis, mostra só os que existem", () => {
-    expect(pickRecommendations(many([800_000, 850_000]))).toHaveLength(2);
+  it("com menos de 5 elegíveis, mostra só os que existem e não avisa", () => {
+    expect(pickRecommendations(many([800_000, 850_000]))).toMatchObject({ more: 0 });
+    expect(pickRecommendations(many([800_000, 850_000])).shown).toHaveLength(2);
   });
 });

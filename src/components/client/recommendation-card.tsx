@@ -26,12 +26,23 @@ export function RecommendationCard({
   score,
   reasons,
   compact = false,
+  rank,
 }: {
   property: CardProperty;
   score: number;
   reasons: CardReason[];
   compact?: boolean;
+  /** Posição no ranking (1 = mais compatível). */
+  rank?: number;
 }) {
+  const badge = rank ? (
+    <span
+      aria-label={`${rank}º lugar no ranking`}
+      className="num grid h-7 min-w-9 flex-none place-items-center rounded-full bg-black px-2 text-[12px] font-bold text-white"
+    >
+      {rank}º
+    </span>
+  ) : null;
   const facts = [
     property.neighborhood,
     property.bedrooms !== null ? `${property.bedrooms} ${property.bedrooms === 1 ? "quarto" : "quartos"}` : null,
@@ -55,6 +66,7 @@ export function RecommendationCard({
         href={`/app/imoveis/${property.id}`}
         className="flex items-center gap-3 rounded-[18px] bg-white p-2.5 shadow-soft outline outline-1 outline-transparent transition-[outline-color] hover:outline-black"
       >
+        {badge}
         {property.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={property.photoUrl} alt={property.title} className="size-16 flex-none rounded-xl object-cover" />
@@ -91,6 +103,7 @@ export function RecommendationCard({
             <Icon name="home" />
           </div>
         )}
+        {badge ? <span className="absolute left-3 top-3">{badge}</span> : null}
         <span className="absolute right-3 top-3 grid size-[60px] place-items-center rounded-full bg-white shadow-[0_4px_12px_rgb(0_0_0/0.15)]">
           <ScoreRing score={score} size={52} />
         </span>

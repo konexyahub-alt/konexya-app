@@ -45,16 +45,17 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
 **Escopo:** a configuração da assistente (nome, boas-vindas, perguntas, despedida, liga/desliga) entra na etapa 2.
 "Tom de voz personalizado" (mudar o jeito de a IA escrever) continua fora do MVP.
 
-## 2026-10-28 · Recomendações na conversa: de 5 a 7 imóveis
+## 2026-10-28 · Recomendações na conversa: ranking de até 5 imóveis
 
 **Antes:** o fluxo F2 (docs/mvp.md) mostrava os 3 imóveis mais compatíveis.
 
-**Agora:** a conversa mostra no mínimo 5 e no máximo 7 imóveis.
-- Sempre os 5 mais compatíveis; o 6º e o 7º entram só se também forem verdes (nota ≥ 85).
-- Com menos de 5 imóveis elegíveis (finalidade e tipo residencial), mostra os que existem. Nunca completa a lista
-  com imóvel que não serve nem com dado inventado.
-- Os 3 primeiros aparecem em cartão grande; do 4º em diante, em cartão compacto (foto pequena, nota e motivo
-  principal), para a lista não pesar no celular.
+**Agora:**
+- A conversa mostra um ranking numerado (1º, 2º, 3º…) de até 5 imóveis, sempre da maior nota de
+  compatibilidade para a menor. Não se limita a 3.
+- O selo "Anúncio completo" (regra 9) só desempata imóveis com a mesma nota; nunca coloca um imóvel à frente de
+  outro com nota maior.
+- Com menos de 5 imóveis elegíveis, mostra os que existem. Nunca completa a lista com imóvel que não serve.
+- Quando há mais imóveis compatíveis (nota ≥ 75) além dos 5, a conversa avisa quantos são e que eles vão estar
+  no Mapa Vivo (etapa 3).
+- Os 3 primeiros aparecem em cartão grande; o 4º e o 5º, em cartão compacto.
 - O aviso de mudança passa a ser "Recomendações atualizadas: a lista mudou".
-- Ordem: sempre da maior nota de compatibilidade para a menor. O selo "Anúncio completo" (regra 9) só desempata
-  imóveis com a mesma nota; nunca coloca um imóvel à frente de outro com nota maior.

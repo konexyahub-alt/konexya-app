@@ -183,19 +183,15 @@ export function rankProperties<T extends ScoredProperty>(
   );
 }
 
-/** Recomendações na conversa (docs/DECISOES.md): no mínimo 5, no máximo 7. */
-export const RECOMMENDATIONS_MIN = 5;
-export const RECOMMENDATIONS_MAX = 7;
+/** Recomendações na conversa (docs/DECISOES.md): até 5, sempre da maior nota para a menor. */
+export const RECOMMENDATIONS_MAX = 5;
 
 /**
- * Os 5 mais compatíveis; o 6º e o 7º entram só se também forem verdes (≥ 85), para a lista não crescer com
- * imóvel fraco. Com menos de 5 imóveis elegíveis, mostra os que existem (nunca completa com o que não serve).
+ * Os 5 mais compatíveis (já ordenados por nota) e quantos outros compatíveis ficaram de fora. "Compatível"
+ * aqui é nota verde ou amarela (≥ 75); os vermelhos não entram na contagem do aviso.
  */
-export function pickRecommendations<T extends ScoredProperty>(ranked: Ranked<T>[]): Ranked<T>[] {
-  const out = ranked.slice(0, RECOMMENDATIONS_MIN);
-  for (const r of ranked.slice(RECOMMENDATIONS_MIN, RECOMMENDATIONS_MAX)) {
-    if (r.band !== "ok") break;
-    out.push(r);
-  }
-  return out;
+export function pickRecommendations<T extends ScoredProperty>(ranked: Ranked<T>[]): { shown: Ranked<T>[]; more: number } {
+  const shown = ranked.slice(0, RECOMMENDATIONS_MAX);
+  const more = ranked.slice(RECOMMENDATIONS_MAX).filter((r) => r.band !== "bad").length;
+  return { shown, more };
 }

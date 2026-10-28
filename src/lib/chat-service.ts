@@ -24,7 +24,7 @@ import type { Json } from "@/lib/supabase/database.types";
 /**
  * Conversa de perfil (C-04, fluxo F2). Cada resposta atualiza o perfil no banco; respostas rápidas e
  * respostas que dá para entender sem IA não gastam IA. Quando o perfil mínimo fica completo, a conversa
- * mostra de 5 a 7 imóveis mais compatíveis (nota calculada pelo código, nunca pela IA).
+ * mostra até 5 imóveis, do mais compatível para o menos (nota calculada pelo código, nunca pela IA).
  */
 
 export type ChatCard = { property_id: string; score: number; reasons: { band: string; text: string }[] };
@@ -135,7 +135,7 @@ async function lastCards(userId: string): Promise<string[] | null> {
   return cards ? cards.map((c) => c.property_id) : null;
 }
 
-/** Top 3 com nota e motivos, ou o aviso honesto de que ainda não há imóvel compatível publicado. */
+/** Ranking de até 5 com nota e motivos, ou o aviso honesto de que ainda não há imóvel compatível publicado. */
 async function recommendationMessages(userId: string, profile: Profile): Promise<Outgoing[]> {
   const supabase = await createClient();
   const [{ data: props }, settings, previous] = await Promise.all([
@@ -144,7 +144,7 @@ async function recommendationMessages(userId: string, profile: Profile): Promise
     lastCards(userId),
   ]);
   const ranked = rankProperties((props ?? []) as RecommendationProperty[], profile, settings.weights);
-  const top = pickRecommendations(ranked);
+  const { shown: top, more } = pickRecommendations(ranked);
   if (!top.length) {
     return [
       {
@@ -160,12 +160,19 @@ async function recommendationMessages(userId: string, profile: Profile): Promise
   }));
   const ids = cards.map((c) => c.property_id);
   const intro = !previous
-    ? `Encontrei ${top.length === 1 ? "1 imóvel que combina" : `${top.length} imóveis que combinam`} com a sua rotina.`
+    ? top.length === 1
+      ? "Encontrei 1 imóvel que combina com a sua rotina."
+      : `Este é o seu ranking: os ${top.length} imóveis que mais combinam com a sua rotina, do mais compatível para o menos.`
     : JSON.stringify(previous) === JSON.stringify(ids)
       ? "Recomendações atualizadas. As mais compatíveis continuam as mesmas."
       : "Recomendações atualizadas: a lista mudou.";
+  const moreNotice =
+    more > 0
+      ? `Tem mais ${more === 1 ? "1 imóvel compatível" : `${more} imóveis compatíveis`} com o seu perfil. Você vai ver todos no Mapa Vivo.`
+      : null;
   return [
     { author: "ia", body: intro, cards },
+    ...(moreNotice ? [{ author: "sistema" as const, body: moreNotice }] : []),
     ...(!previous ? [{ author: "ia" as const, body: "Quer ajustar alguma coisa? Pode pedir do seu jeito." }] : []),
   ];
 }
