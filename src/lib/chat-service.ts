@@ -16,7 +16,7 @@ import {
   type ProfileUpdate,
 } from "@/lib/profile";
 import { RECOMMENDATION_COLUMNS, loadScoringSettings, type RecommendationProperty } from "@/lib/recommendations";
-import { rankProperties } from "@/lib/scoring";
+import { pickRecommendations, rankProperties } from "@/lib/scoring";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/database.types";
@@ -24,7 +24,7 @@ import type { Json } from "@/lib/supabase/database.types";
 /**
  * Conversa de perfil (C-04, fluxo F2). Cada resposta atualiza o perfil no banco; respostas rápidas e
  * respostas que dá para entender sem IA não gastam IA. Quando o perfil mínimo fica completo, a conversa
- * mostra os 3 imóveis mais compatíveis (nota calculada pelo código, nunca pela IA).
+ * mostra de 5 a 7 imóveis mais compatíveis (nota calculada pelo código, nunca pela IA).
  */
 
 export type ChatCard = { property_id: string; score: number; reasons: { band: string; text: string }[] };
@@ -143,8 +143,8 @@ async function recommendationMessages(userId: string, profile: Profile): Promise
     loadScoringSettings(supabase),
     lastCards(userId),
   ]);
-  const ranked = rankProperties((props ?? []) as RecommendationProperty[], profile, settings.weights, settings.sealBonus);
-  const top = ranked.slice(0, 3);
+  const ranked = rankProperties((props ?? []) as RecommendationProperty[], profile, settings.weights);
+  const top = pickRecommendations(ranked);
   if (!top.length) {
     return [
       {
@@ -162,8 +162,8 @@ async function recommendationMessages(userId: string, profile: Profile): Promise
   const intro = !previous
     ? `Encontrei ${top.length === 1 ? "1 imóvel que combina" : `${top.length} imóveis que combinam`} com a sua rotina.`
     : JSON.stringify(previous) === JSON.stringify(ids)
-      ? "Recomendações atualizadas. Seu top 3 continua o mesmo."
-      : "Recomendações atualizadas: seu top 3 mudou.";
+      ? "Recomendações atualizadas. As mais compatíveis continuam as mesmas."
+      : "Recomendações atualizadas: a lista mudou.";
   return [
     { author: "ia", body: intro, cards },
     ...(!previous ? [{ author: "ia" as const, body: "Quer ajustar alguma coisa? Pode pedir do seu jeito." }] : []),

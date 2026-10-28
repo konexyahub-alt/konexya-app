@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EMPTY_PROFILE, type Profile } from "./profile";
-import { DEFAULT_WEIGHTS, rankProperties, readWeights, scoreProperty, type ScoredProperty } from "./scoring";
+import { DEFAULT_WEIGHTS, pickRecommendations, rankProperties, readWeights, scoreProperty, type ScoredProperty } from "./scoring";
 
 const profile: Profile = {
   ...EMPTY_PROFILE,
@@ -106,12 +106,38 @@ describe("recomendações", () => {
     expect(rankProperties(list, profile).map((r) => r.property.id)).toEqual(["venda"]);
   });
 
-  it("o selo só desempata ou dá vantagem pequena, sem passar à frente de muito mais compatível", () => {
+  it("a maior nota vem primeiro; o selo só desempata notas iguais", () => {
     const better = prop({ id: "melhor", price: 850_000 }); // 100
     const sealed = prop({ id: "selo", price: 960_000, has_seal: true }); // acima do orçamento
     const twin = prop({ id: "gemeo-selo", price: 850_000, has_seal: true }); // 100 + selo
     const ranked = rankProperties([better, sealed, twin], profile);
     expect(ranked.map((r) => r.property.id)).toEqual(["gemeo-selo", "melhor", "selo"]);
-    expect(ranked[0].score).toBe(100); // o bônus não altera a nota mostrada
+    expect(ranked[0].score).toBe(100); // o selo não altera a nota mostrada
+  });
+
+  it("selo nunca passa à frente de nota maior, nem por 1 ponto", () => {
+    const p84 = { ...EMPTY_PROFILE, budget_max: 1_000_000 };
+    const sealed = prop({ id: "selo", price: 1_040_000, has_seal: true }); // 4% acima → 84
+    const plain = prop({ id: "sem-selo", price: 1_030_000 }); // 3% acima → 88
+    const ranked = rankProperties([sealed, plain], p84);
+    expect(ranked.map((r) => [r.property.id, r.score])).toEqual([["sem-selo", 88], ["selo", 84]]);
+  });
+});
+
+describe("quantas recomendações mostrar", () => {
+  const many = (prices: number[]) =>
+    rankProperties(prices.map((price, i) => prop({ id: `p${i}`, price })), profile);
+
+  it("mostra no mínimo 5 quando existem", () => {
+    // Todos acima do orçamento (vermelhos): mesmo assim os 5 primeiros aparecem, nenhum além.
+    expect(pickRecommendations(many([1e6, 1.01e6, 1.02e6, 1.03e6, 1.04e6, 1.05e6, 1.06e6, 1.07e6]))).toHaveLength(5);
+  });
+
+  it("vai até 7 enquanto os seguintes forem verdes", () => {
+    expect(pickRecommendations(many(Array(9).fill(800_000)))).toHaveLength(7);
+  });
+
+  it("com menos de 5 elegíveis, mostra só os que existem", () => {
+    expect(pickRecommendations(many([800_000, 850_000]))).toHaveLength(2);
   });
 });

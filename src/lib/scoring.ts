@@ -161,14 +161,13 @@ function bandOrder(b: ScoreBand) {
 export type Ranked<T extends ScoredProperty> = { property: T } & ScoreResult;
 
 /**
- * Ordena as recomendações. O selo "Anúncio completo" soma um bônus pequeno só na ordenação (regra 9):
- * nunca muda a nota mostrada e não passa um anúncio à frente de outro muito mais compatível.
+ * Ordena as recomendações: sempre da maior nota para a menor (docs/DECISOES.md). O selo "Anúncio completo"
+ * (regra 9) só desempata imóveis com a mesma nota; depois, o menor preço. Nunca muda a nota mostrada.
  */
 export function rankProperties<T extends ScoredProperty>(
   properties: T[],
   profile: Profile,
   weights: Weights = DEFAULT_WEIGHTS,
-  sealBonus = 2,
 ): Ranked<T>[] {
   const out: Ranked<T>[] = [];
   for (const property of properties) {
@@ -176,6 +175,27 @@ export function rankProperties<T extends ScoredProperty>(
     const result = scoreProperty(property, profile, weights);
     if (result) out.push({ property, ...result });
   }
-  const key = (r: Ranked<T>) => r.score + (r.property.has_seal ? sealBonus : 0);
-  return out.sort((a, b) => key(b) - key(a) || Number(a.property.price ?? Infinity) - Number(b.property.price ?? Infinity));
+  return out.sort(
+    (a, b) =>
+      b.score - a.score ||
+      Number(b.property.has_seal) - Number(a.property.has_seal) ||
+      Number(a.property.price ?? Infinity) - Number(b.property.price ?? Infinity),
+  );
+}
+
+/** Recomendações na conversa (docs/DECISOES.md): no mínimo 5, no máximo 7. */
+export const RECOMMENDATIONS_MIN = 5;
+export const RECOMMENDATIONS_MAX = 7;
+
+/**
+ * Os 5 mais compatíveis; o 6º e o 7º entram só se também forem verdes (≥ 85), para a lista não crescer com
+ * imóvel fraco. Com menos de 5 imóveis elegíveis, mostra os que existem (nunca completa com o que não serve).
+ */
+export function pickRecommendations<T extends ScoredProperty>(ranked: Ranked<T>[]): Ranked<T>[] {
+  const out = ranked.slice(0, RECOMMENDATIONS_MIN);
+  for (const r of ranked.slice(RECOMMENDATIONS_MIN, RECOMMENDATIONS_MAX)) {
+    if (r.band !== "ok") break;
+    out.push(r);
+  }
+  return out;
 }

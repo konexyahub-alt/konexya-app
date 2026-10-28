@@ -209,8 +209,8 @@ function Message({
   return (
     <>
       <Bubble author={m.author}>{m.body}</Bubble>
-      {m.cards.map((c) => (
-        <RecommendationCard key={c.property.id} property={c.property} score={c.score} reasons={c.reasons} />
+      {m.cards.map((c, i) => (
+        <RecommendationCard key={c.property.id} property={c.property} score={c.score} reasons={c.reasons} compact={i >= 3} />
       ))}
     </>
   );

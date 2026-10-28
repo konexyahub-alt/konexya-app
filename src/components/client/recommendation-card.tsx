@@ -17,15 +17,20 @@ export type CardProperty = {
 
 export type CardReason = { band: string; text: string };
 
-/** Cartão de recomendação na conversa: foto, nota em anel e 2 ou 3 motivos (nunca nota sem motivo). */
+/**
+ * Cartão de recomendação na conversa: foto, nota em anel e 2 ou 3 motivos (nunca nota sem motivo).
+ * Do 4º em diante fica compacto (foto pequena, nota e o motivo principal) para a lista não pesar no celular.
+ */
 export function RecommendationCard({
   property,
   score,
   reasons,
+  compact = false,
 }: {
   property: CardProperty;
   score: number;
   reasons: CardReason[];
+  compact?: boolean;
 }) {
   const facts = [
     property.neighborhood,
@@ -40,6 +45,35 @@ export function RecommendationCard({
         <p className="font-semibold text-ink">{property.title}</p>
         <p>Este imóvel não está mais disponível.</p>
       </div>
+    );
+  }
+
+  if (compact) {
+    const main = reasons[0];
+    return (
+      <Link
+        href={`/app/imoveis/${property.id}`}
+        className="flex items-center gap-3 rounded-[18px] bg-white p-2.5 shadow-soft outline outline-1 outline-transparent transition-[outline-color] hover:outline-black"
+      >
+        {property.photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={property.photoUrl} alt={property.title} className="size-16 flex-none rounded-xl object-cover" />
+        ) : (
+          <span className="grid size-16 flex-none place-items-center rounded-xl bg-paper-2 text-muted-2">
+            <Icon name="home" size="sm" />
+          </span>
+        )}
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block truncate text-[13.5px] font-bold">{property.title}</span>
+          <span className="block truncate text-[11px] text-muted">{facts.join(" · ")}</span>
+          {main ? (
+            <span className={`mt-1 block truncate text-[11.5px] ${main.band === "ok" ? "text-ok" : main.band === "warn" ? "text-warn" : "text-bad"}`}>
+              {main.text}
+            </span>
+          ) : null}
+        </span>
+        <ScoreRing score={score} size={42} />
+      </Link>
     );
   }
 

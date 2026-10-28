@@ -20,13 +20,13 @@ export type RecommendationProperty = ScoredProperty & {
   }[];
 };
 
-export type ScoringSettings = { weights: Weights; sealBonus: number };
+export type ScoringSettings = { weights: Weights };
 
 export async function loadScoringSettings(supabase: Supabase): Promise<ScoringSettings> {
   const { data } = await supabase
     .from("platform_settings")
-    .select("score_weights, seal_rank_bonus")
+    .select("score_weights")
     .eq("id", 1)
     .maybeSingle();
-  return { weights: readWeights(data?.score_weights), sealBonus: data?.seal_rank_bonus ?? 2 };
+  return { weights: readWeights(data?.score_weights) };
 }
