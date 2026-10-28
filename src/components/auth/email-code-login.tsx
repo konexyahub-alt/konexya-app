@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button, Icon, IconButton, TextField } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
+import { RETURNING_COOKIE, RETURNING_MAX_AGE } from "@/lib/returning";
 import { emailSchema, otpSchema } from "@/lib/validation";
 
 const RESEND_SECONDS = 60;
@@ -78,6 +79,7 @@ export function EmailCodeLogin({ next, title, subtitle, backHref, googleEnabled,
       return;
     }
     setConfirmed(true);
+    document.cookie = `${RETURNING_COOKIE}=1; Path=/; Max-Age=${RETURNING_MAX_AGE}; SameSite=Lax; Secure`;
     router.replace(next);
     router.refresh();
   }

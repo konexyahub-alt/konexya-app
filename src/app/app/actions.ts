@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies } from "next/headers";
+import { RETURNING_COOKIE } from "@/lib/returning";
 import { refresh } from "next/cache";
 import { after } from "next/server";
 import { redirect } from "next/navigation";
@@ -158,5 +160,7 @@ export async function deleteAccount(): Promise<{ error?: string }> {
   const { error } = await admin.auth.admin.deleteUser(user.id);
   if (error) return { error: "Não conseguimos excluir agora. Tente de novo mais tarde." };
   await supabase.auth.signOut();
+  // Conta excluída: o aparelho volta a mostrar "Começar".
+  (await cookies()).delete(RETURNING_COOKIE);
   redirect("/app/boas-vindas");
 }

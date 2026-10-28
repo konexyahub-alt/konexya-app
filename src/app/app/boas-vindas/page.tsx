@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SLOGAN, Wordmark, buttonClasses } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth";
+import { RETURNING_COOKIE } from "@/lib/returning";
 
 /** C-01 · Boas-vindas. */
 export default function WelcomePage() {
@@ -23,17 +25,9 @@ export default function WelcomePage() {
           Conte como é a sua rotina e o que você procura. A IA encontra os imóveis que combinam com a sua vida.
         </p>
       </div>
-      <div className="flex flex-col gap-3.5">
-        <Link href="/app/entrar?modo=criar" className={buttonClasses({ fullWidth: true })}>
-          Começar
-        </Link>
-        <Link
-          href="/app/entrar"
-          className="min-h-touch content-center text-center text-sm font-semibold underline underline-offset-4"
-        >
-          Já tenho conta
-        </Link>
-      </div>
+      <Suspense fallback={<WelcomeActions returning={false} />}>
+        <Actions />
+      </Suspense>
     </main>
   );
 }
@@ -41,4 +35,26 @@ export default function WelcomePage() {
 async function RedirectIfLoggedIn() {
   if (await getSessionUser()) redirect("/app");
   return null;
+}
+
+/** Quem já entrou neste navegador vê "Entrar"; quem é novo, "Começar". O outro caminho fica sempre no link. */
+async function Actions() {
+  const returning = (await cookies()).get(RETURNING_COOKIE)?.value === "1";
+  return <WelcomeActions returning={returning} />;
+}
+
+function WelcomeActions({ returning }: { returning: boolean }) {
+  const create = { href: "/app/entrar?modo=criar", label: returning ? "Criar nova conta" : "Começar" };
+  const login = { href: "/app/entrar", label: returning ? "Entrar" : "Já tenho conta" };
+  const [main, link] = returning ? [login, create] : [create, login];
+  return (
+    <div className="flex flex-col gap-3.5">
+      <Link href={main.href} className={buttonClasses({ fullWidth: true })}>
+        {main.label}
+      </Link>
+      <Link href={link.href} className="min-h-touch content-center text-center text-sm font-semibold underline underline-offset-4">
+        {link.label}
+      </Link>
+    </div>
+  );
 }
