@@ -24,7 +24,7 @@ export default function WelcomePage() {
         </p>
       </div>
       <div className="flex flex-col gap-3.5">
-        <Link href="/app/entrar" className={buttonClasses({ fullWidth: true })}>
+        <Link href="/app/entrar?modo=criar" className={buttonClasses({ fullWidth: true })}>
           Começar
         </Link>
         <Link

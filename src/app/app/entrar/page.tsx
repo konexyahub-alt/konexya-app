@@ -19,12 +19,18 @@ async function Login({ searchParams }: Pick<PageProps<"/app/entrar">, "searchPar
   const params = await searchParams;
   const next = safeNext(typeof params.next === "string" ? params.next : null, "/app");
   if (await getSessionUser()) redirect(next);
+  // Mesmo processo (e-mail + código) para criar conta e entrar; só o texto acompanha o caminho escolhido em C-01.
+  const creating = params.modo === "criar";
   return (
     <EmailCodeLogin
       next={next}
       backHref="/app/boas-vindas"
-      title="Entre com seu e-mail"
-      subtitle="Enviamos um código de 6 dígitos. Sem senha para lembrar."
+      title={creating ? "Crie sua conta" : "Entre na sua conta"}
+      subtitle={
+        creating
+          ? "Informe seu e-mail. Enviamos um código de 6 dígitos para confirmar. Sem senha para criar."
+          : "Informe o e-mail da sua conta. Enviamos um código de 6 dígitos. Sem senha para lembrar."
+      }
       googleEnabled={process.env.NEXT_PUBLIC_AUTH_GOOGLE === "on"}
       footer={<p className="mt-auto pt-8 text-center text-xs text-muted-2">{SLOGAN}</p>}
     />
