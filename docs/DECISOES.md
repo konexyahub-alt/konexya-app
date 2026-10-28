@@ -81,6 +81,7 @@ imobiliária ativasse. Todo o resto esperava o corretor aprovar.
   do piloto.
 - Toda mensagem do cliente passa a usar IA: o limite diário (padrão 60) passa a ser atingido por quem conversa muito.
   Ao atingir, o cliente segue pelas mensagens prontas e pelo Perfil.
-- Pendente de definição com o dono do produto: se a IA puxa as informações essenciais que faltam para recomendar
-  (comprar ou alugar, faixa de valor, tipo, bairro ou trabalho) de forma natural, e se a assistente virtual da
-  imobiliária muda junto (por enquanto, continua com as perguntas configuradas pela imobiliária).
+- **A IA pergunta o que falta.** Quando faltar uma informação necessária para recomendar (comprar ou alugar, faixa de
+  valor, tipo, bairro ou onde trabalha), a IA pergunta ao cliente, de forma natural e encaixada na conversa.
+- **A assistente virtual da imobiliária (Lia) continua como está**, com as perguntas configuradas pela imobiliária.
+  Pode mudar no futuro, por decisão do dono do produto.
