@@ -36,7 +36,7 @@ export function PanelShell({
     .join("");
   return (
     <div className="flex min-h-dvh">
-      <aside className="sticky top-0 hidden h-dvh w-[248px] flex-none flex-col gap-1 border-r border-line px-3.5 py-5 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh w-[248px] flex-none flex-col gap-1 border-r border-paper-2 bg-white px-3.5 py-5 lg:flex">
         <div className="flex items-center gap-2.5 px-2 pb-4">
           <span className="grid size-9 flex-none place-items-center rounded-full bg-black text-xs font-bold text-white">
             {initials}

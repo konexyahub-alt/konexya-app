@@ -97,7 +97,7 @@ async function List({ searchParams }: Pick<PageProps<"/painel/imoveis">, "search
     <>
       <p className="text-[13px] text-muted">{rows.length === 1 ? "1 imóvel" : `${rows.length} imóveis`}</p>
       {/* Computador: tabela */}
-      <div className="hidden overflow-x-auto lg:block">
+      <div className="hidden overflow-x-auto rounded-[20px] bg-white px-2 shadow-soft lg:block">
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="border-b border-line text-left text-[11px] font-bold uppercase tracking-[0.06em] text-muted-2">

@@ -12,6 +12,7 @@ import {
   PropertyCardSkeleton,
   SLOGAN,
   ScoreBadge,
+  ScoreRing,
   SectionTitle,
   Skeleton,
   Tag,
@@ -157,6 +158,9 @@ export function ReferenceGallery() {
           <ScoreBadge score={92} />
           <ScoreBadge score={80} />
           <ScoreBadge score={61} />
+          <ScoreRing score={92} />
+          <ScoreRing score={80} />
+          <ScoreRing score={61} />
         </div>
       </Section>
 

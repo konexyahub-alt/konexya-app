@@ -13,7 +13,7 @@ export function TextField({ label, hint, error, className, id, ...rest }: TextFi
   const inputId = id ?? generatedId;
   const describedBy = error ? `${inputId}-erro` : hint ? `${inputId}-dica` : undefined;
   return (
-    <div className={cn("grid gap-1.5 text-[12.5px] font-semibold", className)}>
+    <div className={cn("grid min-w-0 gap-1.5 text-[12.5px] font-semibold", className)}>
       <label htmlFor={inputId}>{label}</label>
       <input
         id={inputId}

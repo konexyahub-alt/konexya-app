@@ -360,7 +360,7 @@ function StepBasic({ values, set, errors }: StepProps) {
         error={errors.title}
         maxLength={120}
       />
-      <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
+      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
         <TextField label="Rua" value={values.street} onChange={(e) => set("street", e.target.value)} error={errors.street} autoComplete="address-line1" />
         <TextField label="Número" value={values.street_number} onChange={(e) => set("street_number", e.target.value)} error={errors.street_number} />
       </div>
