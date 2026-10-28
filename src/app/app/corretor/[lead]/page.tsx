@@ -18,7 +18,7 @@ export default function LeadConversationPage({ params }: PageProps<"/app/correto
       <Suspense fallback={<LeadSkeleton />}>
         <Conversation params={params} />
       </Suspense>
-      <TabBar />
+      <TabBar active="Corretor" />
     </>
   );
 }

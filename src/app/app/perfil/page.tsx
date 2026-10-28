@@ -17,7 +17,7 @@ export default function ProfilePage({ searchParams }: PageProps<"/app/perfil">) 
           <Profile searchParams={searchParams} />
         </Suspense>
       </main>
-      <TabBar />
+      <TabBar active="Perfil" />
     </>
   );
 }

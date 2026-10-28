@@ -18,7 +18,7 @@ export default function BrokerTab() {
           <Conversations />
         </Suspense>
       </main>
-      <TabBar />
+      <TabBar active="Corretor" />
     </>
   );
 }

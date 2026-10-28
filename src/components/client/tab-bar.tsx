@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui";
 import { cn } from "@/lib/cn";
 
@@ -14,9 +11,8 @@ const TABS: { href: string; label: string; icon: IconName }[] = [
   { href: "/app/perfil", label: "Perfil", icon: "user" },
 ];
 
-export function TabBar() {
-  const pathname = usePathname();
-  const isActive = (href: string) => (href === "/app" ? pathname === "/app" : pathname.startsWith(href));
+export function TabBar({ active }: { active: "Conversa" | "Corretor" | "Perfil" }) {
+  const isActive = (href: string) => TABS.find((t) => t.href === href)?.label === active;
   return (
     <nav
       aria-label="App"

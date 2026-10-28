@@ -17,7 +17,7 @@ export default function ConversationPage() {
       <Suspense fallback={<ChatSkeleton />}>
         <Conversation />
       </Suspense>
-      <TabBar />
+      <TabBar active="Conversa" />
     </>
   );
 }
