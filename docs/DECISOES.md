@@ -229,3 +229,26 @@ sugestões e respostas livres da assistente) será testada quando houver crédit
 O simulador de financiamento na ficha (PLANO, etapa 3) sai da etapa 3 e fica para quando houver **banco parceiro**:
 sem taxa real, pré-aprovação ou envio ao banco, a parcela estimada pode enganar mais do que ajudar. Enquanto isso,
 financiamento aparece na qualificação do lead (forma de pagamento, crédito aprovado, FGTS) e é conduzido pelo corretor.
+
+## 2026-10-29 · Métricas (P-09) completas, com atalhos
+
+- **5 abas:** Visão geral; Atendimento e equipe; Funil e conversão; Imóveis; IA e assistente. Filtros de período
+  (7, 30, 90 dias ou personalizado) e de corretor; comparação com o período anterior. Sem "exportar planilha" no piloto.
+- **Atalhos:** número que leva a uma lista ou ação é clicável (com ›) e abre a tela responsável já filtrada,
+  mantendo o período: parados → Leads "Parados"; visitas aguardando → Agenda "Aguardando"; propostas sem
+  encaminhar → Leads em Proposta; anúncios sem selo → Meus imóveis; etapa do funil → Leads da etapa; motivo de
+  perda → Leads encerrados com o motivo; corretor → Leads do corretor; imóvel → tela do imóvel; pergunta da
+  assistente → Assistente virtual. Números que não levam a uma lista (ex.: "14 min") não são clicáveis.
+- A lista de Leads ganha filtros por corretor, motivo de perda e período.
+- Fora: "bairros mais procurados" e qualquer dado de demanda do mercado (inteligência de procura, fora do escopo).
+  Visitas, propostas e tempo por etapa mostram estado vazio até a etapa 3 gerar dados; nunca número inventado.
+
+## 2026-10-29 · Desenhos da etapa 3 aprovados (telas sem mapa)
+
+Aprovados pelo dono do produto (`docs/desenhos/etapa3/`): visita na conversa do cliente (horários em botões,
+confirmação, endereço e "Adicionar ao meu calendário"); proposta (cliente envia à corretora; acompanhamento com
+etapas e contraproposta); comparação com análise da Konexya embaixo; Salvos; Agenda (uma aba: semana em grade no
+computador, semana + dia com filtros no celular; etiquetas "Aguardando confirmação" e "Horário duplicado");
+lead com visita e proposta ("Encaminhar ao proprietário" e resposta); Métricas em 5 abas. App do cliente com 5
+abas (Conversa, Mapa, Salvos, Corretor, Perfil). Falta importar no Figma (mcp.figma.com bloqueado na rede do
+ambiente) e desenhar o Mapa Vivo (depende do Google Maps).
