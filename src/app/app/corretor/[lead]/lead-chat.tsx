@@ -166,7 +166,7 @@ export function LeadChat(props: Props) {
           Você revogou o compartilhamento com esta imobiliária. A conversa está encerrada e novos dados não são enviados.
         </div>
       ) : (
-        <>
+        <div className="sticky bottom-[calc(64px+max(10px,env(safe-area-inset-bottom)))] z-20 bg-paper pt-2">
         {props.property && canPropose(props.proposal) ? (
           <div className="flex justify-end px-4">
             <button
@@ -179,7 +179,7 @@ export function LeadChat(props: Props) {
           </div>
         ) : null}
         <form
-          className="sticky bottom-[calc(64px+max(10px,env(safe-area-inset-bottom)))] z-20 flex gap-2.5 bg-paper px-4 py-2.5"
+          className="flex gap-2.5 px-4 py-2.5"
           onSubmit={(e) => {
             e.preventDefault();
             send(text);
@@ -206,7 +206,7 @@ export function LeadChat(props: Props) {
             <Icon name="send" />
           </button>
         </form>
-        </>
+        </div>
       )}
       {proposing && props.property ? (
         <ProposalSheet
