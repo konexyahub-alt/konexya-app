@@ -226,7 +226,7 @@ function ProfileColumn(p: Props) {
                 <Icon name={q.open ? "alert" : "check"} size="sm" className={q.open ? "text-warn" : "text-ok"} />
                 <span>
                   {q.body}
-                  <span className="block text-[11px] text-muted-2">{q.open ? "Aguardando sua resposta" : "Respondida"}</span>
+                  <span className="block text-[11px] text-muted-2">{p.lead.revoked ? (q.open ? "Encerrada: o cliente revogou o compartilhamento" : "Respondida") : q.open ? "Aguardando sua resposta" : "Respondida"}</span>
                 </span>
               </li>
             ))}

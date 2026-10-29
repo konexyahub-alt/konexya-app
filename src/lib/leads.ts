@@ -31,8 +31,12 @@ export const LOST_REASON_LABELS: Record<LostReason, string> = {
 
 export const STALLED_MS = 48 * 3600_000;
 
-/** Lead parado: etapa aberta sem movimento na conversa há mais de 48 h. */
-export function isStalled(lead: Pick<LeadRow, "stage" | "last_message_at">, now = Date.now()): boolean {
+/** Lead parado: etapa aberta sem movimento na conversa há mais de 48 h (revogado não conta: não há o que fazer). */
+export function isStalled(
+  lead: Pick<LeadRow, "stage" | "last_message_at"> & Partial<Pick<LeadRow, "consent_revoked_at">>,
+  now = Date.now(),
+): boolean {
+  if (lead.consent_revoked_at) return false;
   return OPEN_STAGES.includes(lead.stage) && now - new Date(lead.last_message_at).getTime() > STALLED_MS;
 }
 

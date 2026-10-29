@@ -9,6 +9,9 @@ describe("lead no painel", () => {
     expect(isStalled({ stage: "em_atendimento", last_message_at: "2026-10-26T11:00:00Z" }, now)).toBe(true);
     expect(isStalled({ stage: "em_atendimento", last_message_at: "2026-10-27T11:00:00Z" }, now)).toBe(false);
     expect(isStalled({ stage: "fechado", last_message_at: "2026-10-01T11:00:00Z" }, now)).toBe(false);
+    expect(
+      isStalled({ stage: "novo", last_message_at: "2026-10-01T11:00:00Z", consent_revoked_at: "2026-10-02T11:00:00Z" }, now),
+    ).toBe(false);
   });
 
   it("aguardando você até a primeira resposta humana ou com dúvida em aberto", () => {

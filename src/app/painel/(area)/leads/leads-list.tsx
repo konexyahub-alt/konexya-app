@@ -16,6 +16,11 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: "encerrados", label: "Encerrados" },
 ];
 
+/** Em andamento: etapa aberta e consentimento ativo. Revogado vai para Encerrados (não há mais o que fazer). */
+function isActive(c: LeadCard) {
+  return OPEN_STAGES.includes(c.stage) && !c.revoked;
+}
+
 /** Lista de leads com busca por nome, filtros rápidos, etapa e (para o gestor) "Meus leads". */
 export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; userId: string; isManager: boolean }) {
   const [query, setQuery] = useState("");
@@ -25,10 +30,10 @@ export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; use
 
   const counts = useMemo(
     () => ({
-      andamento: cards.filter((c) => OPEN_STAGES.includes(c.stage)).length,
+      andamento: cards.filter((c) => isActive(c)).length,
       aguardando: cards.filter((c) => c.awaiting).length,
       parados: cards.filter((c) => c.stalled).length,
-      encerrados: cards.filter((c) => CLOSED_STAGES.includes(c.stage)).length,
+      encerrados: cards.filter((c) => !isActive(c)).length,
     }),
     [cards],
   );
@@ -39,10 +44,10 @@ export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; use
       if (q && !normalizeText(c.name).includes(q)) return false;
       if (mine && c.brokerId !== userId) return false;
       if (stage && c.stage !== stage) return false;
-      if (filter === "andamento") return OPEN_STAGES.includes(c.stage);
+      if (filter === "andamento") return isActive(c);
       if (filter === "aguardando") return c.awaiting;
       if (filter === "parados") return c.stalled;
-      return CLOSED_STAGES.includes(c.stage);
+      return !isActive(c);
     });
   }, [cards, query, filter, stage, mine, userId]);
 
