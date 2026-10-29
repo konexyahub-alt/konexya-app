@@ -5,6 +5,7 @@ import { Chip, EmptyState, Skeleton, YMark, Tag, Icon } from "@/components/ui";
 import { isPlatformAdmin, requireUser } from "@/lib/auth";
 import { formatCnpj } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/server";
+import { panelSignOut } from "../painel/actions";
 import type { Verification } from "@/lib/verification";
 import { ReviewButtons } from "./review-buttons";
 
@@ -24,6 +25,11 @@ export default function AdminPage({ searchParams }: PageProps<"/admin">) {
       <div className="flex items-center gap-2.5">
         <YMark className="h-7" />
         <span className="text-[13px] font-bold">Konexya · Admin interno</span>
+        <form action={panelSignOut} className="ml-auto">
+          <button type="submit" className="min-h-touch text-[13px] font-semibold underline underline-offset-4">
+            Sair
+          </button>
+        </form>
       </div>
       <div>
         <h1 className="text-[26px] font-bold tracking-tight">Anunciantes</h1>
