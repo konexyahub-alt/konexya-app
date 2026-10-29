@@ -252,3 +252,12 @@ computador, semana + dia com filtros no celular; etiquetas "Aguardando confirma�
 lead com visita e proposta ("Encaminhar ao proprietário" e resposta); Métricas em 5 abas. App do cliente com 5
 abas (Conversa, Mapa, Salvos, Corretor, Perfil). Falta importar no Figma (mcp.figma.com bloqueado na rede do
 ambiente) e desenhar o Mapa Vivo (depende do Google Maps).
+
+## 2026-10-29 · Agenda de visitas (P-05) construída
+
+- "Outubro, semana 5" no celular: a semana pertence ao mês da quinta-feira (onde cai a maior parte dela) e conta a
+  partir da semana que tem o dia 1, como no desenho aprovado.
+- "Outro horário" num pedido: cancela o pedido e envia até 3 novos horários na conversa, em nome do corretor que
+  clicou (ação dele, regra 3). Usado para resolver horário duplicado: confirma um cliente e oferece outros ao outro.
+- Barra do celular do painel: Painel, Leads, Agenda, Imóveis e "Mais" (Funil, Equipe, Assistente virtual, Sair).
+  O item Agenda mostra quantas visitas aguardam confirmação.

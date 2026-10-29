@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { PanelShell } from "@/components/panel/panel-shell";
 import { Skeleton } from "@/components/ui";
 import { requireDraftingMember } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { panelSignOut } from "../actions";
 
 export default function PanelAreaLayout({ children }: { children: React.ReactNode }) {
@@ -16,13 +17,16 @@ async function Shell({ children }: { children: React.ReactNode }) {
   // Cadastro pendente: só Imóveis (rascunhos); o resto abre depois da aprovação.
   const { membership, canPublish } = await requireDraftingMember("/painel");
   const gestor = membership.role === "gestor";
+  // Visitas aguardando confirmação (o RLS limita: gestor, a imobiliária; corretor, as suas).
+  const pendingVisits = canPublish ? await countPendingVisits(membership.agencyId) : 0;
   const items = !canPublish
-    ? [{ href: "/painel/imoveis", label: "Meus imóveis", icon: "home" as const }]
+    ? [{ href: "/painel/imoveis", label: "Meus imóveis", icon: "home" as const, primary: true }]
     : [
-    { href: "/painel/inicio", label: "Painel", icon: "grid" as const },
+    { href: "/painel/inicio", label: "Painel", icon: "grid" as const, primary: true },
     { href: "/painel/funil", label: "Funil", icon: "kanban" as const },
-    { href: "/painel/leads", label: "Leads", icon: "lead" as const },
-    { href: "/painel/imoveis", label: "Meus imóveis", icon: "home" as const },
+    { href: "/painel/leads", label: "Leads", icon: "lead" as const, primary: true },
+    { href: "/painel/agenda", label: "Agenda de visitas", short: "Agenda", icon: "cal" as const, primary: true, badge: pendingVisits },
+    { href: "/painel/imoveis", label: "Meus imóveis", short: "Imóveis", icon: "home" as const, primary: true },
     // Corretor autônomo não tem equipe.
     ...(gestor && !membership.autonomous ? [{ href: "/painel/equipe", label: "Equipe", icon: "user" as const }] : []),
     ...(gestor ? [{ href: "/painel/assistente", label: "Assistente virtual", icon: "chat" as const }] : []),
@@ -38,6 +42,17 @@ async function Shell({ children }: { children: React.ReactNode }) {
       {children}
     </PanelShell>
   );
+}
+
+async function countPendingVisits(agencyId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("visits")
+    .select("id", { count: "exact", head: true })
+    .eq("agency_id", agencyId)
+    .eq("status", "pedida")
+    .gte("starts_at", new Date().toISOString());
+  return count ?? 0;
 }
 
 /** Cadastro em análise: o que já dá para fazer na área de rascunho e o que abre depois da aprovação. */

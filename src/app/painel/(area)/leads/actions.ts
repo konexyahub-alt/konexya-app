@@ -185,6 +185,28 @@ export async function closeVisit(visitId: string, status: "realizada" | "nao_com
   return {};
 }
 
+/**
+ * "Outro horário" na agenda: cancela o pedido e manda até 3 novos horários ao cliente, em nome do corretor.
+ * Usado quando dois clientes pediram o mesmo horário: confirma um e oferece outros ao segundo.
+ */
+export async function offerOtherTimes(visitId: string, slots: string[]): Promise<Result> {
+  await requireApprovedMember("/painel/agenda");
+  const parsed = isoList.safeParse(slots);
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  if (parsed.data.some((s) => new Date(s).getTime() < Date.now())) return { error: "Escolha horários no futuro." };
+  const supabase = await createClient();
+  const { data: visit } = await supabase.from("visits").select("lead_id, property_id, status").eq("id", visitId).maybeSingle();
+  if (!visit) return { error: "Visita não encontrada." };
+  if (visit.status !== "pedida" || !visit.property_id) return { error: "Esta visita não está aguardando confirmação." };
+  const closed = await supabase.rpc("close_visit", { p_visit: visitId, p_status: "cancelada", p_note: "Outro horário sugerido" });
+  const closeMsg = friendlyDbError(closed.error, "Não conseguimos atualizar a visita. Tente de novo.");
+  if (closeMsg) return { error: closeMsg };
+  const { error } = await supabase.rpc("suggest_visit_slots", { p_lead: visit.lead_id, p_property: visit.property_id, p_slots: parsed.data });
+  const msg = friendlyDbError(error, "O pedido foi cancelado, mas os novos horários não foram enviados. Envie pela conversa do lead.");
+  refresh();
+  return msg ? { error: msg } : {};
+}
+
 const amount = z.number().positive("Informe um valor maior que zero.").max(1_000_000_000, "Valor alto demais.");
 
 export async function registerProposal(leadId: string, propertyId: string, value: number, note: string): Promise<Result> {
