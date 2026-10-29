@@ -25,14 +25,14 @@ export type Database = {
           Tables: {
             "agencies": {
                   Row: {
-                    "cnpj": string,"created_at": string,"created_by": string,"creci": string,"id": string,"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["agency_status"],"whatsapp": string
+                    "cnpj": string | null,"created_at": string,"created_by": string,"creci": string,"id": string,"kind": Database["public"]['Enums']["advertiser_kind"],"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["agency_status"],"whatsapp": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cnpj": string,"created_at"?: string,"created_by": string,"creci": string,"id"?: string,"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"whatsapp": string
+                    "cnpj"?: string | null,"created_at"?: string,"created_by": string,"creci": string,"id"?: string,"kind"?: Database["public"]['Enums']["advertiser_kind"],"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"whatsapp": string
                   }
                   Update: {
-                    "cnpj"?: string,"created_at"?: string,"created_by"?: string,"creci"?: string,"id"?: string,"legal_name"?: string,"manager_email"?: string,"manager_name"?: string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"whatsapp"?: string
+                    "cnpj"?: string | null,"created_at"?: string,"created_by"?: string,"creci"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["advertiser_kind"],"legal_name"?: string,"manager_email"?: string,"manager_name"?: string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"whatsapp"?: string
                   }
                   Relationships: [
                     
@@ -414,6 +414,9 @@ isOneToOne: false
             "accept_agency_invite":
 { Args: { "p_creci": string,"p_name": string,"p_token": string }; Returns: string
                            },
+"agency_is_autonomous":
+{ Args: { "p_agency": string }; Returns: boolean
+                           },
 "agency_team":
 { Args: { "p_agency": string }; Returns: {
               "active": boolean,"in_rotation": boolean,"name": string,"role": Database["public"]['Enums']["member_role"],"user_id": string
@@ -465,7 +468,7 @@ isOneToOne: false
                            },
 "my_conversations":
 { Args: Record<PropertyKey, never>; Returns: {
-              "agency_id": string,"agency_name": string,"assistant_active": boolean,"assistant_name": string,"broker_creci": string,"broker_name": string,"broker_replied": boolean,"last_body": string | null,"last_message_at": string,"last_sender": Database["public"]["Enums"]["message_sender"] | null,"lead_id": string,"origin_property_id": string,"origin_property_title": string | null,"revoked": boolean,"shared_at": string
+              "agency_id": string,"agency_name": string,"assistant_active": boolean,"assistant_name": string,"broker_creci": string,"broker_name": string,"broker_replied": boolean,"last_body": string,"last_message_at": string,"last_sender": Database["public"]['Enums']["message_sender"],"lead_id": string,"origin_property_id": string,"origin_property_title": string,"revoked": boolean,"shared_at": string
             }[]
                            },
 "pick_broker":
@@ -473,11 +476,14 @@ isOneToOne: false
                            },
 "property_public_info":
 { Args: { "p_id": string }; Returns: {
-              "agency_creci": string,"agency_name": string,"broker_creci": string,"broker_name": string
+              "agency_creci": string,"agency_kind": Database["public"]['Enums']["advertiser_kind"],"agency_name": string,"broker_creci": string,"broker_name": string
             }[]
                            },
 "register_agency":
 { Args: { "p_cnpj": string,"p_creci": string,"p_legal_name": string,"p_manager_name": string,"p_whatsapp": string }; Returns: string
+                           },
+"register_autonomous":
+{ Args: { "p_creci": string,"p_name": string,"p_whatsapp": string }; Returns: string
                            },
 "review_agency":
 { Args: { "p_agency": string,"p_status": Database["public"]['Enums']["agency_status"] }; Returns: undefined
@@ -490,7 +496,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "agency_status": "pendente"|"aprovada"|"recusada"|"suspensa","chat_author": "cliente"|"ia"|"sistema","client_goal": "morar"|"investir"|"ambos","client_lifestyle": "tranquilidade"|"meio_termo"|"movimento","client_pets": "nenhum"|"pequeno"|"grande","client_property_kind": "apartamento"|"casa"|"tanto_faz","client_purpose": "comprar"|"alugar","client_timeline": "ate_3_meses"|"ate_6_meses"|"pesquisando","consent_kind": "termos"|"compartilhamento"|"whatsapp","distribution_mode": "rodizio"|"manual","lead_stage": "novo"|"em_atendimento"|"qualificado"|"visita_agendada"|"proposta"|"negociacao"|"fechado"|"perdido","lost_reason": "preco"|"localizacao"|"desistiu"|"comprou_com_outro"|"sem_resposta"|"outro","member_role": "gestor"|"corretor","message_sender": "cliente"|"corretor"|"assistente"|"sistema","pets_policy": "nao"|"pequeno"|"qualquer","property_purpose": "venda"|"aluguel","property_status": "rascunho"|"publicado"|"pausado"|"vendido"|"alugado","property_type": "apartamento"|"casa"|"cobertura"|"studio"|"sala_comercial"|"terreno","question_status": "encaminhada"|"respondida","suggestion_status": "pendente"|"aprovada"|"editada"|"descartada"
+            "advertiser_kind": "imobiliaria"|"autonomo","agency_status": "pendente"|"aprovada"|"recusada"|"suspensa","chat_author": "cliente"|"ia"|"sistema","client_goal": "morar"|"investir"|"ambos","client_lifestyle": "tranquilidade"|"meio_termo"|"movimento","client_pets": "nenhum"|"pequeno"|"grande","client_property_kind": "apartamento"|"casa"|"tanto_faz","client_purpose": "comprar"|"alugar","client_timeline": "ate_3_meses"|"ate_6_meses"|"pesquisando","consent_kind": "termos"|"compartilhamento"|"whatsapp","distribution_mode": "rodizio"|"manual","lead_stage": "novo"|"em_atendimento"|"qualificado"|"visita_agendada"|"proposta"|"negociacao"|"fechado"|"perdido","lost_reason": "preco"|"localizacao"|"desistiu"|"comprou_com_outro"|"sem_resposta"|"outro","member_role": "gestor"|"corretor","message_sender": "cliente"|"corretor"|"assistente"|"sistema","pets_policy": "nao"|"pequeno"|"qualquer","property_purpose": "venda"|"aluguel","property_status": "rascunho"|"publicado"|"pausado"|"vendido"|"alugado","property_type": "apartamento"|"casa"|"cobertura"|"studio"|"sala_comercial"|"terreno","question_status": "encaminhada"|"respondida","suggestion_status": "pendente"|"aprovada"|"editada"|"descartada"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -610,7 +616,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "agency_status": ["pendente", "aprovada", "recusada", "suspensa"],"chat_author": ["cliente", "ia", "sistema"],"client_goal": ["morar", "investir", "ambos"],"client_lifestyle": ["tranquilidade", "meio_termo", "movimento"],"client_pets": ["nenhum", "pequeno", "grande"],"client_property_kind": ["apartamento", "casa", "tanto_faz"],"client_purpose": ["comprar", "alugar"],"client_timeline": ["ate_3_meses", "ate_6_meses", "pesquisando"],"consent_kind": ["termos", "compartilhamento", "whatsapp"],"distribution_mode": ["rodizio", "manual"],"lead_stage": ["novo", "em_atendimento", "qualificado", "visita_agendada", "proposta", "negociacao", "fechado", "perdido"],"lost_reason": ["preco", "localizacao", "desistiu", "comprou_com_outro", "sem_resposta", "outro"],"member_role": ["gestor", "corretor"],"message_sender": ["cliente", "corretor", "assistente", "sistema"],"pets_policy": ["nao", "pequeno", "qualquer"],"property_purpose": ["venda", "aluguel"],"property_status": ["rascunho", "publicado", "pausado", "vendido", "alugado"],"property_type": ["apartamento", "casa", "cobertura", "studio", "sala_comercial", "terreno"],"question_status": ["encaminhada", "respondida"],"suggestion_status": ["pendente", "aprovada", "editada", "descartada"]
+            "advertiser_kind": ["imobiliaria", "autonomo"],"agency_status": ["pendente", "aprovada", "recusada", "suspensa"],"chat_author": ["cliente", "ia", "sistema"],"client_goal": ["morar", "investir", "ambos"],"client_lifestyle": ["tranquilidade", "meio_termo", "movimento"],"client_pets": ["nenhum", "pequeno", "grande"],"client_property_kind": ["apartamento", "casa", "tanto_faz"],"client_purpose": ["comprar", "alugar"],"client_timeline": ["ate_3_meses", "ate_6_meses", "pesquisando"],"consent_kind": ["termos", "compartilhamento", "whatsapp"],"distribution_mode": ["rodizio", "manual"],"lead_stage": ["novo", "em_atendimento", "qualificado", "visita_agendada", "proposta", "negociacao", "fechado", "perdido"],"lost_reason": ["preco", "localizacao", "desistiu", "comprou_com_outro", "sem_resposta", "outro"],"member_role": ["gestor", "corretor"],"message_sender": ["cliente", "corretor", "assistente", "sistema"],"pets_policy": ["nao", "pequeno", "qualquer"],"property_purpose": ["venda", "aluguel"],"property_status": ["rascunho", "publicado", "pausado", "vendido", "alugado"],"property_type": ["apartamento", "casa", "cobertura", "studio", "sala_comercial", "terreno"],"question_status": ["encaminhada", "respondida"],"suggestion_status": ["pendente", "aprovada", "editada", "descartada"]
           }
         }
 } as const

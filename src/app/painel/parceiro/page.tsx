@@ -18,7 +18,7 @@ export default function PartnerPage() {
       }
       footnote="A Konexya confere cada cadastro antes de liberar o acesso."
     >
-      <h1 className="text-[26px] font-bold tracking-tight">Quero ser parceiro</h1>
+      <h1 className="text-[26px] font-bold tracking-tight">Quero anunciar na Konexya</h1>
       <Suspense fallback={<Skeleton className="h-64" />}>
         <Form />
       </Suspense>

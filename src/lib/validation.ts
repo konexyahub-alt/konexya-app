@@ -55,6 +55,16 @@ export const personNameSchema = z
   .min(1, "Escreva seu nome.")
   .max(80, "Use até 80 caracteres.");
 
+/** Cadastro do corretor autônomo: nome, CRECI de pessoa física e WhatsApp (sem CPF nem CNPJ). */
+export const autonomousSchema = z.object({
+  name: z.string().trim().min(2, "Informe seu nome completo.").max(120),
+  creci: z.string().trim().min(2, "Informe seu CRECI.").max(30),
+  whatsapp: z
+    .string()
+    .transform((v) => normalizePhone(v) ?? "")
+    .refine((v) => v.length > 0, "Informe o WhatsApp com DDD, como (85) 90000-0000."),
+});
+
 export const partnerSchema = z.object({
   legalName: z.string().trim().min(2, "Informe a razão social.").max(160),
   cnpj: z

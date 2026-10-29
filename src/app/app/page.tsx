@@ -50,7 +50,7 @@ async function Conversation() {
       .filter((p) => p.status === "publicado")
       .map(async (p) => {
         const { data } = await supabase.rpc("property_public_info", { p_id: p.id }).maybeSingle();
-        return [p.id, data?.agency_name ?? null] as const;
+        return [p.id, data ? { name: data.agency_name, autonomous: data.agency_kind === "autonomo" } : null] as const;
       }),
   );
   const agencyNames = Object.fromEntries(infos);
@@ -68,7 +68,8 @@ async function Conversation() {
       purpose: p.purpose,
       photoUrl: cover ? photoUrl(cover, base) : null,
       available: p.status === "publicado",
-      agencyName: agencyNames[p.id] ?? null,
+      agencyName: agencyNames[p.id]?.name ?? null,
+      agencyAutonomous: agencyNames[p.id]?.autonomous ?? false,
     };
   }
 

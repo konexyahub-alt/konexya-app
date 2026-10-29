@@ -19,7 +19,7 @@ export default function TeamPage() {
 
 async function Team() {
   const { user, membership } = await requireApprovedMember("/painel/equipe");
-  if (membership.role !== "gestor") redirect("/painel/imoveis");
+  if (membership.role !== "gestor" || membership.autonomous) redirect("/painel/imoveis");
   const supabase = await createClient();
   const [{ data: members }, { data: invites }] = await Promise.all([
     supabase

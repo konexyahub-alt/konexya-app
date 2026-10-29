@@ -41,11 +41,14 @@ export function ContactBar({
   propertyId,
   propertyTitle,
   agencyName,
+  autonomous = false,
   conversationId,
 }: {
   propertyId: string;
   propertyTitle: string;
   agencyName: string;
+  /** Anunciante é corretor autônomo (pessoa), não imobiliária. */
+  autonomous?: boolean;
   conversationId: string | null;
 }) {
   const [open, setOpen] = useState(false);
@@ -86,12 +89,14 @@ export function ContactBar({
               <span className="trk">Sua privacidade</span>
             </div>
             <h2 id="consentimento-titulo" className="mt-3.5 text-2xl font-light leading-tight tracking-tight">
-              Compartilhar seu perfil com a <b className="font-bold">{agencyName}</b>?
+              Compartilhar seu perfil com {autonomous ? "" : "a "}
+              <b className="font-bold">{agencyName}</b>
+              {autonomous ? ", corretor(a) autônomo(a)" : ""}?
             </h2>
             <ul className="mt-4 grid gap-3 text-[12.5px] text-[#3d3d3b]">
               {[
                 "Seu perfil: orçamento, rotina, pets e prioridades, com um resumo feito pela IA",
-                `Os imóveis desta imobiliária que você viu e salvou, incluindo o ${propertyTitle}`,
+                `Os imóveis ${autonomous ? "deste corretor" : "desta imobiliária"} que você viu e salvou, incluindo o ${propertyTitle}`,
                 "O bairro onde você trabalha. Endereços exatos nunca vão.",
               ].map((item) => (
                 <li key={item} className="flex gap-2">
@@ -101,10 +106,11 @@ export function ContactBar({
               ))}
             </ul>
             <p className="mt-4 text-[11.5px] text-muted">
-              A assistente virtual da imobiliária pode te fazer algumas perguntas rápidas até o corretor chegar.
+              A assistente virtual {autonomous ? "do corretor" : "da imobiliária"} pode te fazer algumas perguntas rápidas até o
+              corretor chegar.
             </p>
             <p className="mt-2 text-[11.5px] text-muted">
-              Vale só para esta imobiliária. Você pode revogar quando quiser no seu Perfil.{" "}
+              Vale só para {autonomous ? "este corretor" : "esta imobiliária"}. Você pode revogar quando quiser no seu Perfil.{" "}
               <Link href="/privacidade" target="_blank" className="underline underline-offset-2">
                 Política de Privacidade
               </Link>

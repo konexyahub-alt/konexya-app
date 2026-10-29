@@ -58,13 +58,15 @@ export type AgencyMembership = {
   status: "pendente" | "aprovada" | "recusada" | "suspensa";
   role: "gestor" | "corretor";
   name: string;
+  /** Corretor autônomo: anunciante de uma pessoa só (sem equipe nem rodízio). */
+  autonomous: boolean;
 };
 
 export const getMembership = cache(async (user: SessionUser): Promise<AgencyMembership | null> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("agency_members")
-    .select("agency_id, role, name, active, agencies(legal_name, status)")
+    .select("agency_id, role, name, active, agencies(legal_name, status, kind)")
     .eq("user_id", user.id)
     .eq("active", true)
     .maybeSingle();
@@ -76,6 +78,7 @@ export const getMembership = cache(async (user: SessionUser): Promise<AgencyMemb
     status: agency.status,
     role: data.role,
     name: data.name,
+    autonomous: agency.kind === "autonomo",
   };
 });
 

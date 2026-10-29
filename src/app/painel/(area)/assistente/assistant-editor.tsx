@@ -22,10 +22,13 @@ export function AssistantEditor({
   initial,
   canEdit,
   agencyName,
+  autonomous = false,
 }: {
   initial: AssistantSettings;
   canEdit: boolean;
   agencyName: string;
+  /** Corretor autônomo: sem equipe, então sem distribuição de leads. */
+  autonomous?: boolean;
 }) {
   const [s, setS] = useState<AssistantSettings>(initial);
   const [pending, start] = useTransition();
@@ -199,38 +202,40 @@ export function AssistantEditor({
             </ul>
           </section>
 
-          <section className="grid gap-3 rounded-[20px] bg-white p-5 shadow-soft">
-            <h2 className="trk flex items-center gap-1.5">
-              Distribuição de leads
-              <HelpTip label="Distribuição de leads">
-                Rodízio: cada lead novo vai para o corretor ativo do rodízio que está há mais tempo sem receber lead. Manual: o lead chega sem
-                corretor e o gestor escolhe quem atende. Quem entra no rodízio é definido em Equipe.
-              </HelpTip>
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {(
-                [
-                  ["rodizio", "Rodízio entre corretores ativos"],
-                  ["manual", "Atribuição manual pelo gestor"],
-                ] as const
-              ).map(([v, label]) => (
-                <button
-                  key={v}
-                  type="button"
-                  disabled={!canEdit}
-                  aria-pressed={s.distribution === v}
-                  onClick={() => set({ distribution: v })}
-                  className={cn(
-                    "min-h-touch rounded-full border px-4 text-[12.5px] font-semibold",
-                    s.distribution === v ? "border-black bg-black text-white" : "border-line-2 bg-white",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            <p className="text-[11.5px] text-muted">Quem entra no rodízio é definido na tela Equipe.</p>
-          </section>
+          {autonomous ? null : (
+            <section className="grid gap-3 rounded-[20px] bg-white p-5 shadow-soft">
+              <h2 className="trk flex items-center gap-1.5">
+                Distribuição de leads
+                <HelpTip label="Distribuição de leads">
+                  Rodízio: cada lead novo vai para o corretor ativo do rodízio que está há mais tempo sem receber lead. Manual: o lead chega sem
+                  corretor e o gestor escolhe quem atende. Quem entra no rodízio é definido em Equipe.
+                </HelpTip>
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    ["rodizio", "Rodízio entre corretores ativos"],
+                    ["manual", "Atribuição manual pelo gestor"],
+                  ] as const
+                ).map(([v, label]) => (
+                  <button
+                    key={v}
+                    type="button"
+                    disabled={!canEdit}
+                    aria-pressed={s.distribution === v}
+                    onClick={() => set({ distribution: v })}
+                    className={cn(
+                      "min-h-touch rounded-full border px-4 text-[12.5px] font-semibold",
+                      s.distribution === v ? "border-black bg-black text-white" : "border-line-2 bg-white",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11.5px] text-muted">Quem entra no rodízio é definido na tela Equipe.</p>
+            </section>
+          )}
 
           {canEdit ? (
             <div className="flex flex-wrap items-center gap-3">

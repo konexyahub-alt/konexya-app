@@ -102,7 +102,7 @@ async function Ficha({ params }: Pick<PageProps<"/app/imoveis/[id]">, "params">)
           {info ? (
             <p className="text-[12.5px] text-muted">
               Anunciado por <b className="font-semibold text-ink">{info.agency_name}</b>
-              {info.broker_name ? ` · ${info.broker_name}` : ""}
+              {info.agency_kind === "autonomo" ? ", corretor(a) autônomo(a)" : info.broker_name ? ` · ${info.broker_name}` : ""}
             </p>
           ) : null}
           {p.has_seal ? (
@@ -209,8 +209,10 @@ async function Ficha({ params }: Pick<PageProps<"/app/imoveis/[id]">, "params">)
             </span>
             <div className="text-[12px] leading-snug">
               <p className="text-[13px] font-bold">{info.agency_name}</p>
-              <p className="text-muted">CRECI {info.agency_creci}</p>
-              {info.broker_name ? (
+              <p className="text-muted">
+                {info.agency_kind === "autonomo" ? "Corretor(a) autônomo(a) · " : ""}CRECI {info.agency_creci}
+              </p>
+              {info.broker_name && info.agency_kind !== "autonomo" ? (
                 <p className="text-muted">
                   {info.broker_name}
                   {info.broker_creci ? ` · CRECI ${info.broker_creci}` : ""}
@@ -226,6 +228,7 @@ async function Ficha({ params }: Pick<PageProps<"/app/imoveis/[id]">, "params">)
           propertyId={p.id}
           propertyTitle={title}
           agencyName={info.agency_name}
+          autonomous={info.agency_kind === "autonomo"}
           conversationId={conversation?.lead_id ?? null}
         />
       ) : null}

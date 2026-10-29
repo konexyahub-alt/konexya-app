@@ -138,3 +138,23 @@ localização não conta.
 imobiliária toda; corretor: os seus), com busca pelo nome, filtros rápidos (Em andamento, Aguardando resposta,
 Parados há 48 h+, Encerrados), filtro por etapa e, para o gestor, "Meus leads". Tocar num lead abre a tela do lead
 (P-04, sem mudança). O Funil (P-03) continua para ver e mover o andamento por etapa.
+
+## 2026-10-29 · Corretor autônomo como anunciante
+
+**Antes:** só imobiliárias (CNPJ e CRECI jurídico) anunciavam.
+
+**Agora:** o cadastro de anunciante (P-01) começa com a escolha **Imobiliária** ou **Corretor autônomo**, cada uma
+com explicação e ajuda "?", e um aviso visível: quem trabalha numa imobiliária que já usa a Konexya não se cadastra;
+entra pelo convite do gestor.
+
+| Ponto | Corretor autônomo |
+|---|---|
+| Documentos | Nome completo, CRECI de pessoa física, e-mail e WhatsApp. Sem CPF e sem CNPJ |
+| Aprovação | Manual no Admin, como a imobiliária (conferir o CRECI no CRECI-CE) |
+| Painel | O mesmo; o login é gestor e corretor ao mesmo tempo. Sem Equipe, sem convites, sem distribuição de leads |
+| Assistente virtual | Disponível, configurável como na imobiliária |
+| O cliente vê | "Anunciado por [nome], corretor(a) autônomo(a)" e o CRECI |
+| Regras | Todas iguais (consentimento, isolamento entre anunciantes, métricas) |
+| Convite pendente | Quem tem convite de imobiliária não consegue se cadastrar como autônomo |
+
+Proprietário vendendo direto continua fora do escopo.

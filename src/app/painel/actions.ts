@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { partnerSchema, personNameSchema } from "@/lib/validation";
+import { autonomousSchema, partnerSchema, personNameSchema } from "@/lib/validation";
 
 export type FormState = { error?: string; fieldErrors?: Record<string, string> };
 
@@ -35,6 +35,29 @@ export async function registerAgency(_: FormState, form: FormData): Promise<Form
     if (error.code === "23505" && error.message.includes("cnpj"))
       return { fieldErrors: { cnpj: "Este CNPJ já tem cadastro na Konexya. Fale com o gestor da sua imobiliária." } };
     if (error.code === "23505") return { error: error.message };
+    return { error: "Não conseguimos enviar o cadastro. Tente de novo." };
+  }
+  redirect("/painel");
+}
+
+export async function registerAutonomous(_: FormState, form: FormData): Promise<FormState> {
+  await requireUser("/painel/entrar", "/painel/parceiro");
+  if (form.get("aceite") !== "on") return { error: "Marque a caixa do termo de parceria para continuar." };
+  const parsed = autonomousSchema.safeParse({ name: form.get("name"), creci: form.get("creci"), whatsapp: form.get("whatsapp") });
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0])] ??= issue.message;
+    return { fieldErrors };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("register_autonomous", {
+    p_name: parsed.data.name,
+    p_creci: parsed.data.creci,
+    p_whatsapp: parsed.data.whatsapp,
+  });
+  if (error) {
+    // Convite pendente de imobiliária ou e-mail que já anuncia: a mensagem do banco já diz o que fazer.
+    if (error.code === "P0001" || error.code === "23505") return { error: error.message };
     return { error: "Não conseguimos enviar o cadastro. Tente de novo." };
   }
   redirect("/painel");
