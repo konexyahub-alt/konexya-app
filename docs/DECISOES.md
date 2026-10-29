@@ -285,3 +285,16 @@ ambiente) e desenhar o Mapa Vivo (depende do Google Maps).
 - "Primeira mensagem" (aprovada da IA, editada ou escrita do zero) reconhece a sugestão pelo texto enviado.
 - A frase "Imóveis com selo receberam N× mais leads por visualização" só aparece com pelo menos 100
   visualizações em cada grupo, para não tirar conclusão de pouco dado.
+
+## 2026-10-29 · Visita e proposta na conversa do cliente: uma linha por assunto + "Aceitar contraproposta"
+
+- O bloco empilhado do topo da conversa (visita + proposta com etapas) confundia. Agora há **uma linha por
+  assunto**, com o estado atual; a borda amarela só aparece quando a proposta pede ação do cliente. Tocar abre
+  uma folha com os detalhes (etapas, calendário, cancelar, nova proposta). Aprovado pelo dono do produto (opção A).
+- **Aceitar contraproposta** (aprovado): o cliente toca em "Aceitar R$ X", confirma ("aceitar aqui não é
+  contrato nem pagamento") e o aceite vira mensagem dele para o corretor. A proposta fica "Cliente aceitou"
+  até o corretor registrar "Proprietário confirmou" (vira Aceita, lead em Negociação) ou "Proprietário
+  desistiu" (vira Recusada). Regra 4 mantida: nada vai ao proprietário pela Konexya. Enquanto o aceite espera
+  o corretor, não dá para abrir nova proposta no mesmo imóvel.
+- O botão "Fazer proposta" junto do campo de mensagem só aparece antes da primeira proposta; depois, as ações
+  ficam na folha da proposta.

@@ -413,14 +413,14 @@ isOneToOne: false
                   ]
                 },"proposals": {
                   Row: {
-                    "agency_id": string,"amount": number,"answered_at": string | null,"counter_amount": number | null,"created_at": string,"created_by": string | null,"forwarded_at": string | null,"id": string,"lead_id": string,"made_by": Database["public"]['Enums']["message_sender"],"payment_note": string | null,"property_id": string | null,"status": Database["public"]['Enums']["proposal_status"]
+                    "agency_id": string,"amount": number,"answered_at": string | null,"client_accepted_at": string | null,"counter_amount": number | null,"created_at": string,"created_by": string | null,"forwarded_at": string | null,"id": string,"lead_id": string,"made_by": Database["public"]['Enums']["message_sender"],"payment_note": string | null,"property_id": string | null,"status": Database["public"]['Enums']["proposal_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "agency_id": string,"amount": number,"answered_at"?: string | null,"counter_amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"forwarded_at"?: string | null,"id"?: string,"lead_id": string,"made_by": Database["public"]['Enums']["message_sender"],"payment_note"?: string | null,"property_id"?: string | null,"status"?: Database["public"]['Enums']["proposal_status"]
+                    "agency_id": string,"amount": number,"answered_at"?: string | null,"client_accepted_at"?: string | null,"counter_amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"forwarded_at"?: string | null,"id"?: string,"lead_id": string,"made_by": Database["public"]['Enums']["message_sender"],"payment_note"?: string | null,"property_id"?: string | null,"status"?: Database["public"]['Enums']["proposal_status"]
                   }
                   Update: {
-                    "agency_id"?: string,"amount"?: number,"answered_at"?: string | null,"counter_amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"forwarded_at"?: string | null,"id"?: string,"lead_id"?: string,"made_by"?: Database["public"]['Enums']["message_sender"],"payment_note"?: string | null,"property_id"?: string | null,"status"?: Database["public"]['Enums']["proposal_status"]
+                    "agency_id"?: string,"amount"?: number,"answered_at"?: string | null,"client_accepted_at"?: string | null,"counter_amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"forwarded_at"?: string | null,"id"?: string,"lead_id"?: string,"made_by"?: Database["public"]['Enums']["message_sender"],"payment_note"?: string | null,"property_id"?: string | null,"status"?: Database["public"]['Enums']["proposal_status"]
                   }
                   Relationships: [
                     {
@@ -498,6 +498,9 @@ isOneToOne: false
             "accept_agency_invite":
 { Args: { "p_creci": string,"p_name": string,"p_token": string }; Returns: string
                            },
+"accept_counter":
+{ Args: { "p_proposal": string }; Returns: undefined
+                           },
 "advance_lead_stage":
 { Args: { "p_lead": string,"p_stage": Database["public"]['Enums']["lead_stage"] }; Returns: undefined
                            },
@@ -531,6 +534,9 @@ isOneToOne: false
                            },
 "compute_property_seal":
 { Args: { "p_id": string }; Returns: boolean
+                           },
+"confirm_counter":
+{ Args: { "p_confirmed": boolean,"p_proposal": string }; Returns: undefined
                            },
 "confirm_visit":
 { Args: { "p_visit": string }; Returns: undefined

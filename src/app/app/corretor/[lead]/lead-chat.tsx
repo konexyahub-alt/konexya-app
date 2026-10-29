@@ -7,7 +7,7 @@ import { HelpTip, Icon, ScoreRing, TypingIndicator, useToast } from "@/component
 import { cn } from "@/lib/cn";
 import { initials } from "@/lib/format";
 import { sendLeadMessage } from "../../actions";
-import { DealSummary, ProposalSheet, SlotButtons, type ClientProposal, type ClientVisit } from "./deal-ui";
+import { DealRows, ProposalSheet, SlotButtons, type ClientProposal, type ClientVisit } from "./deal-ui";
 
 type Message = {
   id: number;
@@ -58,7 +58,8 @@ export function LeadChat(props: Props) {
   }, [router]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
+    // Rola até o fim da página: alinhar só a última mensagem a deixaria atrás do campo de mensagem fixo.
+    if (endRef.current) window.scrollTo({ top: document.documentElement.scrollHeight });
   }, [optimistic.length, pending]);
 
   function send(body: string) {
@@ -72,6 +73,7 @@ export function LeadChat(props: Props) {
     });
   }
 
+  const brokerName = props.brokerLine.startsWith("Corretor(a) ") ? props.brokerLine.replace(/^Corretor\(a\) /, "") : "o corretor";
   const last = optimistic.at(-1);
   const quick =
     !pending && props.assistantActive && last?.sender === "assistente" ? last.quickReplies : [];
@@ -81,7 +83,7 @@ export function LeadChat(props: Props) {
 
   return (
     <main className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-20 grid gap-3 bg-paper/95 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))] backdrop-blur">
+      <header className="sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)] gap-3 bg-paper/95 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))] backdrop-blur">
         <div className="flex items-center gap-3 px-1">
           <Link href="/app/corretor" aria-label="Voltar para as conversas" className="grid size-10 place-items-center rounded-full">
             <Icon name="back" />
@@ -116,11 +118,14 @@ export function LeadChat(props: Props) {
             {props.property.score !== null ? <ScoreRing score={props.property.score} size={42} /> : null}
           </Link>
         ) : null}
-        {props.visit || props.proposal ? (
-          <div className="rounded-[18px] bg-white px-3 pb-3 shadow-card">
-            <DealSummary visit={props.visit} proposal={props.proposal} revoked={props.revoked} />
-          </div>
-        ) : null}
+        <DealRows
+          visit={props.visit}
+          proposal={props.proposal}
+          revoked={props.revoked}
+          brokerName={brokerName}
+          askingPrice={props.property?.price ?? null}
+          onPropose={() => setProposing(true)}
+        />
       </header>
 
       <div className="flex flex-1 flex-col gap-2.5 px-[18px] pb-4 pt-3" aria-live="polite">
@@ -167,14 +172,14 @@ export function LeadChat(props: Props) {
         </div>
       ) : (
         <div className="sticky bottom-[calc(64px+max(10px,env(safe-area-inset-bottom)))] z-20 bg-paper pt-2">
-        {props.property && canPropose(props.proposal) ? (
+        {props.property && !props.proposal ? (
           <div className="flex justify-end px-4">
             <button
               type="button"
               onClick={() => setProposing(true)}
               className="min-h-9 rounded-full border border-line-2 bg-white px-3.5 text-[12.5px] font-semibold hover:border-black"
             >
-              {props.proposal ? "Fazer nova proposta" : "Fazer proposta"}
+              Fazer proposta
             </button>
           </div>
         ) : null}
@@ -214,7 +219,7 @@ export function LeadChat(props: Props) {
           propertyId={props.property.id}
           propertyTitle={props.property.title}
           askingPrice={props.property.price}
-          brokerName={props.brokerLine.replace(/^Corretor\(a\) /, "") || "o corretor"}
+          brokerName={brokerName}
           onClose={() => setProposing(false)}
         />
       ) : null}
@@ -255,9 +260,4 @@ function Bubble({ m, assistantName, brokerLine }: { m: Message; assistantName: s
       <p className="whitespace-pre-line text-[13.5px]">{m.body}</p>
     </div>
   );
-}
-
-/** Nova proposta só quando não há outra em andamento (com o corretor ou com o proprietário). */
-function canPropose(p: ClientProposal | null) {
-  return !p || (p.status !== "recebida" && p.status !== "encaminhada" && p.status !== "aceita");
 }

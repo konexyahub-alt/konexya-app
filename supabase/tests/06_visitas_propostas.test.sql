@@ -1,7 +1,7 @@
 -- Etapa 3: visitas e propostas. Regra 4 (só o corretor confirma visitas; propostas passam pelo corretor) e
 -- regra 5 (uma imobiliária nunca vê visitas ou propostas de outra).
 begin;
-select plan(22);
+select plan(30);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'gestor.a@a.test'),
@@ -108,6 +108,38 @@ select lives_ok(
   'o corretor registra a contraproposta'
 );
 select is((select stage::text from public.leads), 'negociacao', 'contraproposta leva o lead para Negociação');
+
+-- Cliente aceita a contraproposta: vai ao corretor; só o corretor registra a confirmação do proprietário.
+select throws_ok(
+  $$select public.confirm_counter((select id from public.proposals), true)$$,
+  '22023', null, 'o corretor não confirma um aceite que o cliente não deu'
+);
+select throws_ok(
+  $$select public.accept_counter((select id from public.proposals))$$,
+  'P0002', null, 'só o cliente aceita a contraproposta'
+);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c1","role":"authenticated"}', true);
+select lives_ok($$select public.accept_counter((select id from public.proposals))$$, 'o cliente aceita a contraproposta');
+select results_eq(
+  $$select status::text, client_accepted_at is not null from public.proposals$$,
+  $$values ('contraproposta', true)$$,
+  'o aceite não fecha a proposta: ela espera o corretor (regra 4)'
+);
+select is(
+  (select body from public.lead_messages where sender = 'cliente' order by id desc limit 1),
+  'Aceito a contraproposta de R$ 870.000.',
+  'o aceite vira mensagem do cliente para o corretor'
+);
+select throws_ok(
+  $$select public.make_proposal((select id from t_lead), 'a0000000-0000-0000-0000-000000000001', 860000)$$,
+  '23505', null, 'sem nova proposta enquanto o aceite espera o corretor'
+);
+select throws_ok(
+  $$select public.confirm_counter((select id from public.proposals), true)$$,
+  '42501', null, 'o cliente não registra a confirmação do proprietário'
+);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a2","role":"authenticated"}', true);
+select lives_ok($$select public.confirm_counter((select id from public.proposals), true)$$, 'o corretor registra que o proprietário confirmou');
 
 select * from finish();
 rollback;

@@ -64,7 +64,7 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
     supabase.from("visits").select("id, starts_at, status, property_id").eq("lead_id", leadId).order("starts_at"),
     supabase
       .from("proposals")
-      .select("id, amount, status, counter_amount, created_at, forwarded_at, answered_at")
+      .select("id, amount, status, counter_amount, created_at, forwarded_at, answered_at, client_accepted_at")
       .eq("lead_id", leadId)
       .order("created_at", { ascending: false })
       .limit(1),
@@ -124,6 +124,7 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
               createdAt: lastProposal.created_at,
               forwardedAt: lastProposal.forwarded_at,
               answeredAt: lastProposal.answered_at,
+              clientAcceptedAt: lastProposal.client_accepted_at,
             }
           : null
       }

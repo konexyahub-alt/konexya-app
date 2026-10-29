@@ -430,6 +430,7 @@ function nextAction(p: Props): string {
   if (p.lead.revoked) return "O cliente revogou o compartilhamento. Não envie mais mensagens.";
   if (!p.lead.firstResponseAt) return p.suggestion ? "Revisar e aprovar a primeira mensagem." : "Enviar a primeira mensagem.";
   if (p.visits.some((v) => v.status === "pedida")) return "Confirmar a visita pedida pelo cliente.";
+  if (p.proposals[0]?.status === "contraproposta" && p.proposals[0].clientAcceptedAt) return "Confirmar o aceite com o proprietário.";
   if (p.proposals[0]?.status === "recebida") return "Encaminhar a proposta ao proprietário.";
   if (p.proposals[0]?.status === "encaminhada") return "Registrar a resposta do proprietário.";
   if (p.questions.some((q) => q.open)) return "Responder as dúvidas do cliente.";

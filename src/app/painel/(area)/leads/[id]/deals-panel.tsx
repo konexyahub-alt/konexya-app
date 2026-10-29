@@ -17,6 +17,7 @@ import {
 import {
   answerProposal,
   closeVisit,
+  confirmCounter,
   confirmVisit,
   forwardProposal,
   registerProposal,
@@ -35,6 +36,8 @@ export type StaffProposal = {
   propertyTitle: string;
   askingPrice: number | null;
   createdAt: string;
+  /** O cliente aceitou a contraproposta pelo app; falta o corretor confirmar com o proprietário. */
+  clientAcceptedAt: string | null;
 };
 type PropertyOption = { id: string; title: string; price: number | null };
 
@@ -277,14 +280,41 @@ export function ProposalPanel({
                 {current.askingPrice ? ` · pedido ${formatBRL(current.askingPrice)}` : ""}
               </p>
             </div>
-            <Tag tone={current.status === "recebida" ? "dark" : current.status === "aceita" ? "ok" : current.status === "recusada" ? "bad" : "neutral"}>
-              {current.status === "recebida" ? "Aguardando você" : PROPOSAL_STATUS_LABELS[current.status]}
+            <Tag tone={current.status === "recebida" ? "dark" : current.status === "aceita" ? "ok" : current.status === "recusada" ? "bad" : current.clientAcceptedAt ? "warn" : "neutral"}>
+              {current.status === "recebida" ? "Aguardando você" : current.status === "contraproposta" && current.clientAcceptedAt ? "Cliente aceitou" : PROPOSAL_STATUS_LABELS[current.status]}
             </Tag>
           </div>
-          {current.status === "contraproposta" ? (
+          {current.status === "contraproposta" || current.counterAmount ? (
             <p className="text-[12.5px]">
               Contraproposta do proprietário: <b>{formatBRL(current.counterAmount)}</b>
             </p>
+          ) : null}
+          {current.status === "contraproposta" && current.clientAcceptedAt ? (
+            <div className="grid gap-2 rounded-[14px] bg-warn-bg p-3">
+              <p className="text-[13px] font-bold">
+                O cliente aceitou {formatBRL(current.counterAmount)} · {day(current.clientAcceptedAt)}
+              </p>
+              <p className="text-[12px] text-ink/70">Confirme com o proprietário e registre aqui. A Konexya não envia nada ao proprietário.</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={disabled}
+                  loading={pending}
+                  onClick={() => run(() => confirmCounter(current.id, true), "Registrado: o proprietário confirmou. O cliente foi avisado.")}
+                >
+                  Proprietário confirmou
+                </Button>
+                <button
+                  type="button"
+                  disabled={disabled || pending}
+                  onClick={() => run(() => confirmCounter(current.id, false), "Registrado: o proprietário não manteve o valor. O cliente foi avisado.")}
+                  className="min-h-11 text-[12.5px] font-semibold underline underline-offset-4"
+                >
+                  Proprietário desistiu
+                </button>
+              </div>
+            </div>
           ) : null}
           {current.status === "recebida" ? (
             <>
@@ -344,7 +374,7 @@ export function ProposalPanel({
         </ul>
       ) : null}
 
-      {!disabled && properties.length && (!current || !["recebida", "encaminhada"].includes(current.status)) ? (
+      {!disabled && properties.length && (!current || !(["recebida", "encaminhada"].includes(current.status) || (current.status === "contraproposta" && current.clientAcceptedAt))) ? (
         registering ? (
           <div className="grid gap-2 rounded-[14px] border border-line-2 p-3">
             <select

@@ -197,3 +197,14 @@ export async function makeProposal(leadId: string, propertyId: string, value: nu
   refresh();
   return {};
 }
+
+/** Aceitar a contraproposta: vira mensagem para o corretor, que confirma com o proprietário (regra 4). */
+export async function acceptCounter(proposalId: string): Promise<{ error?: string }> {
+  await requireUser("/app/entrar");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("accept_counter", { p_proposal: proposalId });
+  const msg = friendlyDbError(error, "Não conseguimos enviar o aceite. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}

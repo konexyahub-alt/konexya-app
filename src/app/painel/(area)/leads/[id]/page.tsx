@@ -52,7 +52,7 @@ async function Lead({ params }: Pick<PageProps<"/painel/leads/[id]">, "params">)
     supabase.from("visits").select("id, starts_at, duration_min, status, property_id, broker_id").eq("lead_id", id).order("starts_at"),
     supabase
       .from("proposals")
-      .select("id, amount, status, counter_amount, made_by, property_id, created_at")
+      .select("id, amount, status, counter_amount, made_by, property_id, created_at, client_accepted_at")
       .eq("lead_id", id)
       .order("created_at", { ascending: false }),
   ]);
@@ -164,6 +164,7 @@ async function Lead({ params }: Pick<PageProps<"/painel/leads/[id]">, "params">)
           propertyTitle: prop?.title ?? "Imóvel",
           askingPrice: prop?.price === null || prop?.price === undefined ? null : Number(prop.price),
           createdAt: x.created_at,
+          clientAcceptedAt: x.client_accepted_at,
         };
       })}
     />

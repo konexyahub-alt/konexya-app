@@ -207,6 +207,17 @@ export async function offerOtherTimes(visitId: string, slots: string[]): Promise
   return msg ? { error: msg } : {};
 }
 
+/** Depois do aceite do cliente: o proprietário confirmou o valor ou não manteve a contraproposta. */
+export async function confirmCounter(proposalId: string, confirmed: boolean): Promise<Result> {
+  await requireApprovedMember("/painel/leads");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("confirm_counter", { p_proposal: proposalId, p_confirmed: confirmed });
+  const msg = friendlyDbError(error, "Não conseguimos registrar. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
 const amount = z.number().positive("Informe um valor maior que zero.").max(1_000_000_000, "Valor alto demais.");
 
 export async function registerProposal(leadId: string, propertyId: string, value: number, note: string): Promise<Result> {
