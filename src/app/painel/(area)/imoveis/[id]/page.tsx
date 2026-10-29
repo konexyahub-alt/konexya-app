@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Icon, Skeleton } from "@/components/ui";
-import { requireApprovedMember } from "@/lib/auth";
+import { requireDraftingMember } from "@/lib/auth";
 import { publicEnv } from "@/lib/env";
 import { DEFAULT_SEAL_RULES, photoUrl, sortPhotos } from "@/lib/property";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +24,7 @@ export default function PropertyEditPage({ params }: PageProps<"/painel/imoveis/
 
 async function Editor({ params }: Pick<PageProps<"/painel/imoveis/[id]">, "params">) {
   const { id } = await params;
-  const { membership } = await requireApprovedMember(`/painel/imoveis/${id}`);
+  const { membership, canPublish } = await requireDraftingMember(`/painel/imoveis/${id}`);
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createClient();
   const [{ data: property }, { data: members }, { data: rules }] = await Promise.all([
@@ -50,6 +50,7 @@ async function Editor({ params }: Pick<PageProps<"/painel/imoveis/[id]">, "param
       property={rest}
       photos={photos}
       agencyId={membership.agencyId}
+      canPublish={canPublish}
       brokers={(members ?? []).map((m) => ({ id: m.user_id, name: m.name, creci: m.creci }))}
       sealRules={rules ? { minPhotos: rules.min_photos, minDescriptionChars: rules.min_description_chars } : DEFAULT_SEAL_RULES}
     />

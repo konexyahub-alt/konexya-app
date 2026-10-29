@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Icon, Skeleton } from "@/components/ui";
-import { requireApprovedMember } from "@/lib/auth";
+import { requireDraftingMember } from "@/lib/auth";
 import { ImportFlow } from "./import-flow";
 
 /** P-08 · Importar imóveis por planilha. */
@@ -20,6 +20,6 @@ export default function ImportPage() {
 }
 
 async function Gate() {
-  await requireApprovedMember("/painel/imoveis/importar");
-  return <ImportFlow />;
+  const { canPublish } = await requireDraftingMember("/painel/imoveis/importar");
+  return <ImportFlow canPublish={canPublish} />;
 }

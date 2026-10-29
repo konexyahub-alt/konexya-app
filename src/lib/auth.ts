@@ -90,6 +90,17 @@ export async function requireApprovedMember(next: string) {
   return { user, membership };
 }
 
+/**
+ * Imóveis no painel: membro de imobiliária aprovada ou ainda pendente. Pendente só cadastra rascunhos; publicar
+ * depende da aprovação (o banco garante; docs/DECISOES.md, 2026-10-29).
+ */
+export async function requireDraftingMember(next: string) {
+  const user = await requireUser("/painel/entrar", next);
+  const membership = await getMembership(user);
+  if (!membership || (membership.status !== "aprovada" && membership.status !== "pendente")) redirect("/painel");
+  return { user, membership, canPublish: membership.status === "aprovada" };
+}
+
 export const isPlatformAdmin = cache(async (): Promise<boolean> => {
   const supabase = await createClient();
   const { data } = await supabase.rpc("is_platform_admin");

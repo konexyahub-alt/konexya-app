@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { notifyNewAdvertiser } from "@/lib/advertiser-review";
 import { createClient } from "@/lib/supabase/server";
 import { autonomousSchema, partnerSchema, personNameSchema } from "@/lib/validation";
 
@@ -24,7 +26,7 @@ export async function registerAgency(_: FormState, form: FormData): Promise<Form
   }
   const d = parsed.data;
   const supabase = await createClient();
-  const { error } = await supabase.rpc("register_agency", {
+  const { data: agencyId, error } = await supabase.rpc("register_agency", {
     p_legal_name: d.legalName,
     p_cnpj: d.cnpj,
     p_creci: d.creci,
@@ -37,6 +39,8 @@ export async function registerAgency(_: FormState, form: FormData): Promise<Form
     if (error.code === "23505") return { error: error.message };
     return { error: "Não conseguimos enviar o cadastro. Tente de novo." };
   }
+  // Conferência do CNPJ e aviso ao admin depois da resposta, sem fazer a pessoa esperar.
+  after(() => notifyNewAdvertiser(agencyId));
   redirect("/painel");
 }
 
@@ -50,7 +54,7 @@ export async function registerAutonomous(_: FormState, form: FormData): Promise<
     return { fieldErrors };
   }
   const supabase = await createClient();
-  const { error } = await supabase.rpc("register_autonomous", {
+  const { data: agencyId, error } = await supabase.rpc("register_autonomous", {
     p_name: parsed.data.name,
     p_creci: parsed.data.creci,
     p_whatsapp: parsed.data.whatsapp,
@@ -60,6 +64,7 @@ export async function registerAutonomous(_: FormState, form: FormData): Promise<
     if (error.code === "P0001" || error.code === "23505") return { error: error.message };
     return { error: "Não conseguimos enviar o cadastro. Tente de novo." };
   }
+  after(() => notifyNewAdvertiser(agencyId));
   redirect("/painel");
 }
 

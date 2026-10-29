@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { PanelShell } from "@/components/panel/panel-shell";
 import { Skeleton } from "@/components/ui";
-import { requireApprovedMember } from "@/lib/auth";
+import { requireDraftingMember } from "@/lib/auth";
 import { panelSignOut } from "../actions";
 
 export default function PanelAreaLayout({ children }: { children: React.ReactNode }) {
@@ -13,9 +13,12 @@ export default function PanelAreaLayout({ children }: { children: React.ReactNod
 }
 
 async function Shell({ children }: { children: React.ReactNode }) {
-  const { membership } = await requireApprovedMember("/painel");
+  // Cadastro pendente: só Imóveis (rascunhos); o resto abre depois da aprovação.
+  const { membership, canPublish } = await requireDraftingMember("/painel");
   const gestor = membership.role === "gestor";
-  const items = [
+  const items = !canPublish
+    ? [{ href: "/painel/imoveis", label: "Imóveis anunciados", icon: "home" as const }]
+    : [
     { href: "/painel/inicio", label: "Painel", icon: "grid" as const },
     { href: "/painel/funil", label: "Funil", icon: "kanban" as const },
     { href: "/painel/leads", label: "Leads", icon: "lead" as const },
@@ -31,6 +34,12 @@ async function Shell({ children }: { children: React.ReactNode }) {
       items={items}
       signOut={panelSignOut}
     >
+      {!canPublish ? (
+        <p className="flex items-start gap-2 border-b border-paper-2 bg-warn-bg px-4 py-3 text-[13px] text-warn lg:px-9">
+          Cadastro em análise. Você já pode cadastrar e importar imóveis como rascunho; publicar e receber leads fica
+          liberado quando a Konexya aprovar.
+        </p>
+      ) : null}
       {children}
     </PanelShell>
   );

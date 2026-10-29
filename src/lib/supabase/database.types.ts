@@ -25,14 +25,14 @@ export type Database = {
           Tables: {
             "agencies": {
                   Row: {
-                    "cnpj": string | null,"created_at": string,"created_by": string,"creci": string,"id": string,"kind": Database["public"]['Enums']["advertiser_kind"],"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["agency_status"],"whatsapp": string
+                    "cnpj": string | null,"created_at": string,"created_by": string,"creci": string,"id": string,"kind": Database["public"]['Enums']["advertiser_kind"],"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["agency_status"],"verification": Json | null,"whatsapp": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cnpj"?: string | null,"created_at"?: string,"created_by": string,"creci": string,"id"?: string,"kind"?: Database["public"]['Enums']["advertiser_kind"],"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"whatsapp": string
+                    "cnpj"?: string | null,"created_at"?: string,"created_by": string,"creci": string,"id"?: string,"kind"?: Database["public"]['Enums']["advertiser_kind"],"legal_name": string,"manager_email": string,"manager_name": string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"verification"?: Json | null,"whatsapp": string
                   }
                   Update: {
-                    "cnpj"?: string | null,"created_at"?: string,"created_by"?: string,"creci"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["advertiser_kind"],"legal_name"?: string,"manager_email"?: string,"manager_name"?: string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"whatsapp"?: string
+                    "cnpj"?: string | null,"created_at"?: string,"created_by"?: string,"creci"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["advertiser_kind"],"legal_name"?: string,"manager_email"?: string,"manager_name"?: string,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["agency_status"],"verification"?: Json | null,"whatsapp"?: string
                   }
                   Relationships: [
                     
@@ -413,6 +413,9 @@ isOneToOne: false
           Functions: {
             "accept_agency_invite":
 { Args: { "p_creci": string,"p_name": string,"p_token": string }; Returns: string
+                           },
+"agency_can_draft":
+{ Args: { "p_agency": string }; Returns: boolean
                            },
 "agency_is_autonomous":
 { Args: { "p_agency": string }; Returns: boolean

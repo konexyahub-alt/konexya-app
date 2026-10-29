@@ -16,7 +16,7 @@ export async function reviewAgency(agencyId: string, status: "aprovada" | "recus
   if (status === "aprovada") {
     const { data: agency } = await supabase
       .from("agencies")
-      .select("legal_name, manager_name, manager_email")
+      .select("kind, legal_name, manager_name, manager_email")
       .eq("id", agencyId)
       .maybeSingle();
     if (agency?.manager_email) {
@@ -26,7 +26,11 @@ export async function reviewAgency(agencyId: string, status: "aprovada" | "recus
         agency.manager_email,
         "Seu acesso ao painel da Konexya foi liberado",
         `<div style="font-family:Arial,sans-serif;color:#151516;max-width:480px">
-          <p>Olá, ${escapeHtml(agency.manager_name)}. O cadastro da <b>${escapeHtml(agency.legal_name)}</b> foi conferido e o painel já está liberado.</p>
+          <p>Olá, ${escapeHtml(agency.manager_name)}. ${
+            agency.kind === "autonomo"
+              ? "Seu cadastro de corretor(a) autônomo(a)"
+              : `O cadastro da <b>${escapeHtml(agency.legal_name)}</b>`
+          } foi conferido e o painel já está liberado.</p>
           <p><a href="${link}" style="display:inline-block;background:#0b0b0c;color:#fff;padding:12px 20px;border-radius:999px;text-decoration:none">Entrar no painel</a></p></div>`,
       );
     }

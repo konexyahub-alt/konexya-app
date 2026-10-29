@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { BrandSplit } from "@/components/panel/brand-split";
-import { Icon, Skeleton } from "@/components/ui";
+import { Icon, Skeleton, buttonClasses } from "@/components/ui";
 import { getMembership, isPlatformAdmin, requireUser } from "@/lib/auth";
 import { panelSignOut } from "./actions";
 
@@ -18,7 +18,7 @@ export default function PanelHome() {
 const STATUS_COPY = {
   pendente: {
     title: "Recebemos seu cadastro",
-    text: "A Konexya libera o acesso após a conferência. Você recebe um e-mail quando estiver pronto.",
+    text: "A Konexya libera o acesso após a conferência e avisa por e-mail. Enquanto isso, você já pode cadastrar seus imóveis como rascunho.",
     tone: "ok" as const,
   },
   recusada: {
@@ -67,6 +67,11 @@ async function Router() {
       <p className="text-[13px] text-muted">
         {membership.agencyName} · {user.email}
       </p>
+      {membership.status === "pendente" ? (
+        <Link href="/painel/imoveis" className={buttonClasses({ fullWidth: true })}>
+          Cadastrar imóveis enquanto isso
+        </Link>
+      ) : null}
       <form action={panelSignOut}>
         <button type="submit" className="min-h-touch text-sm font-semibold underline underline-offset-4">
           Sair

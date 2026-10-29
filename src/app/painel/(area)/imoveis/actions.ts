@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireApprovedMember } from "@/lib/auth";
+import { requireDraftingMember } from "@/lib/auth";
 import { STEP_SCHEMAS, fieldErrors, publishProblems } from "@/lib/property-form";
 import type { PropertyStatus } from "@/lib/property";
 import { createClient } from "@/lib/supabase/server";
@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 export type StepResult = { ok: boolean; error?: string; fieldErrors?: Record<string, string> };
 
 export async function createDraft() {
-  const { membership } = await requireApprovedMember("/painel/imoveis");
+  const { membership } = await requireDraftingMember("/painel/imoveis");
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("properties")
@@ -23,7 +23,7 @@ export async function createDraft() {
 
 /** Salva um passo do cadastro. Os dados chegam como objeto simples já montado pelo formulário. */
 export async function saveStep(id: string, step: number, values: Record<string, unknown>): Promise<StepResult> {
-  await requireApprovedMember(`/painel/imoveis/${id}`);
+  await requireDraftingMember(`/painel/imoveis/${id}`);
   const schema = STEP_SCHEMAS[step];
   if (!schema) return { ok: false, error: "Passo inválido." };
   const parsed = schema.safeParse(values);
@@ -41,8 +41,11 @@ export async function saveStep(id: string, step: number, values: Record<string, 
 }
 
 export async function setStatus(id: string, status: PropertyStatus): Promise<StepResult> {
-  await requireApprovedMember(`/painel/imoveis/${id}`);
+  const { canPublish } = await requireDraftingMember(`/painel/imoveis/${id}`);
   const supabase = await createClient();
+  if (status === "publicado" && !canPublish) {
+    return { ok: false, error: "Publicar fica liberado quando a Konexya aprovar seu cadastro. Até lá, o imóvel fica salvo como rascunho." };
+  }
   if (status === "publicado") {
     const { data } = await supabase.from("properties").select("title, price, neighborhood").eq("id", id).single();
     const problems = data ? publishProblems(data) : ["Imóvel não encontrado."];
@@ -56,7 +59,7 @@ export async function setStatus(id: string, status: PropertyStatus): Promise<Ste
 }
 
 export async function addPhotos(id: string, paths: string[]): Promise<StepResult> {
-  await requireApprovedMember(`/painel/imoveis/${id}`);
+  await requireDraftingMember(`/painel/imoveis/${id}`);
   const supabase = await createClient();
   const { data: existing } = await supabase.from("property_photos").select("position, is_cover").eq("property_id", id);
   const start = Math.max(-1, ...(existing ?? []).map((p) => p.position)) + 1;
@@ -74,7 +77,7 @@ export async function addPhotos(id: string, paths: string[]): Promise<StepResult
 
 /** Nova ordem das fotos (lista de ids na ordem desejada). A primeira vira a capa. */
 export async function reorderPhotos(id: string, photoIds: string[]): Promise<StepResult> {
-  await requireApprovedMember(`/painel/imoveis/${id}`);
+  await requireDraftingMember(`/painel/imoveis/${id}`);
   const supabase = await createClient();
   // Tira a capa antes, por causa do índice "uma capa por imóvel".
   await supabase.from("property_photos").update({ is_cover: false }).eq("property_id", id);
@@ -90,7 +93,7 @@ export async function reorderPhotos(id: string, photoIds: string[]): Promise<Ste
 }
 
 export async function removePhoto(id: string, photoId: string): Promise<StepResult> {
-  await requireApprovedMember(`/painel/imoveis/${id}`);
+  await requireDraftingMember(`/painel/imoveis/${id}`);
   const supabase = await createClient();
   const { data } = await supabase
     .from("property_photos")

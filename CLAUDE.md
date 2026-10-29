@@ -39,6 +39,8 @@ Os `.md` em `docs/` foram extraídos dos PDFs; em caso de dúvida de leitura, o 
 - IA: API da Anthropic, **só no servidor**, saída estruturada validada com Zod antes de gravar.
 - Google Maps Platform (Maps JS, Places, Routes), WhatsApp Cloud API (só templates aprovados), Resend.
 - Vercel: Preview = teste, Production = produção, cada um com o seu projeto Supabase.
+- E-mails da Konexya (`src/lib/contacts.ts`): tudo da administração do app (cadastros, aprovações, alertas internos)
+  vai para **konexyadmin@gmail.com**; avisos de operação e negócio (propostas e afins) vão para **konexyahub@gmail.com**.
 - Segredos só em variáveis de ambiente (`.env.example` lista todas). Nunca chave no código ou no repositório.
 
 ## Regras de negócio críticas (cada uma precisa de teste automatizado)

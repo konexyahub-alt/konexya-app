@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { EmptyState, Icon, Skeleton, Tag, buttonClasses } from "@/components/ui";
-import { requireApprovedMember } from "@/lib/auth";
+import { requireDraftingMember } from "@/lib/auth";
 import { publicEnv } from "@/lib/env";
 import { formatBRL } from "@/lib/format";
 import { STATUS_LABELS, STATUS_TONES, TYPE_LABELS, photoUrl, sortPhotos, type PropertyStatus } from "@/lib/property";
@@ -42,7 +42,7 @@ export default function PropertiesPage({ searchParams }: PageProps<"/painel/imov
 const STATUSES = Object.keys(STATUS_LABELS) as PropertyStatus[];
 
 async function List({ searchParams }: Pick<PageProps<"/painel/imoveis">, "searchParams">) {
-  const { membership } = await requireApprovedMember("/painel/imoveis");
+  const { membership } = await requireDraftingMember("/painel/imoveis");
   const params = await searchParams;
   const q = typeof params.q === "string" ? params.q.trim() : "";
   const status = typeof params.status === "string" && STATUSES.includes(params.status as PropertyStatus) ? params.status : "";

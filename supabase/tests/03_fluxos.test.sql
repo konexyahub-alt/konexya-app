@@ -1,6 +1,6 @@
 -- Fluxos da etapa 1: cadastro de parceiro, aprovação, convite e selo "Anúncio completo" (regra 9).
 begin;
-select plan(16);
+select plan(17);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'gestor@nova.test'),
@@ -22,9 +22,13 @@ select results_eq(
   $$values ('pendente', 'gestor@nova.test')$$,
   'imobiliária nasce pendente, com o e-mail da sessão'
 );
+select lives_ok(
+  $$insert into public.properties (agency_id, title) select id, 'rascunho antes da aprovação' from public.agencies$$,
+  'imobiliária pendente já cadastra imóveis como rascunho'
+);
 select throws_ok(
-  $$insert into public.properties (agency_id, title) select id, 'antes da aprovação' from public.agencies$$,
-  '42501', null, 'imobiliária pendente não cadastra imóveis'
+  $$insert into public.properties (agency_id, title, status) select id, 'publicado antes da aprovação', 'publicado' from public.agencies$$,
+  '42501', null, 'imobiliária pendente não publica imóveis'
 );
 select throws_ok(
   $$select public.register_agency('Outra Ltda.', '44444444000144', 'J-4', 'Gestora Nova', '85911112222')$$,

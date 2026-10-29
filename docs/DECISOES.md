@@ -158,3 +158,17 @@ entra pelo convite do gestor.
 | Convite pendente | Quem tem convite de imobiliária não consegue se cadastrar como autônomo |
 
 Proprietário vendendo direto continua fora do escopo.
+
+## 2026-10-29 · Verificação de anunciantes e e-mails da Konexya
+
+- **Conferência automática do CNPJ:** no cadastro de imobiliária, o servidor consulta a Receita Federal (BrasilAPI,
+  pública e gratuita) e confere situação ativa, razão social e atividade imobiliária (CNAE 6821-8/01, 6821-8/02 ou
+  6822-6/00). O resultado aparece no Admin com ✓/✗. A aprovação **continua manual**.
+- **CRECI:** não há serviço oficial do COFECI/CRECI-CE para sistemas; raspar a página de consulta é frágil e pode
+  violar os termos do conselho. Por isso o CRECI segue conferido pelo admin, com um atalho de consulta no Admin.
+  Aprovação automática pelo CRECI só com acesso oficial aos dados (pedir ao CRECI-CE).
+- **Aviso de cadastro novo:** e-mail para konexyadmin@gmail.com com os dados e o resultado da conferência.
+- **Rascunho enquanto pendente:** quem aguarda aprovação já cadastra e importa imóveis como rascunho; publicar e
+  receber leads dependem da aprovação (garantido no banco).
+- **E-mails:** administração do app → konexyadmin@gmail.com; operação e negócio (propostas e afins) →
+  konexyahub@gmail.com (`src/lib/contacts.ts`).

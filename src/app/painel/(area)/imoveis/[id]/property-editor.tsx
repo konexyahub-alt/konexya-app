@@ -106,12 +106,15 @@ export function PropertyEditor({
   property,
   photos: initialPhotos,
   agencyId,
+  canPublish = true,
   brokers,
   sealRules,
 }: {
   property: Property;
   photos: Photo[];
   agencyId: string;
+  /** Cadastro do anunciante ainda pendente: só rascunho. */
+  canPublish?: boolean;
   brokers: Broker[];
   sealRules: SealRules;
 }) {
@@ -272,14 +275,19 @@ export function PropertyEditor({
                 size="sm"
                 onClick={() => changeStatus("publicado", "Imóvel publicado")}
                 loading={pending}
-                disabled={publishBlockers.length > 0}
+                disabled={publishBlockers.length > 0 || !canPublish}
               >
                 Publicar
               </Button>
             )}
           </div>
         </div>
-        {step === STEP_LABELS.length - 1 && status !== "publicado" && publishBlockers.length ? (
+        {step === STEP_LABELS.length - 1 && status !== "publicado" && !canPublish ? (
+          <p className="text-[13px] text-muted">
+            Publicar fica liberado quando a Konexya aprovar seu cadastro. Até lá, o imóvel fica salvo como rascunho.
+          </p>
+        ) : null}
+        {step === STEP_LABELS.length - 1 && status !== "publicado" && canPublish && publishBlockers.length ? (
           <p className="text-[13px] text-muted">Para publicar: {publishBlockers.join(" ")}</p>
         ) : null}
         {status === "publicado" || status === "pausado" ? (

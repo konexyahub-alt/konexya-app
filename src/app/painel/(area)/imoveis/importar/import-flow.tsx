@@ -8,11 +8,11 @@ import { commitImport, previewImport, type CommitResult, type Preview } from "./
 
 const STEPS = ["Baixar modelo", "Enviar arquivo", "Conferir"];
 
-export function ImportFlow() {
+export function ImportFlow({ canPublish = true }: { canPublish?: boolean }) {
   const input = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<Preview>();
   const [result, setResult] = useState<CommitResult>();
-  const [publish, setPublish] = useState(true);
+  const [publish, setPublish] = useState(canPublish);
   const [pending, start] = useTransition();
   const step = result ? 3 : preview?.ok ? 2 : 1;
 
@@ -86,10 +86,16 @@ export function ImportFlow() {
           <p className="text-xs text-muted">
             As linhas com erro não são importadas. Corrija na planilha e envie de novo, ou cadastre esses imóveis à mão.
           </p>
-          <label className="flex min-h-touch items-center gap-2.5 text-[13px] font-semibold">
-            <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} className="size-[18px] accent-black" />
-            Publicar os imóveis importados (desmarque para importar como rascunho)
-          </label>
+          {canPublish ? (
+            <label className="flex min-h-touch items-center gap-2.5 text-[13px] font-semibold">
+              <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} className="size-[18px] accent-black" />
+              Publicar os imóveis importados (desmarque para importar como rascunho)
+            </label>
+          ) : (
+            <p className="text-[13px] text-muted">
+              Os imóveis entram como rascunho. Publicar fica liberado quando a Konexya aprovar seu cadastro.
+            </p>
+          )}
           <div className="flex flex-wrap justify-end gap-2.5">
             <Button variant="secondary" size="sm" onClick={reset} disabled={pending}>
               Enviar outro arquivo

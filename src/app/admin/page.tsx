@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { Chip, EmptyState, Skeleton, YMark, Tag } from "@/components/ui";
+import { Chip, EmptyState, Skeleton, YMark, Tag, Icon } from "@/components/ui";
 import { isPlatformAdmin, requireUser } from "@/lib/auth";
 import { formatCnpj } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/server";
+import type { Verification } from "@/lib/verification";
 import { ReviewButtons } from "./review-buttons";
 
 export const metadata = { title: "Admin · Konexya" };
@@ -46,7 +47,7 @@ async function List({ searchParams }: Pick<PageProps<"/admin">, "searchParams">)
   const supabase = await createClient();
   const { data: all } = await supabase
     .from("agencies")
-    .select("id, kind, legal_name, cnpj, creci, manager_name, manager_email, whatsapp, status, created_at")
+    .select("id, kind, legal_name, cnpj, creci, manager_name, manager_email, whatsapp, status, created_at, verification")
     .order("created_at", { ascending: true });
   const rows = (all ?? []).filter((a) => a.status === tab);
   const count = (s: string) => (all ?? []).filter((a) => a.status === s).length;
@@ -83,6 +84,15 @@ async function List({ searchParams }: Pick<PageProps<"/admin">, "searchParams">)
                   {a.manager_email} · WhatsApp {a.whatsapp}
                 </span>
                 <span className="text-xs text-muted-2">Enviado em {date.format(new Date(a.created_at))}</span>
+                <Checks verification={a.verification as Verification | null} hasCnpj={!!a.cnpj} />
+                <a
+                  href={`https://www.google.com/search?q=${encodeURIComponent(`CRECI-CE consulta corretor ${a.creci}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="min-h-touch w-fit content-center text-[12.5px] font-semibold underline underline-offset-4"
+                >
+                  Conferir o CRECI {a.creci}
+                </a>
               </div>
               <ReviewButtons agencyId={a.id} status={a.status} />
             </li>
@@ -90,5 +100,32 @@ async function List({ searchParams }: Pick<PageProps<"/admin">, "searchParams">)
         </ul>
       )}
     </>
+  );
+}
+
+/** Resultado da conferência automática do CNPJ (Receita Federal via BrasilAPI). A decisão continua do admin. */
+function Checks({ verification, hasCnpj }: { verification: Verification | null; hasCnpj: boolean }) {
+  if (!hasCnpj) return <span className="text-xs text-muted">Sem CNPJ: confira só o CRECI de pessoa física.</span>;
+  if (!verification?.cnpj) return <span className="text-xs text-muted">Conferência do CNPJ ainda não feita.</span>;
+  const items = [
+    ["Situação", verification.cnpj.situacao],
+    ["Razão social", verification.cnpj.nome],
+    ["Atividade", verification.cnpj.atividade],
+  ] as const;
+  return (
+    <ul className="mt-1 grid gap-1">
+      {items.map(([label, c]) => (
+        <li key={label} className="flex items-start gap-1.5 text-[12.5px]">
+          <Icon
+            name={c.status === "ok" ? "check" : c.status === "falhou" ? "x" : "clock"}
+            size="sm"
+            className={c.status === "ok" ? "text-ok" : c.status === "falhou" ? "text-bad" : "text-warn"}
+          />
+          <span>
+            <b>{label}:</b> {c.detail}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }

@@ -2,7 +2,7 @@
 
 import ExcelJS from "exceljs";
 import { revalidatePath } from "next/cache";
-import { requireApprovedMember } from "@/lib/auth";
+import { requireDraftingMember } from "@/lib/auth";
 import { mapHeaders, parseRow, toPropertyInsert, wouldGetSeal, type ImportKey } from "@/lib/import";
 import { DEFAULT_SEAL_RULES } from "@/lib/property";
 import { createClient } from "@/lib/supabase/server";
@@ -74,7 +74,7 @@ async function readRows(file: File): Promise<string[][]> {
 }
 
 export async function previewImport(form: FormData): Promise<Preview> {
-  const { membership } = await requireApprovedMember("/painel/imoveis/importar");
+  const { membership } = await requireDraftingMember("/painel/imoveis/importar");
   const file = form.get("arquivo");
   if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Escolha a planilha preenchida." };
   if (file.size > MAX_BYTES) return { ok: false, error: "A planilha passa de 4 MB. Divida em arquivos menores." };
@@ -134,8 +134,10 @@ export async function previewImport(form: FormData): Promise<Preview> {
 
 export type CommitResult = { ok: boolean; created: number; updated: number; failed: { line: number; reason: string }[]; error?: string };
 
-export async function commitImport(records: { line: number; record: RawRecord }[], publish: boolean): Promise<CommitResult> {
-  const { membership } = await requireApprovedMember("/painel/imoveis/importar");
+export async function commitImport(records: { line: number; record: RawRecord }[], publishRequested: boolean): Promise<CommitResult> {
+  const { membership, canPublish } = await requireDraftingMember("/painel/imoveis/importar");
+  // Cadastro ainda pendente: tudo entra como rascunho.
+  const publish = publishRequested && canPublish;
   if (records.length > MAX_ROWS) return { ok: false, created: 0, updated: 0, failed: [], error: "Arquivo grande demais." };
   const supabase = await createClient();
   const { data: existing } = await supabase
