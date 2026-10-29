@@ -85,8 +85,8 @@ function AgencyForm({ email }: { email: string }) {
   const fe = state.fieldErrors ?? {};
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField label="Razão social" name="legalName" error={fe.legalName} className="sm:col-span-2" />
+      <div className="grid gap-4">
+        <TextField label="Razão social" name="legalName" error={fe.legalName} />
         <TextField
           label="CNPJ"
           name="cnpj"
@@ -99,7 +99,7 @@ function AgencyForm({ email }: { email: string }) {
         <TextField label="CRECI jurídico" name="creci" error={fe.creci} />
         <TextField label="Nome do gestor" name="managerName" autoComplete="name" error={fe.managerName} />
         <TextField label="WhatsApp" name="whatsapp" type="tel" inputMode="tel" placeholder="(85) 90000-0000" error={fe.whatsapp} />
-        <TextField label="E-mail do gestor" value={email} readOnly hint="O e-mail confirmado com o código." className="sm:col-span-2" />
+        <TextField label="E-mail do gestor" value={email} readOnly hint="O e-mail confirmado com o código." />
       </div>
       <Terms state={state} pending={pending} />
     </form>
@@ -111,18 +111,18 @@ function AutonomousForm({ email }: { email: string }) {
   const fe = state.fieldErrors ?? {};
   return (
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4">
         <TextField
           label="Nome completo"
           name="name"
           autoComplete="name"
           error={fe.name}
           hint="Como aparece no seu CRECI. É o nome que os clientes veem nos anúncios."
-          className="sm:col-span-2"
+         
         />
         <TextField label="CRECI (pessoa física)" name="creci" error={fe.creci} />
         <TextField label="WhatsApp" name="whatsapp" type="tel" inputMode="tel" placeholder="(85) 90000-0000" error={fe.whatsapp} />
-        <TextField label="E-mail" value={email} readOnly hint="O e-mail confirmado com o código." className="sm:col-span-2" />
+        <TextField label="E-mail" value={email} readOnly hint="O e-mail confirmado com o código." />
       </div>
       <Terms state={state} pending={pending} />
     </form>

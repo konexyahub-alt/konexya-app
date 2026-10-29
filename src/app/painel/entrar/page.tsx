@@ -34,7 +34,7 @@ async function Login({ searchParams }: Pick<PageProps<"/painel/entrar">, "search
   return (
     <EmailCodeLogin
       next={next}
-      title={partner ? "Quero ser parceiro" : invite ? "Aceitar convite" : "Entrar no painel"}
+      title={partner ? "Quero anunciar" : invite ? "Aceitar convite" : "Entrar no painel"}
       subtitle={
         partner
           ? "Primeiro, confirme o e-mail do gestor. Enviamos um código para ele."
@@ -45,9 +45,9 @@ async function Login({ searchParams }: Pick<PageProps<"/painel/entrar">, "search
       footer={
         partner || invite ? null : (
           <p className="text-center text-[13px] text-muted">
-            Ainda não é parceiro?{" "}
+            Ainda não anuncia na Konexya?{" "}
             <Link href="/painel/parceiro" className="font-bold text-ink underline underline-offset-4">
-              Quero ser parceiro
+              Quero anunciar
             </Link>
           </p>
         )

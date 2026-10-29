@@ -20,7 +20,8 @@ export function TextField({ label, hint, error, className, id, ...rest }: TextFi
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cn(
-          "min-h-touch rounded-field border-[1.5px] bg-white p-3.5 text-base font-medium focus:outline-none",
+          // w-full + min-w-0: o campo nunca passa da coluna (sem isso o navegador usa a largura padrão do input).
+          "min-h-touch w-full min-w-0 rounded-field border-[1.5px] bg-white p-3.5 text-base font-medium focus:outline-none",
           error ? "border-bad" : "border-line-2 focus:border-black",
         )}
         {...rest}
