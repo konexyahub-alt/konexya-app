@@ -16,6 +16,7 @@ export type LeadCard = {
   brokerName: string | null;
   stageChangedAt: string;
   createdAt: string;
+  lastMessageAt: string;
   firstResponseAt: string | null;
   awaiting: boolean;
   stalled: boolean;
@@ -63,6 +64,7 @@ export async function loadLeadCards(agencyId: string): Promise<LeadCard[]> {
       brokerName: l.broker_id ? (names.get(l.broker_id) ?? null) : null,
       stageChangedAt: l.stage_changed_at,
       createdAt: l.created_at,
+      lastMessageAt: l.last_message_at,
       firstResponseAt: l.first_human_response_at,
       awaiting: isAwaiting(l, openQ),
       stalled: isStalled(l),

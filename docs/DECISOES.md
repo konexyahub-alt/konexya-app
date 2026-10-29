@@ -129,3 +129,12 @@ localização não conta.
   mensagem do corretor) ou "Revogado". Quando a assistente mandou mensagem e espera o cliente, a situação mostra
   "[nome da assistente] respondeu" (preto), para o cliente saber que já pode conversar. Cada conversa mostra
   também a última mensagem e quem a mandou.
+
+## 2026-10-29 · Aba "Leads" no painel
+
+**Antes:** o item "Lead aberto" do menu abria direto o próximo lead esperando resposta (P-04).
+
+**Agora:** o item se chama **Leads** e abre uma **lista** de todos os leads que a pessoa pode ver (gestor: a
+imobiliária toda; corretor: os seus), com busca pelo nome, filtros rápidos (Em andamento, Aguardando resposta,
+Parados há 48 h+, Encerrados), filtro por etapa e, para o gestor, "Meus leads". Tocar num lead abre a tela do lead
+(P-04, sem mudança). O Funil (P-03) continua para ver e mover o andamento por etapa.
