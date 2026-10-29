@@ -189,3 +189,11 @@ A assistente não promete (regra 3), e "fala com você em breve" depende do corr
 - Dúvida encaminhada: "Passei essa pergunta para o corretor. A resposta chega aqui nesta conversa."
 - Cabeçalho da conversa do cliente: só o nome do corretor (sem "entra em breve").
 Imobiliárias que editaram as próprias mensagens não mudam.
+
+## 2026-10-29 · Etapa 2: decisões de construção aprovadas
+
+Aprovadas pelo dono do produto ("ok em tudo"): nota sem trajeto até a etapa 3; prontidão "Pronto para visitar" =
+muda em até 3 meses e informou orçamento; excluir a conta não apaga o que a imobiliária já recebeu com consentimento
+(dados novos param); texto atual da tela de consentimento; "Parados há 48 h" no Painel no lugar de "Visitas";
+assistente continua respondendo dúvidas com dados da ficha depois da despedida; modelo de IA mais forte no piloto.
+Resumo do lead sem IA: "Resumo indisponível no momento" depois de 5 minutos (sem prometer versão futura).

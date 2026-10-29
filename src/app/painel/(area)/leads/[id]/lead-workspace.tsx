@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, HelpTip, Icon, ScoreRing, Tag, useToast } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { formatBRL } from "@/lib/format";
-import { CLOSED_STAGES, LOST_REASON_LABELS, OPEN_STAGES, STAGE_LABELS, type LeadStage, type LostReason } from "@/lib/leads";
+import { CLOSED_STAGES, LOST_REASON_LABELS, OPEN_STAGES, STAGE_LABELS, type LeadStage, type LostReason, isRecent } from "@/lib/leads";
 import { READINESS_LABELS, type Readiness } from "@/lib/readiness";
 import { addNote, approveSuggestion, assignBroker, discardSuggestion, moveStage, sendBrokerMessage, suggestReply } from "../actions";
 
@@ -166,7 +166,12 @@ function ProfileColumn(p: Props) {
         {p.lead.summary ? (
           <p className="text-[13px] leading-relaxed">{p.lead.summary}</p>
         ) : (
-          <p className="text-[12.5px] text-muted">O resumo da IA aparece aqui em instantes. Enquanto isso, veja a qualificação abaixo.</p>
+          <p className="text-[12.5px] text-muted">
+            {/* Logo depois do compartilhamento o resumo ainda está sendo feito; passados 5 min, a IA falhou ou está indisponível. */}
+            {isRecent(p.lead.createdAt, 5 * 60_000)
+              ? "O resumo da IA aparece aqui em instantes. Enquanto isso, veja a qualificação abaixo."
+              : "Resumo indisponível no momento. Veja a qualificação abaixo."}
+          </p>
         )}
       </Panel>
 
