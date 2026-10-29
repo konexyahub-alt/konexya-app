@@ -136,7 +136,7 @@ export function Kanban({ cards, team, isManager }: { cards: LeadCard[]; team: { 
                     setDragging(null);
                   }}
                   className={cn(
-                    "grid w-full flex-none content-start gap-2.5 rounded-[20px] bg-paper-2/60 p-2.5 lg:w-[222px]",
+                    "grid w-full flex-none grid-cols-[minmax(0,1fr)] content-start gap-2.5 rounded-[20px] bg-paper-2/60 p-2.5 lg:w-[222px]",
                     mobileStage !== s && "hidden lg:grid",
                   )}
                 >
@@ -150,12 +150,12 @@ export function Kanban({ cards, team, isManager }: { cards: LeadCard[]; team: { 
                       draggable={view === "abertos"}
                       onDragStart={() => setDragging(c.id)}
                       className={cn(
-                        "grid gap-2 rounded-[16px] bg-white p-3 shadow-soft",
+                        "grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 rounded-[16px] bg-white p-3 shadow-soft",
                         c.stalled && "outline outline-[1.5px] outline-bad",
                         pending && dragging === c.id && "opacity-50",
                       )}
                     >
-                      <Link href={`/painel/leads/${c.id}`} className="grid gap-1.5">
+                      <Link href={`/painel/leads/${c.id}`} className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1.5">
                         <span className="flex items-start justify-between gap-2">
                           <span className="min-w-0">
                             <span className="block truncate text-[13.5px] font-bold">{c.name}</span>
