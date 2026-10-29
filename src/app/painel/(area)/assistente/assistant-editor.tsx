@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Button, HelpTip, Icon, Tag, useToast } from "@/components/ui";
+import { Button, HelpTip, Icon, useToast } from "@/components/ui";
 import {
   ASSISTANT_NAME_TAG,
   CLIENT_NAME_TAG,
@@ -21,12 +21,10 @@ import { saveAssistantSettings } from "./actions";
 export function AssistantEditor({
   initial,
   canEdit,
-  agencyName,
   autonomous = false,
 }: {
   initial: AssistantSettings;
   canEdit: boolean;
-  agencyName: string;
   /** Corretor autônomo: sem equipe, então sem distribuição de leads. */
   autonomous?: boolean;
 }) {
@@ -59,8 +57,14 @@ export function AssistantEditor({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="trk">Assistente virtual</p>
-          <h1 className="mt-1 text-[28px] font-light tracking-tight">
-            Quem atende <b className="font-bold">primeiro</b>.
+          <h1 className="mt-1 flex items-center gap-2 text-[28px] font-light tracking-tight">
+            <span>
+              Quem atende <b className="font-bold">primeiro</b>.
+            </span>
+            <HelpTip label={`O que a ${s.name || "assistente"} nunca faz`}>
+              A {s.name || "assistente"} nunca agenda visita, negocia preço, promete algo ou fala em nome do corretor. Dúvida
+              que não está na ficha do imóvel vai para o corretor. Ela para quando o corretor envia a primeira mensagem.
+            </HelpTip>
           </h1>
           <p className="max-w-xl text-[13px] text-muted">
             A assistente dá as boas-vindas e faz as perguntas abaixo até o corretor enviar a primeira mensagem. As respostas
@@ -81,8 +85,14 @@ export function AssistantEditor({
         <div className="grid content-start gap-5">
           <section className="grid gap-4 rounded-[20px] bg-white p-5 shadow-soft">
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-1.5 text-[12.5px] font-semibold">
-                Nome da assistente
+              <label className="grid gap-1.5 text-[12.5px] font-semibold md:col-span-2 md:max-w-sm">
+                <span className="flex items-center gap-1.5">
+                  Nome da assistente
+                  <HelpTip label="Nome da assistente">
+                    É o nome que o cliente vê na conversa. Ao lado dele sempre aparece o selo “Assistente virtual”, que
+                    não dá para tirar: o cliente precisa saber que não está falando com uma pessoa.
+                  </HelpTip>
+                </span>
                 <input
                   value={s.name}
                   maxLength={30}
@@ -91,14 +101,6 @@ export function AssistantEditor({
                   className="h-12 rounded-field border border-line-2 px-3.5 text-sm font-normal"
                 />
               </label>
-              <div className="grid gap-1.5 text-[12.5px] font-semibold">
-                Como o cliente vê
-                <p className="flex min-h-12 items-center gap-2 font-normal">
-                  <b>{s.name || "Assistente"}</b>
-                  <Tag>Assistente virtual</Tag>
-                  <span className="text-[11.5px] text-muted-2">o selo não sai</span>
-                </p>
-              </div>
               <MessageField
                 label="Boas-vindas"
                 value={s.welcome_message}
@@ -116,17 +118,14 @@ export function AssistantEditor({
           </section>
 
           <section className="grid gap-3 rounded-[20px] bg-white p-5 shadow-soft">
-            <p className="flex gap-2 rounded-[14px] bg-paper p-3 text-[12px] text-muted">
-              <Icon name="edit" size="sm" className="mt-0.5 text-ink" />
-              <span>
-                <b className="text-ink">As mensagens são personalizáveis.</b> Boas-vindas, perguntas e despedida saem exatamente
-                como você escrever. As respostas curtas entre uma pergunta e outra, e as respostas a dúvidas sobre os imóveis,
-                são da IA.
-              </span>
-            </p>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="trk">
+              <h2 className="trk flex items-center gap-1.5">
                 Perguntas · {enabledCount} de {MAX_ENABLED_QUESTIONS}
+                <HelpTip label="Perguntas">
+                  Boas-vindas, perguntas e despedida saem exatamente como você escrever. A assistente pula o que o cliente já
+                  respondeu e, para aluguel, não faz as perguntas de compra (pagamento, crédito, FGTS e venda de outro
+                  imóvel). As respostas curtas entre uma pergunta e outra, e as respostas a dúvidas sobre os imóveis, são da IA.
+                </HelpTip>
               </h2>
               {canEdit ? (
                 <Button variant="secondary" size="sm" onClick={addQ}>
@@ -134,10 +133,7 @@ export function AssistantEditor({
                 </Button>
               ) : null}
             </div>
-            <p className="text-[11.5px] text-muted">
-              Use as setas para ordenar. A assistente pula o que o cliente já respondeu. Para aluguel, as perguntas de compra
-              (pagamento, crédito, FGTS e venda de outro imóvel) não são feitas.
-            </p>
+            <p className="text-[11.5px] text-muted">Use as setas para mudar a ordem.</p>
             {enabledCount >= WARN_ENABLED_QUESTIONS ? (
               <p role="status" className="flex gap-2 rounded-[14px] bg-warn-bg p-3 text-[12px] text-warn">
                 <Icon name="alert" size="sm" className="mt-0.5" />
@@ -276,14 +272,6 @@ export function AssistantEditor({
               </p>
             )}
           </div>
-          <div className="grid gap-1.5 rounded-[20px] border border-dashed border-line-2 p-4 text-[12px] text-muted">
-            <b className="text-[13px] text-ink">O que a {s.name || "assistente"} nunca faz</b>
-            Agendar visita, negociar preço, prometer algo ou falar em nome do corretor. Dúvida que não está na ficha do imóvel
-            vai para o corretor. Ela para quando o corretor envia a primeira mensagem.
-          </div>
-          <p className="text-[11px] text-muted-2">
-            O nome da imobiliária ({agencyName}) aparece como você escrever nas mensagens.
-          </p>
         </aside>
       </div>
     </div>
@@ -304,12 +292,27 @@ function MessageField({
   disabled?: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
-  const insert = (tag: string) => {
+  // Onde o cursor estava da última vez que a pessoa tocou no texto. Sem isso, no iPad o cursor "fica" na
+  // posição 0 e a etiqueta ia parar no começo, colada na primeira palavra ("AnaOi").
+  const cursor = useRef<{ start: number; end: number } | null>(null);
+  const remember = () => {
     const el = ref.current;
-    const start = el?.selectionStart ?? value.length;
-    const end = el?.selectionEnd ?? value.length;
-    onChange(value.slice(0, start) + tag + value.slice(end));
-    requestAnimationFrame(() => el?.focus());
+    if (el) cursor.current = { start: el.selectionStart, end: el.selectionEnd };
+  };
+  const insert = (tag: string) => {
+    const { start, end } = cursor.current ?? { start: value.length, end: value.length };
+    const before = value.slice(0, start);
+    const after = value.slice(end);
+    const pre = before && !/\s$/.test(before) ? " " : "";
+    const post = after && !/^[\s.,!?;:]/.test(after) ? " " : "";
+    const next = before + pre + tag + post + after;
+    onChange(next);
+    const pos = (before + pre + tag).length;
+    cursor.current = { start: pos, end: pos };
+    requestAnimationFrame(() => {
+      ref.current?.focus();
+      ref.current?.setSelectionRange(pos, pos);
+    });
   };
   return (
     <div className="grid content-start gap-1.5 text-[12.5px] font-semibold">
@@ -321,7 +324,11 @@ function MessageField({
         maxLength={600}
         rows={4}
         disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          remember();
+        }}
+        onSelect={remember}
         className="rounded-field border border-line-2 p-3 text-[13px] font-normal"
       />
       {!disabled ? (

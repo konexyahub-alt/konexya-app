@@ -24,7 +24,6 @@ async function Settings() {
   return (
     <AssistantEditor
       canEdit={membership.role === "gestor"}
-      agencyName={membership.agencyName}
       autonomous={membership.autonomous}
       initial={{
         enabled: data.enabled,
