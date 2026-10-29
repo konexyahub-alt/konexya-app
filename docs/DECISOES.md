@@ -223,3 +223,9 @@ sugestões e respostas livres da assistente) será testada quando houver crédit
 - **Sem sincronização automática** com Google Agenda por enquanto: exige verificação de segurança do Google,
   acesso à agenda pessoal do corretor e regras para mudanças nos dois lados. Reavaliar depois do piloto, se os
   corretores pedirem. Se a visita mudar, o app avisa e oferece o arquivo novo.
+
+## 2026-10-29 · Simulador de financiamento fora da etapa 3
+
+O simulador de financiamento na ficha (PLANO, etapa 3) sai da etapa 3 e fica para quando houver **banco parceiro**:
+sem taxa real, pré-aprovação ou envio ao banco, a parcela estimada pode enganar mais do que ajudar. Enquanto isso,
+financiamento aparece na qualificação do lead (forma de pagamento, crédito aprovado, FGTS) e é conduzido pelo corretor.
