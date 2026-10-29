@@ -125,7 +125,8 @@ export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; use
                   {c.revoked ? <Tag tone="neutral">Revogado</Tag> : null}
                   {c.awaiting && !c.revoked ? <Tag tone="warn">Aguardando resposta</Tag> : null}
                   {c.stalled ? <Tag tone="bad">48 h+</Tag> : null}
-                  <Tag tone="neutral">{STAGE_LABELS[c.stage]}</Tag>
+                  {/* Revogado encerra o atendimento: a etapa antiga ("Em atendimento") só confundiria. */}
+                  {c.revoked ? null : <Tag tone="neutral">{STAGE_LABELS[c.stage]}</Tag>}
                 </span>
               </Link>
             </li>
