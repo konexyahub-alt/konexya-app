@@ -106,7 +106,10 @@ export async function startLeadConversation(leadId: string) {
     return;
   }
   const ctx = await loadLead(admin, leadId);
-  if (!ctx) return;
+  if (!ctx || ctx.lead.consent_revoked_at) return;
+  // Idempotente: só começa se a conversa ainda não foi aberta (pela assistente ou pelo aviso sem assistente).
+  const { data: sent } = await admin.from("lead_messages").select("sender, body").eq("lead_id", leadId).neq("sender", "cliente");
+  if ((sent ?? []).some((m) => m.sender === "assistente" || m.body === NO_ASSISTANT_TEXT)) return;
   if (!ctx.lead.assistant_active || ctx.lead.first_human_response_at) {
     await say(admin, ctx, NO_ASSISTANT_TEXT, { sender: "sistema" });
   } else {

@@ -93,16 +93,9 @@ export async function shareProfile(propertyId: string): Promise<{ error?: string
   if (error || !leadId) {
     return { error: error?.code === "P0002" ? "Este imóvel não está mais disponível." : "Não conseguimos enviar agora. Tente de novo." };
   }
-  const { count } = await supabase
-    .from("lead_messages")
-    .select("id", { count: "exact", head: true })
-    .eq("lead_id", leadId)
-    .eq("sender", "assistente");
-  // Só no primeiro compartilhamento (ou reabertura sem conversa da assistente) ela se apresenta.
-  if (!count) {
-    await startLeadConversation(leadId);
-    after(() => refreshLeadBrief(leadId));
-  }
+  // Só no primeiro compartilhamento (ou reabertura sem conversa aberta) a assistente se apresenta.
+  await startLeadConversation(leadId);
+  after(() => refreshLeadBrief(leadId));
   redirect(`/app/corretor/${leadId}`);
 }
 

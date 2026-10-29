@@ -8,6 +8,7 @@ import { shortBRL, toProfile } from "@/lib/profile";
 import { TYPE_LABELS, photoUrl, sortPhotos } from "@/lib/property";
 import { loadScoringSettings } from "@/lib/recommendations";
 import { scoreProperty } from "@/lib/scoring";
+import { NO_ASSISTANT_TEXT, startLeadConversation } from "@/lib/lead-service";
 import { createClient } from "@/lib/supabase/server";
 import { LeadChat } from "./lead-chat";
 
@@ -31,13 +32,15 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
   const conv = (conversations ?? []).find((c) => c.lead_id === leadId);
   if (!conv) notFound();
 
-  const [{ data: messages }, { data: prop }, { data: profileRow }, settings] = await Promise.all([
+  const loadMessages = () =>
     supabase
       .from("lead_messages")
       .select("id, sender, body, quick_replies, created_at")
       .eq("lead_id", leadId)
       .order("id", { ascending: true })
-      .limit(300),
+      .limit(300);
+  const [{ data: firstMessages }, { data: prop }, { data: profileRow }, settings] = await Promise.all([
+    loadMessages(),
     conv.origin_property_id
       ? supabase
           .from("properties")
@@ -48,6 +51,14 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
     supabase.from("client_profiles").select("*").eq("user_id", user.id).single(),
     loadScoringSettings(supabase),
   ]);
+
+  // Conversa que ficou sem abertura (ex.: a assistente falhou no compartilhamento): abre agora.
+  let messages = firstMessages;
+  const opened = (messages ?? []).some((m) => m.sender === "assistente" || m.body === NO_ASSISTANT_TEXT);
+  if (!opened && !conv.revoked) {
+    await startLeadConversation(leadId);
+    ({ data: messages } = await loadMessages());
+  }
 
   const score = prop ? scoreProperty(prop, toProfile(profileRow), settings.weights) : null;
   const cover = prop ? sortPhotos(prop.property_photos)[0] : null;
