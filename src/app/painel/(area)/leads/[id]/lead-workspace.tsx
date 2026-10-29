@@ -97,14 +97,28 @@ export function LeadWorkspace(p: Props) {
         ))}
       </nav>
 
-      <div className="grid flex-1 gap-4 p-4 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(260px,300px)] lg:p-6">
-        <div className={cn("grid content-start gap-4", tab !== "perfil" && "hidden lg:grid")}>
+      {/*
+        Até 1535 px (tablet e notebook): duas colunas, perfil e próximos passos empilhados à esquerda e a conversa
+        larga à direita. A partir de 1536 px: três colunas lado a lado. Assim a conversa nunca fica espremida.
+      */}
+      <div className="grid flex-1 content-start gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:p-6 2xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(260px,320px)]">
+        <div className={cn("grid min-w-0 content-start gap-4 lg:col-start-1 lg:row-start-1", tab !== "perfil" && "hidden lg:grid")}>
           <ProfileColumn {...p} />
         </div>
-        <div className={cn("min-w-0", tab !== "conversa" && "hidden lg:block")}>
+        <div
+          className={cn(
+            "min-w-0 lg:sticky lg:top-6 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start 2xl:row-span-1",
+            tab !== "conversa" && "hidden lg:block",
+          )}
+        >
           <ConversationColumn {...p} />
         </div>
-        <div className={cn("grid content-start gap-4", tab !== "passos" && "hidden lg:grid")}>
+        <div
+          className={cn(
+            "grid min-w-0 content-start gap-4 lg:col-start-1 lg:row-start-2 2xl:col-start-3 2xl:row-start-1",
+            tab !== "passos" && "hidden lg:grid",
+          )}
+        >
           <NextStepsColumn {...p} />
         </div>
       </div>
@@ -273,8 +287,8 @@ function ConversationColumn(p: Props) {
   const first = p.lead.clientName.split(/\s+/)[0];
 
   return (
-    <section className="flex h-full min-h-[560px] flex-col overflow-hidden rounded-[20px] bg-white shadow-soft">
-      <div className="flex-1 space-y-2.5 overflow-y-auto p-4 lg:max-h-[calc(100dvh-260px)]">
+    <section className="flex min-h-[560px] flex-col overflow-hidden rounded-[20px] bg-white shadow-soft lg:h-[calc(100dvh-140px)]">
+      <div className="flex-1 space-y-2.5 overflow-y-auto p-4">
         {p.messages.map((m) =>
           m.sender === "sistema" ? (
             <p key={m.id} className="py-1 text-center text-[11px] text-muted-2">

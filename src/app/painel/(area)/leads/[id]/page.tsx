@@ -127,10 +127,10 @@ async function Lead({ params }: Pick<PageProps<"/painel/leads/[id]">, "params">)
 
 function LeadSkeleton() {
   return (
-    <div className="grid gap-4 p-6 lg:grid-cols-[320px_1fr_300px]">
+    <div className="grid gap-4 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] 2xl:grid-cols-[320px_1fr_300px]">
       <Skeleton className="h-[520px] rounded-[20px]" />
       <Skeleton className="h-[520px] rounded-[20px]" />
-      <Skeleton className="h-[520px] rounded-[20px]" />
+      <Skeleton className="hidden h-[520px] rounded-[20px] 2xl:block" />
     </div>
   );
 }
