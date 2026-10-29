@@ -219,14 +219,14 @@ isOneToOne: false
                   ]
                 },"lead_messages": {
                   Row: {
-                    "author_id": string | null,"body": string,"created_at": string,"id": number,"lead_id": string,"quick_replies": (string)[],"sender": Database["public"]['Enums']["message_sender"]
+                    "author_id": string | null,"body": string,"created_at": string,"id": number,"lead_id": string,"meta": Json | null,"quick_replies": (string)[],"sender": Database["public"]['Enums']["message_sender"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "author_id"?: string | null,"body": string,"created_at"?: string,"id"?: never,"lead_id": string,"quick_replies"?: (string)[],"sender": Database["public"]['Enums']["message_sender"]
+                    "author_id"?: string | null,"body": string,"created_at"?: string,"id"?: never,"lead_id": string,"meta"?: Json | null,"quick_replies"?: (string)[],"sender": Database["public"]['Enums']["message_sender"]
                   }
                   Update: {
-                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"id"?: never,"lead_id"?: string,"quick_replies"?: (string)[],"sender"?: Database["public"]['Enums']["message_sender"]
+                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"id"?: never,"lead_id"?: string,"meta"?: Json | null,"quick_replies"?: (string)[],"sender"?: Database["public"]['Enums']["message_sender"]
                   }
                   Relationships: [
                     {
@@ -391,6 +391,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"proposals": {
+                  Row: {
+                    "agency_id": string,"amount": number,"answered_at": string | null,"counter_amount": number | null,"created_at": string,"created_by": string | null,"forwarded_at": string | null,"id": string,"lead_id": string,"made_by": Database["public"]['Enums']["message_sender"],"payment_note": string | null,"property_id": string | null,"status": Database["public"]['Enums']["proposal_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agency_id": string,"amount": number,"answered_at"?: string | null,"counter_amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"forwarded_at"?: string | null,"id"?: string,"lead_id": string,"made_by": Database["public"]['Enums']["message_sender"],"payment_note"?: string | null,"property_id"?: string | null,"status"?: Database["public"]['Enums']["proposal_status"]
+                  }
+                  Update: {
+                    "agency_id"?: string,"amount"?: number,"answered_at"?: string | null,"counter_amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"forwarded_at"?: string | null,"id"?: string,"lead_id"?: string,"made_by"?: Database["public"]['Enums']["message_sender"],"payment_note"?: string | null,"property_id"?: string | null,"status"?: Database["public"]['Enums']["proposal_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "proposals_agency_id_fkey"
+      columns: ["agency_id"]
+isOneToOne: false
+      referencedRelation: "agencies"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "proposals_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "proposals_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"seal_rules": {
                   Row: {
                     "id": number,"min_description_chars": number,"min_photos": number,"updated_at": string
@@ -405,6 +437,38 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"visits": {
+                  Row: {
+                    "agency_id": string,"broker_id": string | null,"confirmed_at": string | null,"confirmed_by": string | null,"created_at": string,"duration_min": number,"id": string,"lead_id": string,"note": string | null,"property_id": string | null,"requested_by": Database["public"]['Enums']["message_sender"],"starts_at": string,"status": Database["public"]['Enums']["visit_status"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agency_id": string,"broker_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"created_at"?: string,"duration_min"?: number,"id"?: string,"lead_id": string,"note"?: string | null,"property_id"?: string | null,"requested_by": Database["public"]['Enums']["message_sender"],"starts_at": string,"status"?: Database["public"]['Enums']["visit_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "agency_id"?: string,"broker_id"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"created_at"?: string,"duration_min"?: number,"id"?: string,"lead_id"?: string,"note"?: string | null,"property_id"?: string | null,"requested_by"?: Database["public"]['Enums']["message_sender"],"starts_at"?: string,"status"?: Database["public"]['Enums']["visit_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visits_agency_id_fkey"
+      columns: ["agency_id"]
+isOneToOne: false
+      referencedRelation: "agencies"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visits_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visits_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -413,6 +477,9 @@ isOneToOne: false
           Functions: {
             "accept_agency_invite":
 { Args: { "p_creci": string,"p_name": string,"p_token": string }; Returns: string
+                           },
+"advance_lead_stage":
+{ Args: { "p_lead": string,"p_stage": Database["public"]['Enums']["lead_stage"] }; Returns: undefined
                            },
 "agency_can_draft":
 { Args: { "p_agency": string }; Returns: boolean
@@ -425,20 +492,38 @@ isOneToOne: false
               "active": boolean,"in_rotation": boolean,"name": string,"role": Database["public"]['Enums']["member_role"],"user_id": string
             }[]
                            },
+"answer_proposal":
+{ Args: { "p_counter"?: number,"p_proposal": string,"p_status": Database["public"]['Enums']["proposal_status"] }; Returns: undefined
+                           },
 "build_profile_snapshot":
 { Args: { "p_user": string }; Returns: Json
                            },
 "can_edit_property":
 { Args: { "p_id": string }; Returns: boolean
                            },
+"close_visit":
+{ Args: { "p_note"?: string,"p_status": Database["public"]['Enums']["visit_status"],"p_visit": string }; Returns: undefined
+                           },
 "compute_property_seal":
 { Args: { "p_id": string }; Returns: boolean
+                           },
+"confirm_visit":
+{ Args: { "p_visit": string }; Returns: undefined
                            },
 "create_agency_invite":
 { Args: { "p_agency": string,"p_email": string,"p_role": Database["public"]['Enums']["member_role"] }; Returns: string
                            },
 "default_assistant_questions":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"fmt_brl":
+{ Args: { "p_value": number }; Returns: string
+                           },
+"fmt_when":
+{ Args: { "p_at": string }; Returns: string
+                           },
+"forward_proposal":
+{ Args: { "p_proposal": string }; Returns: undefined
                            },
 "is_agency_approved":
 { Args: { "p_agency": string }; Returns: boolean
@@ -466,6 +551,12 @@ isOneToOne: false
               "property_id": string,"saved": boolean,"viewed_at": string
             }[]
                            },
+"lead_system_message":
+{ Args: { "p_body": string,"p_lead": string }; Returns: undefined
+                           },
+"make_proposal":
+{ Args: { "p_amount": number,"p_lead": string,"p_note"?: string,"p_property": string }; Returns: string
+                           },
 "mark_property_viewed":
 { Args: { "p_property": string }; Returns: undefined
                            },
@@ -488,18 +579,30 @@ isOneToOne: false
 "register_autonomous":
 { Args: { "p_creci": string,"p_name": string,"p_whatsapp": string }; Returns: string
                            },
+"request_visit":
+{ Args: { "p_message": number,"p_slot": number }; Returns: string
+                           },
+"reschedule_visit":
+{ Args: { "p_at": string,"p_visit": string }; Returns: undefined
+                           },
 "review_agency":
 { Args: { "p_agency": string,"p_status": Database["public"]['Enums']["agency_status"] }; Returns: undefined
                            },
 "revoke_share":
 { Args: { "p_agency": string }; Returns: undefined
                            },
+"schedule_visit":
+{ Args: { "p_at": string,"p_lead": string,"p_property": string }; Returns: string
+                           },
 "share_profile":
 { Args: { "p_property": string }; Returns: string
+                           },
+"suggest_visit_slots":
+{ Args: { "p_lead": string,"p_property": string,"p_slots": (string)[] }; Returns: number
                            }
           }
           Enums: {
-            "advertiser_kind": "imobiliaria"|"autonomo","agency_status": "pendente"|"aprovada"|"recusada"|"suspensa","chat_author": "cliente"|"ia"|"sistema","client_goal": "morar"|"investir"|"ambos","client_lifestyle": "tranquilidade"|"meio_termo"|"movimento","client_pets": "nenhum"|"pequeno"|"grande","client_property_kind": "apartamento"|"casa"|"tanto_faz","client_purpose": "comprar"|"alugar","client_timeline": "ate_3_meses"|"ate_6_meses"|"pesquisando","consent_kind": "termos"|"compartilhamento"|"whatsapp","distribution_mode": "rodizio"|"manual","lead_stage": "novo"|"em_atendimento"|"qualificado"|"visita_agendada"|"proposta"|"negociacao"|"fechado"|"perdido","lost_reason": "preco"|"localizacao"|"desistiu"|"comprou_com_outro"|"sem_resposta"|"outro","member_role": "gestor"|"corretor","message_sender": "cliente"|"corretor"|"assistente"|"sistema","pets_policy": "nao"|"pequeno"|"qualquer","property_purpose": "venda"|"aluguel","property_status": "rascunho"|"publicado"|"pausado"|"vendido"|"alugado","property_type": "apartamento"|"casa"|"cobertura"|"studio"|"sala_comercial"|"terreno","question_status": "encaminhada"|"respondida","suggestion_status": "pendente"|"aprovada"|"editada"|"descartada"
+            "advertiser_kind": "imobiliaria"|"autonomo","agency_status": "pendente"|"aprovada"|"recusada"|"suspensa","chat_author": "cliente"|"ia"|"sistema","client_goal": "morar"|"investir"|"ambos","client_lifestyle": "tranquilidade"|"meio_termo"|"movimento","client_pets": "nenhum"|"pequeno"|"grande","client_property_kind": "apartamento"|"casa"|"tanto_faz","client_purpose": "comprar"|"alugar","client_timeline": "ate_3_meses"|"ate_6_meses"|"pesquisando","consent_kind": "termos"|"compartilhamento"|"whatsapp","distribution_mode": "rodizio"|"manual","lead_stage": "novo"|"em_atendimento"|"qualificado"|"visita_agendada"|"proposta"|"negociacao"|"fechado"|"perdido","lost_reason": "preco"|"localizacao"|"desistiu"|"comprou_com_outro"|"sem_resposta"|"outro","member_role": "gestor"|"corretor","message_sender": "cliente"|"corretor"|"assistente"|"sistema","pets_policy": "nao"|"pequeno"|"qualquer","property_purpose": "venda"|"aluguel","property_status": "rascunho"|"publicado"|"pausado"|"vendido"|"alugado","property_type": "apartamento"|"casa"|"cobertura"|"studio"|"sala_comercial"|"terreno","proposal_status": "recebida"|"encaminhada"|"aceita"|"recusada"|"contraproposta","question_status": "encaminhada"|"respondida","suggestion_status": "pendente"|"aprovada"|"editada"|"descartada","visit_status": "pedida"|"confirmada"|"realizada"|"nao_compareceu"|"cancelada"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -619,7 +722,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "advertiser_kind": ["imobiliaria", "autonomo"],"agency_status": ["pendente", "aprovada", "recusada", "suspensa"],"chat_author": ["cliente", "ia", "sistema"],"client_goal": ["morar", "investir", "ambos"],"client_lifestyle": ["tranquilidade", "meio_termo", "movimento"],"client_pets": ["nenhum", "pequeno", "grande"],"client_property_kind": ["apartamento", "casa", "tanto_faz"],"client_purpose": ["comprar", "alugar"],"client_timeline": ["ate_3_meses", "ate_6_meses", "pesquisando"],"consent_kind": ["termos", "compartilhamento", "whatsapp"],"distribution_mode": ["rodizio", "manual"],"lead_stage": ["novo", "em_atendimento", "qualificado", "visita_agendada", "proposta", "negociacao", "fechado", "perdido"],"lost_reason": ["preco", "localizacao", "desistiu", "comprou_com_outro", "sem_resposta", "outro"],"member_role": ["gestor", "corretor"],"message_sender": ["cliente", "corretor", "assistente", "sistema"],"pets_policy": ["nao", "pequeno", "qualquer"],"property_purpose": ["venda", "aluguel"],"property_status": ["rascunho", "publicado", "pausado", "vendido", "alugado"],"property_type": ["apartamento", "casa", "cobertura", "studio", "sala_comercial", "terreno"],"question_status": ["encaminhada", "respondida"],"suggestion_status": ["pendente", "aprovada", "editada", "descartada"]
+            "advertiser_kind": ["imobiliaria", "autonomo"],"agency_status": ["pendente", "aprovada", "recusada", "suspensa"],"chat_author": ["cliente", "ia", "sistema"],"client_goal": ["morar", "investir", "ambos"],"client_lifestyle": ["tranquilidade", "meio_termo", "movimento"],"client_pets": ["nenhum", "pequeno", "grande"],"client_property_kind": ["apartamento", "casa", "tanto_faz"],"client_purpose": ["comprar", "alugar"],"client_timeline": ["ate_3_meses", "ate_6_meses", "pesquisando"],"consent_kind": ["termos", "compartilhamento", "whatsapp"],"distribution_mode": ["rodizio", "manual"],"lead_stage": ["novo", "em_atendimento", "qualificado", "visita_agendada", "proposta", "negociacao", "fechado", "perdido"],"lost_reason": ["preco", "localizacao", "desistiu", "comprou_com_outro", "sem_resposta", "outro"],"member_role": ["gestor", "corretor"],"message_sender": ["cliente", "corretor", "assistente", "sistema"],"pets_policy": ["nao", "pequeno", "qualquer"],"property_purpose": ["venda", "aluguel"],"property_status": ["rascunho", "publicado", "pausado", "vendido", "alugado"],"property_type": ["apartamento", "casa", "cobertura", "studio", "sala_comercial", "terreno"],"proposal_status": ["recebida", "encaminhada", "aceita", "recusada", "contraproposta"],"question_status": ["encaminhada", "respondida"],"suggestion_status": ["pendente", "aprovada", "editada", "descartada"],"visit_status": ["pedida", "confirmada", "realizada", "nao_compareceu", "cancelada"]
           }
         }
 } as const
