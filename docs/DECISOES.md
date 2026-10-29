@@ -214,3 +214,12 @@ sugestões e respostas livres da assistente) será testada quando houver crédit
   você tem pet ou precisa de vaga para eu comparar melhor").
 - A análise da Konexya, embaixo da tabela, fala só dos critérios do perfil. A nota continua do app (regra 7) e a
   análise só usa dados dos anúncios e do perfil (regra 8).
+
+## 2026-10-29 · Visitas: "Adicionar ao meu calendário" (sem sincronização)
+
+- Cada visita confirmada tem o botão **"Adicionar ao meu calendário"**, que baixa um arquivo de evento (.ics) com
+  data, hora, endereço do imóvel e nome do cliente. Abre no Google Agenda, no calendário do iPhone e no Outlook.
+  Vale na agenda do corretor (P-05) e na visita do cliente (C-11, sem dados do corretor além do nome).
+- **Sem sincronização automática** com Google Agenda por enquanto: exige verificação de segurança do Google,
+  acesso à agenda pessoal do corretor e regras para mudanças nos dois lados. Reavaliar depois do piloto, se os
+  corretores pedirem. Se a visita mudar, o app avisa e oferece o arquivo novo.
