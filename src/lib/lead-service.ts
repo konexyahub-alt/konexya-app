@@ -149,7 +149,7 @@ export async function handleClientLeadMessage(leadId: string, text: string) {
   if (ai === "limite" || ai === "erro") {
     // Sem IA: pergunta própria aceita o texto como resposta; o que parece pergunta vai para o corretor.
     if (text.trim().endsWith("?")) {
-      await forward(admin, ctx, text, "Vou deixar essa pergunta para o corretor, que responde em breve.");
+      await forward(admin, ctx, text, "Passei essa pergunta para o corretor. A resposta chega aqui nesta conversa.");
       if (pending) await ask(admin, ctx, pending.question);
     } else if (pending && !isStandardQuestion(pending.question.id)) {
       await recordAnswer(admin, ctx, pending, { answer: text.trim().slice(0, 300) });

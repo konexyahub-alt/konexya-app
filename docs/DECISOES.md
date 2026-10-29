@@ -179,3 +179,13 @@ Das 5 perguntas padrão, 4 vêm ligadas (pagamento, crédito aprovado, FGTS e me
 vem desligada**: com as 5 ligadas, toda imobiliária nova abriria a tela já com o aviso "muitas perguntas" (a partir
 de 5). O gestor liga quando quiser na página Assistente virtual; sem ela, o lead mostra "A confirmar" e o corretor
 pergunta na conversa.
+
+## 2026-10-29 · Mensagens da assistente sem promessa de prazo
+
+A assistente não promete (regra 3), e "fala com você em breve" depende do corretor. Textos padrão:
+- Boas-vindas: "… Seu perfil já está com o corretor. Enquanto isso, podemos começar a conversar sobre o imóvel?"
+  (autônomo: "Seu perfil já está com [nome]").
+- Despedida: "Obrigada, [nome do cliente]! Já passei tudo para o corretor. A resposta chega aqui nesta conversa."
+- Dúvida encaminhada: "Passei essa pergunta para o corretor. A resposta chega aqui nesta conversa."
+- Cabeçalho da conversa do cliente: só o nome do corretor (sem "entra em breve").
+Imobiliárias que editaram as próprias mensagens não mudam.

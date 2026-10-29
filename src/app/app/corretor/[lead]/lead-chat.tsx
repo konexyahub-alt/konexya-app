@@ -85,7 +85,7 @@ export function LeadChat(props: Props) {
           <div className="min-w-0 leading-tight">
             <p className="truncate text-[15.5px] font-bold">{props.agencyName}</p>
             <p className="truncate text-[11.5px] text-muted">
-              {props.assistantActive ? `${props.brokerLine} entra em breve` : props.brokerLine}
+              {props.brokerLine}
             </p>
           </div>
         </div>
