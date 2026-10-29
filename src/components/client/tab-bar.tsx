@@ -3,15 +3,16 @@ import { Icon, type IconName } from "@/components/ui";
 import { cn } from "@/lib/cn";
 
 /**
- * Abas do app do cliente. Mapa e Salvos entram na etapa 3; até lá só aparecem as abas que funcionam.
+ * Abas do app do cliente. O Mapa entra com o Google Maps; até lá só aparecem as abas que funcionam.
  */
 const TABS: { href: string; label: string; icon: IconName }[] = [
   { href: "/app", label: "Conversa", icon: "chat" },
+  { href: "/app/salvos", label: "Salvos", icon: "heart" },
   { href: "/app/corretor", label: "Corretor", icon: "broker" },
   { href: "/app/perfil", label: "Perfil", icon: "user" },
 ];
 
-export function TabBar({ active }: { active: "Conversa" | "Corretor" | "Perfil" }) {
+export function TabBar({ active }: { active: "Conversa" | "Salvos" | "Corretor" | "Perfil" }) {
   const isActive = (href: string) => TABS.find((t) => t.href === href)?.label === active;
   return (
     <nav
@@ -26,7 +27,7 @@ export function TabBar({ active }: { active: "Conversa" | "Corretor" | "Perfil" 
             href={tab.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "grid min-h-touch min-w-20 justify-items-center gap-0.5 text-[10.5px] font-semibold",
+              "grid min-h-touch min-w-16 justify-items-center gap-0.5 text-[10.5px] font-semibold",
               active ? "text-black" : "text-[#a1a19d]",
             )}
           >

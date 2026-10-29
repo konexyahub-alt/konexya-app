@@ -261,3 +261,13 @@ ambiente) e desenhar o Mapa Vivo (depende do Google Maps).
   clicou (ação dele, regra 3). Usado para resolver horário duplicado: confirma um cliente e oferece outros ao outro.
 - Barra do celular do painel: Painel, Leads, Agenda, Imóveis e "Mais" (Funil, Equipe, Assistente virtual, Sair).
   O item Agenda mostra quantas visitas aguardam confirmação.
+
+## 2026-10-29 · Salvos (C-09) e Comparação (C-08) construídos
+
+- Aba **Salvos** no app do cliente (Conversa, Salvos, Corretor, Perfil; o Mapa entra com o Google Maps).
+- Imóvel salvo que saiu do ar aparece apagado com "Não está mais disponível" e "Remover" (função
+  `my_saved_properties`, que só devolve título, bairro e preço dos salvos do próprio cliente).
+- "Comparar" já marca os 2 ou 3 de nota mais alta; o cliente troca. Comparação de 2 ou 3 imóveis.
+- A análise da Konexya, por enquanto, é montada por código com os motivos da nota (regra 7) e os dados dos
+  anúncios (regra 8): o que mais combina, diferença de preço e pontos de atenção dos outros. A versão escrita
+  pela IA entra quando houver créditos da Anthropic.

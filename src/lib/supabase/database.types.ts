@@ -565,6 +565,11 @@ isOneToOne: false
               "agency_id": string,"agency_name": string,"assistant_active": boolean,"assistant_name": string,"broker_creci": string,"broker_name": string,"broker_replied": boolean,"last_body": string,"last_message_at": string,"last_sender": Database["public"]['Enums']["message_sender"],"lead_id": string,"origin_property_id": string,"origin_property_title": string,"revoked": boolean,"shared_at": string
             }[]
                            },
+"my_saved_properties":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "available": boolean,"neighborhood": string,"price": number,"property_id": string,"saved_at": string,"title": string,"type": Database["public"]['Enums']["property_type"]
+            }[]
+                           },
 "pick_broker":
 { Args: { "p_agency": string }; Returns: string
                            },
