@@ -465,7 +465,7 @@ isOneToOne: false
                            },
 "my_conversations":
 { Args: Record<PropertyKey, never>; Returns: {
-              "agency_id": string,"agency_name": string,"assistant_active": boolean,"assistant_name": string,"broker_creci": string,"broker_name": string,"last_message_at": string,"lead_id": string,"origin_property_id": string,"revoked": boolean,"shared_at": string
+              "agency_id": string,"agency_name": string,"assistant_active": boolean,"assistant_name": string,"broker_creci": string,"broker_name": string,"broker_replied": boolean,"last_message_at": string,"lead_id": string,"origin_property_id": string,"origin_property_title": string | null,"revoked": boolean,"shared_at": string
             }[]
                            },
 "pick_broker":

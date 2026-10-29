@@ -118,3 +118,12 @@ localização não conta.
   diz que a distância até o trabalho entra com o Mapa Vivo. Nada de distância estimada ou inventada.
 - "Perto da praia" e "Serviços a pé" ficam fora da nota até haver dado real (Google Maps).
 - Distância em linha reta entre bairros foi descartada: seria um quebra-galho jogado fora na etapa 3.
+
+## 2026-10-29 · Boas-vindas da assistente e lista de conversas do cliente
+
+- Texto padrão de boas-vindas da assistente termina com "Enquanto isso, podemos começar a conversar sobre o
+  imóvel?" (antes: "posso te fazer algumas perguntas rápidas?"). Imobiliárias que editaram o texto não mudam.
+- Aba Corretor (C-11): sempre mostra a lista de conversas, mesmo com uma só (antes abria direto a única conversa).
+  Cada conversa é com uma imobiliária (o consentimento vale para a imobiliária inteira) e mostra o imóvel que
+  abriu a conversa e a situação: "Aguardando corretor" (amarelo), "Conversando" (verde, depois da primeira
+  mensagem do corretor) ou "Revogado".
