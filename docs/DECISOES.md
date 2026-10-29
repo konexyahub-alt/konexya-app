@@ -202,3 +202,13 @@ Resumo do lead sem IA: "Resumo indisponível no momento" depois de 5 minutos (se
 
 Aprovada pelo dono do produto no ambiente de teste, com a ressalva de que a parte de IA (conversa livre, resumo,
 sugestões e respostas livres da assistente) será testada quando houver crédito na Anthropic (PENDENCIAS, seção 1).
+
+## 2026-10-29 · Comparação (C-08) moldada pelo perfil do cliente
+
+- As linhas da tabela acompanham o que o cliente informou: **primeiro o que ele disse que importa** (a prioridade
+  escolhida, pets se tem pet, vagas e quartos se pediu), depois o básico (preço, condomínio, área).
+- Critério que o cliente **não mencionou não aparece** na tabela principal; fica em "Ver todos os detalhes".
+  Ex.: sem pet, não há linha de pets; sem prioridade de lazer, lazer vai para os detalhes.
+- Em cada linha, o valor que atende melhor o cliente fica destacado.
+- A análise da Konexya, embaixo da tabela, fala só dos critérios do perfil. A nota continua do app (regra 7) e a
+  análise só usa dados dos anúncios e do perfil (regra 8).
