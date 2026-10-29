@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { formatBRL } from "@/lib/format";
 import { CLOSED_STAGES, LOST_REASON_LABELS, OPEN_STAGES, STAGE_LABELS, type LeadStage, type LostReason, isRecent } from "@/lib/leads";
 import { READINESS_LABELS, type Readiness } from "@/lib/readiness";
+import { ProposalPanel, VisitsPanel, type StaffProposal, type StaffVisit } from "./deals-panel";
 import { addNote, approveSuggestion, assignBroker, discardSuggestion, moveStage, sendBrokerMessage, suggestReply } from "../actions";
 
 type Props = {
@@ -46,6 +47,8 @@ type Props = {
   canAssign: boolean;
   me: string;
   assistantName: string;
+  visits: StaffVisit[];
+  proposals: StaffProposal[];
 };
 
 const POLL_MS = 8000;
@@ -426,6 +429,9 @@ function ConversationColumn(p: Props) {
 function nextAction(p: Props): string {
   if (p.lead.revoked) return "O cliente revogou o compartilhamento. Não envie mais mensagens.";
   if (!p.lead.firstResponseAt) return p.suggestion ? "Revisar e aprovar a primeira mensagem." : "Enviar a primeira mensagem.";
+  if (p.visits.some((v) => v.status === "pedida")) return "Confirmar a visita pedida pelo cliente.";
+  if (p.proposals[0]?.status === "recebida") return "Encaminhar a proposta ao proprietário.";
+  if (p.proposals[0]?.status === "encaminhada") return "Registrar a resposta do proprietário.";
   if (p.questions.some((q) => q.open)) return "Responder as dúvidas do cliente.";
   const last = p.messages.filter((m) => m.sender !== "sistema").at(-1);
   if (last?.sender === "cliente") return "Responder a última mensagem do cliente.";
@@ -460,6 +466,24 @@ function NextStepsColumn(p: Props) {
             {p.assistantName} (assistente virtual) está fazendo as perguntas configuradas. Ela para quando você enviar a primeira mensagem.
           </p>
         ) : null}
+      </Panel>
+
+      <Panel title="Visita" help="Só o corretor confirma visitas. O cliente pede um horário (entre os que você sugeriu) e você confirma, remarca ou cancela; ele vê tudo na conversa.">
+        <VisitsPanel
+          leadId={p.lead.id}
+          visits={p.visits}
+          properties={p.properties.map((x) => ({ id: x.id, title: x.title, price: x.price }))}
+          disabled={p.lead.revoked}
+        />
+      </Panel>
+
+      <Panel title="Proposta" help="A proposta sempre passa por você antes do proprietário. Marque quando encaminhar e registre a resposta: o cliente acompanha cada passo no app.">
+        <ProposalPanel
+          leadId={p.lead.id}
+          proposals={p.proposals}
+          properties={p.properties.map((x) => ({ id: x.id, title: x.title, price: x.price }))}
+          disabled={p.lead.revoked}
+        />
       </Panel>
 
       <Panel title="Etapa do funil">

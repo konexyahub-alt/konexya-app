@@ -10,6 +10,7 @@ import { qualificationItems, readiness } from "@/lib/readiness";
 import { loadScoringSettings } from "@/lib/recommendations";
 import { scoreProperty } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
+import { conflictingIds } from "@/lib/visits";
 import { LeadWorkspace } from "./lead-workspace";
 
 /** P-04 · Lead aberto: tudo o que o corretor precisa para atender sem sair da tela. */
@@ -47,9 +48,33 @@ async function Lead({ params }: Pick<PageProps<"/painel/leads/[id]">, "params">)
     supabase.from("agency_assistant_settings").select("name").eq("agency_id", lead.agency_id).maybeSingle(),
   ]);
 
+  const [{ data: visitRows }, { data: proposalRows }] = await Promise.all([
+    supabase.from("visits").select("id, starts_at, duration_min, status, property_id, broker_id").eq("lead_id", id).order("starts_at"),
+    supabase
+      .from("proposals")
+      .select("id, amount, status, counter_amount, made_by, property_id, created_at")
+      .eq("lead_id", id)
+      .order("created_at", { ascending: false }),
+  ]);
+  // Horário duplicado: confere contra as outras visitas ativas do mesmo corretor (o RLS limita ao que a pessoa vê).
+  const brokerIds = [...new Set((visitRows ?? []).map((v) => v.broker_id).filter((x): x is string => !!x))];
+  const { data: brokerVisits } = brokerIds.length
+    ? await supabase.from("visits").select("id, starts_at, duration_min, status, broker_id").in("broker_id", brokerIds).in("status", ["pedida", "confirmada"])
+    : { data: [] };
+  const conflicts = conflictingIds(
+    (brokerVisits ?? []).map((v) => ({ id: v.id, brokerId: v.broker_id, startsAt: v.starts_at, durationMin: v.duration_min, status: v.status })),
+  );
+
   const profile = leadProfile(lead);
   const activityRows = activity.data ?? [];
-  const propertyIds = [...new Set([...lead.interest_property_ids, ...activityRows.map((a) => a.property_id)])];
+  const propertyIds = [
+    ...new Set([
+      ...lead.interest_property_ids,
+      ...activityRows.map((a) => a.property_id),
+      ...(visitRows ?? []).map((v) => v.property_id),
+      ...(proposalRows ?? []).map((x) => x.property_id),
+    ].filter((x): x is string => !!x)),
+  ];
   const { data: props } = propertyIds.length
     ? await supabase
         .from("properties")
@@ -121,6 +146,26 @@ async function Lead({ params }: Pick<PageProps<"/painel/leads/[id]">, "params">)
       canAssign={membership.role === "gestor"}
       me={user.id}
       assistantName={assistant.data?.name ?? "Assistente"}
+      visits={(visitRows ?? []).map((v) => ({
+        id: v.id,
+        startsAt: v.starts_at,
+        status: v.status,
+        propertyTitle: properties.find((x) => x.id === v.property_id)?.title ?? "Imóvel",
+        conflict: conflicts.has(v.id),
+      }))}
+      proposals={(proposalRows ?? []).map((x) => {
+        const prop = properties.find((y) => y.id === x.property_id);
+        return {
+          id: x.id,
+          amount: Number(x.amount),
+          status: x.status,
+          counterAmount: x.counter_amount === null ? null : Number(x.counter_amount),
+          madeBy: x.made_by === "cliente" ? ("cliente" as const) : ("corretor" as const),
+          propertyTitle: prop?.title ?? "Imóvel",
+          askingPrice: prop?.price === null || prop?.price === undefined ? null : Number(prop.price),
+          createdAt: x.created_at,
+        };
+      })}
     />
   );
 }

@@ -35,7 +35,7 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
   const loadMessages = () =>
     supabase
       .from("lead_messages")
-      .select("id, sender, body, quick_replies, created_at")
+      .select("id, sender, body, quick_replies, meta, created_at")
       .eq("lead_id", leadId)
       .order("id", { ascending: true })
       .limit(300);
@@ -60,6 +60,22 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
     ({ data: messages } = await loadMessages());
   }
 
+  const [{ data: visits }, { data: proposals }] = await Promise.all([
+    supabase.from("visits").select("id, starts_at, status, property_id").eq("lead_id", leadId).order("starts_at"),
+    supabase
+      .from("proposals")
+      .select("id, amount, status, counter_amount, created_at, forwarded_at, answered_at")
+      .eq("lead_id", leadId)
+      .order("created_at", { ascending: false })
+      .limit(1),
+  ]);
+  // A próxima visita ativa (aguardando ou confirmada). O endereço aparece só depois de confirmada.
+  const nextVisit = (visits ?? []).find((v) => v.status === "pedida" || v.status === "confirmada") ?? null;
+  const { data: visitProp } = nextVisit?.property_id
+    ? await supabase.from("properties").select("street, street_number, neighborhood").eq("id", nextVisit.property_id).maybeSingle()
+    : { data: null };
+  const lastProposal = proposals?.[0] ?? null;
+
   const score = prop ? scoreProperty(prop, toProfile(profileRow), settings.weights) : null;
   const cover = prop ? sortPhotos(prop.property_photos)[0] : null;
 
@@ -81,6 +97,33 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
               line: [prop.neighborhood, prop.price ? shortBRL(Number(prop.price)) : null].filter(Boolean).join(" · "),
               photoUrl: cover ? photoUrl(cover, publicEnv().NEXT_PUBLIC_SUPABASE_URL) : null,
               score: score?.score ?? null,
+              price: prop.price === null ? null : Number(prop.price),
+            }
+          : null
+      }
+      visit={
+        nextVisit
+          ? {
+              id: nextVisit.id,
+              startsAt: nextVisit.starts_at,
+              status: nextVisit.status,
+              address: visitProp
+                ? [[visitProp.street, visitProp.street_number].filter(Boolean).join(", "), visitProp.neighborhood].filter(Boolean).join(" · ") || null
+                : null,
+            }
+          : null
+      }
+      takenSlots={(visits ?? []).filter((v) => v.status === "pedida" || v.status === "confirmada").map((v) => new Date(v.starts_at).toISOString())}
+      proposal={
+        lastProposal
+          ? {
+              id: lastProposal.id,
+              amount: Number(lastProposal.amount),
+              status: lastProposal.status,
+              counterAmount: lastProposal.counter_amount === null ? null : Number(lastProposal.counter_amount),
+              createdAt: lastProposal.created_at,
+              forwardedAt: lastProposal.forwarded_at,
+              answeredAt: lastProposal.answered_at,
             }
           : null
       }
@@ -89,6 +132,7 @@ async function Conversation({ params }: Pick<PageProps<"/app/corretor/[lead]">, 
         sender: m.sender,
         body: m.body,
         quickReplies: m.quick_replies,
+        slots: slotsOf(m.meta),
         at: m.created_at,
       }))}
     />
@@ -104,4 +148,11 @@ function LeadSkeleton() {
       <TypingIndicator />
     </div>
   );
+}
+
+/** Horários sugeridos pelo corretor (mensagem com meta "visit_slots"). */
+function slotsOf(meta: unknown): string[] | null {
+  const m = meta as { kind?: string; slots?: unknown } | null;
+  if (m?.kind !== "visit_slots" || !Array.isArray(m.slots)) return null;
+  return m.slots.filter((s): s is string => typeof s === "string").map((s) => new Date(s).toISOString());
 }

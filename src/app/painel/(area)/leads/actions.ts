@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireApprovedMember } from "@/lib/auth";
 import { CLOSED_STAGES, OPEN_STAGES } from "@/lib/leads";
 import { refreshLeadBrief } from "@/lib/lead-service";
+import { friendlyDbError } from "@/lib/db-errors";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -120,6 +121,110 @@ export async function addNote(leadId: string, text: string): Promise<Result> {
   const supabase = await createClient();
   const { error } = await supabase.from("internal_notes").insert({ lead_id: leadId, body: parsed.data });
   if (error) return { error: "Não conseguimos salvar a anotação. Tente de novo." };
+  refresh();
+  return {};
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Visitas e propostas (etapa 3). Regra 4: só a equipe do lead confirma visitas e encaminha propostas;
+// o banco confere em cada função.
+// ---------------------------------------------------------------------------------------------------
+const isoList = z.array(z.string().datetime()).min(1, "Escolha pelo menos um horário.").max(3, "Sugira até 3 horários.");
+
+export async function suggestVisitSlots(leadId: string, propertyId: string, slots: string[]): Promise<Result> {
+  await requireApprovedMember("/painel/leads");
+  const parsed = isoList.safeParse(slots);
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("suggest_visit_slots", { p_lead: leadId, p_property: propertyId, p_slots: parsed.data });
+  const msg = friendlyDbError(error, "Não conseguimos enviar os horários. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function scheduleVisit(leadId: string, propertyId: string, at: string): Promise<Result> {
+  await requireApprovedMember("/painel/leads");
+  if (!z.string().datetime().safeParse(at).success) return { error: "Escolha a data e a hora." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("schedule_visit", { p_lead: leadId, p_property: propertyId, p_at: at });
+  const msg = friendlyDbError(error, "Não conseguimos marcar a visita. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function confirmVisit(visitId: string): Promise<Result> {
+  await requireApprovedMember("/painel/agenda");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("confirm_visit", { p_visit: visitId });
+  const msg = friendlyDbError(error, "Não conseguimos confirmar. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function rescheduleVisit(visitId: string, at: string): Promise<Result> {
+  await requireApprovedMember("/painel/agenda");
+  if (!z.string().datetime().safeParse(at).success) return { error: "Escolha a nova data e hora." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reschedule_visit", { p_visit: visitId, p_at: at });
+  const msg = friendlyDbError(error, "Não conseguimos remarcar. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function closeVisit(visitId: string, status: "realizada" | "nao_compareceu" | "cancelada"): Promise<Result> {
+  await requireApprovedMember("/painel/agenda");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("close_visit", { p_visit: visitId, p_status: status });
+  const msg = friendlyDbError(error, "Não conseguimos atualizar a visita. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+const amount = z.number().positive("Informe um valor maior que zero.").max(1_000_000_000, "Valor alto demais.");
+
+export async function registerProposal(leadId: string, propertyId: string, value: number, note: string): Promise<Result> {
+  await requireApprovedMember("/painel/leads");
+  const parsed = amount.safeParse(value);
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("make_proposal", {
+    p_lead: leadId,
+    p_property: propertyId,
+    p_amount: parsed.data,
+    p_note: note.trim().slice(0, 300) || undefined,
+  });
+  const msg = friendlyDbError(error, "Não conseguimos registrar a proposta. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function forwardProposal(proposalId: string): Promise<Result> {
+  await requireApprovedMember("/painel/leads");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("forward_proposal", { p_proposal: proposalId });
+  const msg = friendlyDbError(error, "Não conseguimos marcar como encaminhada. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function answerProposal(
+  proposalId: string,
+  status: "aceita" | "recusada" | "contraproposta",
+  counter?: number,
+): Promise<Result> {
+  await requireApprovedMember("/painel/leads");
+  if (status === "contraproposta" && !amount.safeParse(counter).success) return { error: "Informe o valor da contraproposta." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("answer_proposal", { p_proposal: proposalId, p_status: status, p_counter: counter });
+  const msg = friendlyDbError(error, "Não conseguimos registrar a resposta. Tente de novo.");
+  if (msg) return { error: msg };
   refresh();
   return {};
 }

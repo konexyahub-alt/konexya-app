@@ -7,12 +7,15 @@ import { HelpTip, Icon, ScoreRing, TypingIndicator, useToast } from "@/component
 import { cn } from "@/lib/cn";
 import { initials } from "@/lib/format";
 import { sendLeadMessage } from "../../actions";
+import { DealSummary, ProposalSheet, SlotButtons, type ClientProposal, type ClientVisit } from "./deal-ui";
 
 type Message = {
   id: number;
   sender: "cliente" | "corretor" | "assistente" | "sistema";
   body: string;
   quickReplies: string[];
+  /** Horários de visita sugeridos pelo corretor (ISO), quando a mensagem traz botões de horário. */
+  slots?: string[] | null;
   at: string;
 };
 
@@ -25,8 +28,11 @@ type Props = {
   assistantActive: boolean;
   revoked: boolean;
   sharedAt: string | null;
-  property: { id: string; title: string; line: string; photoUrl: string | null; score: number | null } | null;
+  property: { id: string; title: string; line: string; photoUrl: string | null; score: number | null; price: number | null } | null;
   messages: Message[];
+  visit: ClientVisit | null;
+  takenSlots: string[];
+  proposal: ClientProposal | null;
 };
 
 const POLL_MS = 5000;
@@ -37,6 +43,7 @@ export function LeadChat(props: Props) {
   const { showToast } = useToast();
   const [pending, start] = useTransition();
   const [text, setText] = useState("");
+  const [proposing, setProposing] = useState(false);
   const [optimistic, add] = useOptimistic(props.messages, (state, body: string) => [
     ...state,
     { id: -Date.now(), sender: "cliente" as const, body, quickReplies: [], at: new Date().toISOString() },
@@ -109,6 +116,11 @@ export function LeadChat(props: Props) {
             {props.property.score !== null ? <ScoreRing score={props.property.score} size={42} /> : null}
           </Link>
         ) : null}
+        {props.visit || props.proposal ? (
+          <div className="rounded-[18px] bg-white px-3 pb-3 shadow-card">
+            <DealSummary visit={props.visit} proposal={props.proposal} revoked={props.revoked} />
+          </div>
+        ) : null}
       </header>
 
       <div className="flex flex-1 flex-col gap-2.5 px-[18px] pb-4 pt-3" aria-live="polite">
@@ -118,7 +130,18 @@ export function LeadChat(props: Props) {
           </p>
         ) : null}
         {optimistic.map((m) => (
-          <Bubble key={m.id} m={m} assistantName={props.assistantName} brokerLine={props.brokerLine} />
+          <div key={m.id} className="contents">
+            <Bubble m={m} assistantName={props.assistantName} brokerLine={props.brokerLine} />
+            {m.slots?.length ? (
+              <SlotButtons
+                messageId={m.id}
+                labels={m.quickReplies}
+                slots={m.slots}
+                taken={props.takenSlots}
+                disabled={props.revoked}
+              />
+            ) : null}
+          </div>
         ))}
         {pending && props.assistantActive ? <TypingIndicator label={`${props.assistantName} está digitando`} /> : null}
         {quick.length ? (
@@ -143,6 +166,18 @@ export function LeadChat(props: Props) {
           Você revogou o compartilhamento com esta imobiliária. A conversa está encerrada e novos dados não são enviados.
         </div>
       ) : (
+        <>
+        {props.property && canPropose(props.proposal) ? (
+          <div className="flex justify-end px-4">
+            <button
+              type="button"
+              onClick={() => setProposing(true)}
+              className="min-h-9 rounded-full border border-line-2 bg-white px-3.5 text-[12.5px] font-semibold hover:border-black"
+            >
+              {props.proposal ? "Fazer nova proposta" : "Fazer proposta"}
+            </button>
+          </div>
+        ) : null}
         <form
           className="sticky bottom-[calc(64px+max(10px,env(safe-area-inset-bottom)))] z-20 flex gap-2.5 bg-paper px-4 py-2.5"
           onSubmit={(e) => {
@@ -171,7 +206,18 @@ export function LeadChat(props: Props) {
             <Icon name="send" />
           </button>
         </form>
+        </>
       )}
+      {proposing && props.property ? (
+        <ProposalSheet
+          leadId={props.leadId}
+          propertyId={props.property.id}
+          propertyTitle={props.property.title}
+          askingPrice={props.property.price}
+          brokerName={props.brokerLine.replace(/^Corretor\(a\) /, "") || "o corretor"}
+          onClose={() => setProposing(false)}
+        />
+      ) : null}
     </main>
   );
 }
@@ -209,4 +255,9 @@ function Bubble({ m, assistantName, brokerLine }: { m: Message; assistantName: s
       <p className="whitespace-pre-line text-[13.5px]">{m.body}</p>
     </div>
   );
+}
+
+/** Nova proposta só quando não há outra em andamento (com o corretor ou com o proprietário). */
+function canPropose(p: ClientProposal | null) {
+  return !p || (p.status !== "recebida" && p.status !== "encaminhada" && p.status !== "aceita");
 }

@@ -10,6 +10,7 @@ import { profileUpdateSchema } from "@/lib/profile-schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { handleClientLeadMessage, refreshLeadBrief, startLeadConversation } from "@/lib/lead-service";
 import { requireUser, safeNext, TERMS_VERSION } from "@/lib/auth";
+import { friendlyDbError } from "@/lib/db-errors";
 import { createClient } from "@/lib/supabase/server";
 import { personNameSchema } from "@/lib/validation";
 
@@ -156,4 +157,43 @@ export async function deleteAccount(): Promise<{ error?: string }> {
   // Conta excluída: o aparelho volta a mostrar "Começar".
   (await cookies()).delete(RETURNING_COOKIE);
   redirect("/app/boas-vindas");
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Visitas e propostas do cliente (etapa 3). Regra 4: o cliente pede; quem confirma e encaminha é o corretor.
+// ---------------------------------------------------------------------------------------------------
+export async function requestVisit(messageId: number, slot: number): Promise<{ error?: string }> {
+  await requireUser("/app/entrar");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("request_visit", { p_message: messageId, p_slot: slot });
+  const msg = friendlyDbError(error, "Não conseguimos pedir a visita. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function cancelMyVisit(visitId: string): Promise<{ error?: string }> {
+  await requireUser("/app/entrar");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("close_visit", { p_visit: visitId, p_status: "cancelada" });
+  const msg = friendlyDbError(error, "Não conseguimos cancelar. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
+}
+
+export async function makeProposal(leadId: string, propertyId: string, value: number, note: string): Promise<{ error?: string }> {
+  await requireUser("/app/entrar");
+  if (!Number.isFinite(value) || value <= 0 || value > 1_000_000_000) return { error: "Informe um valor válido." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("make_proposal", {
+    p_lead: leadId,
+    p_property: propertyId,
+    p_amount: value,
+    p_note: note.trim().slice(0, 300) || undefined,
+  });
+  const msg = friendlyDbError(error, "Não conseguimos enviar a proposta. Tente de novo.");
+  if (msg) return { error: msg };
+  refresh();
+  return {};
 }
