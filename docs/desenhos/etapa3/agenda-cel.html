@@ -1,0 +1,181 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Montserrat,Arial,sans-serif;color:#151516;background:#e9e9e6;font-size:14px;line-height:1.5}
+.frame{background:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.m{width:390px;height:844px}
+.d{width:1280px;height:832px;flex-direction:row}
+.status{height:44px;flex:none}
+.pad{padding:8px 22px 28px;display:flex;flex-direction:column;gap:16px;flex:1}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+h2{font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+h3{font-size:16px;font-weight:700}
+.muted{color:#5f5f5c}.muted2{color:#8a8a86}
+.small{font-size:12.5px}.xs{font-size:11.5px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px;border-radius:999px;font-weight:600;font-size:15px;border:1.5px solid #0b0b0c;background:#0b0b0c;color:#fff}
+.btn.sec{background:#fff;color:#0b0b0c}
+.btn.sm{height:44px;font-size:13.5px;padding:0 16px}
+.btn.dis{opacity:.4}
+.btn.full{width:100%}
+.link{font-weight:600;text-decoration:underline;text-underline-offset:4px;font-size:14px;text-align:center}
+.round{width:44px;height:44px;border-radius:50%;background:#f4f4f2;display:flex;align-items:center;justify-content:center}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:600}
+.inp{height:52px;border:1.5px solid #d3d3cf;border-radius:14px;padding:0 14px;display:flex;align-items:center;font-size:16px;font-weight:500;background:#fff}
+.inp.ph{color:#8a8a86}
+.inp.focus{border-color:#0b0b0c}
+.inp.err{border-color:#b3261e}
+.hint{font-weight:500;color:#5f5f5c}
+.errt{font-weight:600;color:#b3261e;font-size:12.5px}
+.or{display:flex;align-items:center;gap:10px;color:#8a8a86;font-size:12px}
+.or i{flex:1;height:1px;background:#e2e2df}
+.code{display:flex;gap:8px}
+.code span{width:48px;height:58px;border:1.5px solid #d3d3cf;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.code span.f{border-color:#0b0b0c}
+.code.err span{border-color:#b3261e;color:#b3261e}
+.ck{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:#5f5f5c}
+.box{width:22px;height:22px;border-radius:6px;border:1.5px solid #8a8a86;flex:none;display:flex;align-items:center;justify-content:center}
+.box.on{background:#0b0b0c;border-color:#0b0b0c;color:#fff}
+.card{border:1px solid #e2e2df;border-radius:18px;padding:16px;background:#fff}
+.sec-t{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5f5f5c}
+.tag{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.t-n{background:#ebebe8;color:#151516}.t-d{background:#0b0b0c;color:#fff}.t-ok{background:#e3f1ea;color:#1f7a4d}.t-w{background:#fbf0d9;color:#a86a00}.t-b{background:#f8e3e1;color:#b3261e}
+.chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:999px;border:1px solid #d3d3cf;font-size:12.5px;font-weight:600;white-space:nowrap;background:#fff}
+.chip.on{background:#0b0b0c;color:#fff;border-color:#0b0b0c}
+.ok{color:#1f7a4d}.bad{color:#b3261e}.warn{color:#a86a00}
+.row{display:flex;align-items:center;gap:10px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.toast{position:absolute;left:16px;right:16px;bottom:24px;background:#0b0b0c;color:#fff;border-radius:16px;padding:12px 14px;font-size:13px;display:flex;gap:10px;align-items:center}
+.ph-img{background:#dcdcd7;display:flex;align-items:center;justify-content:center;color:#8a8a86;font-size:11px;font-weight:600}
+/* painel */
+.side{width:248px;border-right:1px solid #e2e2df;padding:20px 14px;display:flex;flex-direction:column;gap:4px;flex:none;background:#fff}
+.side .ag{display:flex;gap:10px;align-items:center;padding:6px 8px 18px}
+.av{width:36px;height:36px;border-radius:50%;background:#0b0b0c;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.nav{display:flex;align-items:center;gap:10px;height:42px;padding:0 10px;border-radius:12px;font-weight:600;color:#5f5f5c;font-size:13.5px}
+.nav.on{background:#f4f4f2;color:#0b0b0c}
+.nav .cnt{margin-left:auto;background:#0b0b0c;color:#fff;border-radius:999px;font-size:10.5px;padding:1px 7px}
+.main{flex:1;padding:28px 36px;display:flex;flex-direction:column;gap:20px;background:#fff;min-width:0}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8a86;padding:10px 10px;border-bottom:1px solid #e2e2df}
+td{white-space:nowrap;padding:12px 10px;border-bottom:1px solid #ebebe8;vertical-align:middle}
+.num{font-variant-numeric:tabular-nums}
+.r{text-align:right}
+.search{height:44px;border:1.5px solid #d3d3cf;border-radius:999px;padding:0 16px;display:flex;align-items:center;gap:8px;color:#8a8a86;font-size:13.5px;width:300px}
+.steps{display:flex;gap:6px}
+.steps div{flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:#8a8a86}
+.steps div i{height:4px;border-radius:2px;background:#ebebe8}
+.steps div.on{color:#0b0b0c}.steps div.on i{background:#0b0b0c}
+.steps div.done{color:#5f5f5c}.steps div.done i{background:#5f5f5c}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.seal li{list-style:none;display:flex;gap:10px;align-items:flex-start;font-size:13px;padding:6px 0}
+.dash{border:1.5px dashed #d3d3cf;border-radius:18px;padding:28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;color:#5f5f5c;font-size:13px}
+.overlay{position:absolute;inset:0;background:rgba(11,11,12,.45);display:flex;align-items:center;justify-content:center}
+.modal{width:440px;background:#fff;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.split{flex:1;display:flex}
+.brand{width:560px;background:#0b0b0c;color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between}
+.formside{flex:1;display:flex;align-items:center;justify-content:center}
+.form{width:400px;display:flex;flex-direction:column;gap:16px}
+.mapph{background:#ebebe8;border-radius:14px;position:relative;overflow:hidden}
+.pin{position:absolute;width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#0b0b0c}
+.bar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e2e2df;padding:12px 16px 28px;display:flex;gap:10px}
+
+body{background:#d9d9d5}
+.frame{background:#f5f5f3}
+.sb{height:47px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 32px;font-size:14px;font-weight:600}
+.sbi{display:flex;gap:5px;align-items:center}.sbi i{display:block;background:#151516;border-radius:2px}
+.lt{font-weight:300;letter-spacing:-.01em}
+.lt b{font-weight:700}
+.trk{font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#8a8a86}
+.wcard{background:#fff;border-radius:22px;box-shadow:0 1px 2px rgba(11,11,12,.05),0 10px 28px rgba(11,11,12,.07)}
+.photo{background:#cfcfca;background-size:cover;background-position:center}
+.hd{display:flex;align-items:center;gap:12px;padding:6px 20px 14px}
+.yav{width:42px;height:42px;border-radius:50%;background:#0b0b0c;display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+.prog{display:flex;gap:3px;flex:1}.prog i{flex:1;height:4px;border-radius:2px;background:#e2e2df}.prog i.on{background:#0b0b0c}
+.pc{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600;background:#fff;box-shadow:0 1px 2px rgba(11,11,12,.08);white-space:nowrap}
+.pc.e{background:transparent;box-shadow:none;border:1px dashed #c4c4bf;color:#8a8a86;font-weight:500}
+.msgs{flex:1;padding:6px 18px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.ai{align-self:flex-start;max-width:84%;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 15px;font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(11,11,12,.06)}
+.me{align-self:flex-end;max-width:80%;background:#0b0b0c;color:#fff;border-radius:20px 20px 6px 20px;padding:12px 15px;font-size:14px;line-height:1.5}
+.sys{align-self:center;color:#8a8a86;font-size:11px;letter-spacing:.04em;text-align:center}
+.qr{align-self:flex-end;border:1.5px solid #0b0b0c;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:600;background:#fff}
+.compose{display:flex;gap:10px;padding:10px 16px 12px;align-items:center;background:#f5f5f3}
+.compose .in{flex:1;height:50px;background:#fff;border-radius:999px;padding:0 18px;display:flex;align-items:center;color:#8a8a86;font-size:14px;box-shadow:0 1px 2px rgba(11,11,12,.08)}
+.sendb{width:50px;height:50px;border-radius:50%;background:#0b0b0c;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.tabs{display:flex;justify-content:space-around;padding:10px 24px 28px;background:#fff;border-top:1px solid #ebebe8}
+.tabs div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:#a1a19d}
+.tabs div.on{color:#0b0b0c}
+.tabs div.on b{display:block;width:18px;height:3px;border-radius:2px;background:#0b0b0c;margin-top:1px}
+.why{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:#3d3d3b;line-height:1.4}
+.route{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;color:#151516}
+.route .ln{flex:1;border-top:1.5px dashed #b5b5b0;height:0}
+.route .dt{width:8px;height:8px;border-radius:50%;background:#0b0b0c;flex:none}
+.route .dto{width:8px;height:8px;border-radius:50%;border:1.5px solid #0b0b0c;flex:none;background:#fff}
+.route .tm{background:#0b0b0c;color:#fff;border-radius:999px;padding:3px 9px;font-size:11px}
+.ringw{position:relative;flex:none;display:flex;align-items:center;justify-content:center}
+.ringw span{position:absolute;font-weight:800;letter-spacing:-.02em}
+.group{background:#fff;border-radius:20px;box-shadow:0 1px 2px rgba(11,11,12,.05)}
+.grow{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #f0f0ee}
+.grow:last-child{border-bottom:0}
+.grow .l{font-size:11.5px;color:#8a8a86}.grow .v{font-size:14.5px;font-weight:600;margin-top:1px}
+.dots{display:flex;gap:5px;padding:16px 18px;background:#fff;border-radius:20px 20px 20px 6px;align-self:flex-start;box-shadow:0 1px 2px rgba(11,11,12,.06)}
+.dots i{width:7px;height:7px;border-radius:50%;background:#8a8a86}
+.dim{position:absolute;inset:0;background:rgba(11,11,12,.55)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:28px 28px 0 0;padding:14px 24px 34px;display:flex;flex-direction:column;gap:14px}
+.grab{width:40px;height:5px;border-radius:3px;background:#d3d3cf;align-self:center}
+.bc{align-self:flex-start;max-width:80%;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 15px;font-size:13.5px;box-shadow:0 1px 2px rgba(11,11,12,.06)}
+/* painel */
+.side{background:#fff;border-right:1px solid #ebebe8}
+.main{background:#f5f5f3}
+.nav.on{background:#0b0b0c;color:#fff}
+.nav.on .cnt{background:#fff;color:#0b0b0c}
+.kpi{flex:1;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.kpi b{font-size:34px;font-weight:300;letter-spacing:-.02em}
+.delta{font-size:11.5px;font-weight:600;color:#5f5f5c}
+.fun{display:flex;flex-direction:column;gap:12px}
+.fr{display:flex;align-items:center;gap:14px}
+.fr .lb{width:150px;font-size:12.5px;color:#5f5f5c}
+.fr .bar2{height:30px;border-radius:8px;background:#0b0b0c;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-size:12.5px;font-weight:700}
+.fr .pct{font-size:11.5px;color:#8a8a86;width:60px}
+.av2{width:36px;height:36px;border-radius:50%;background:#ebebe8;color:#151516;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.kcol{width:222px;flex:none;display:flex;flex-direction:column;gap:10px}
+.khd{display:flex;justify-content:space-between;align-items:center;padding:0 4px 4px;border-bottom:2px solid #0b0b0c}
+.kcard{background:#fff;border-radius:16px;padding:13px;display:flex;flex-direction:column;gap:7px;box-shadow:0 1px 2px rgba(11,11,12,.05),0 6px 16px rgba(11,11,12,.05)}
+.kcard.late{box-shadow:inset 0 0 0 1.5px #b3261e}
+.mini{width:26px;height:26px;border-radius:50%;background:#0b0b0c;color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.arr{width:30px;height:30px;border-radius:50%;background:#f5f5f3;display:flex;align-items:center;justify-content:center}
+.sugg{background:#fff;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:inset 0 0 0 1.5px #0b0b0c}
+.tg{width:44px;height:26px;border-radius:999px;background:#d3d3cf;position:relative;flex:none}
+.tg.on{background:#0b0b0c}.tg i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff}.tg.on i{left:21px}
+.ptab{display:flex;gap:4px;padding:0 18px;background:#fff}
+.ptab div{padding:12px 10px;font-size:13px;font-weight:600;color:#a1a19d}.ptab div.on{color:#0b0b0c;box-shadow:inset 0 -2px 0 #0b0b0c}
+
+.wk{display:grid;grid-template-columns:56px repeat(7,1fr);gap:0;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(11,11,12,.05)}
+.wk .h{padding:12px 8px;font-size:11.5px;font-weight:700;border-bottom:1px solid #ebebe8;text-align:center}
+.wk .h.today{background:#0b0b0c;color:#fff}
+.wk .t{font-size:10.5px;color:#8a8a86;padding:6px 8px;border-right:1px solid #f0f0ee;height:64px}
+.wk .c{border-right:1px solid #f4f4f2;border-bottom:1px solid #f4f4f2;height:64px;position:relative;padding:3px}
+.vb{border-radius:10px;padding:6px 8px;font-size:10.5px;line-height:1.3;display:flex;flex-direction:column;gap:2px;height:100%}
+.vb.conf{background:#0b0b0c;color:#fff}
+.vb.ped{background:#fff;box-shadow:inset 0 0 0 1.5px #0b0b0c}
+.vb.real{background:#e3f1ea;color:#1f7a4d}
+.vb.canc{background:#f4f4f2;color:#8a8a86;text-decoration:line-through}
+.vb.conflict{box-shadow:inset 0 0 0 1.5px #b3261e;background:#f8e3e1;color:#b3261e}
+.pstep{display:flex;flex-direction:column;gap:10px}
+.pstep div{display:flex;gap:10px;align-items:flex-start;font-size:12.5px}
+.pstep i{width:18px;height:18px;border-radius:50%;flex:none;border:1.5px solid #c4c4bf;margin-top:1px}
+.pstep i.on{background:#0b0b0c;border-color:#0b0b0c}
+.cmpt td{white-space:normal;font-size:12px;padding:10px 6px;vertical-align:top}
+.cmpt th{font-size:10px;padding:8px 6px}
+.hbar{display:flex;align-items:flex-end;gap:4px;height:120px}
+.hbar div{flex:1;background:#0b0b0c;border-radius:4px 4px 0 0}
+.hbar div.off{background:#c4c4bf}
+</style></head><body><div style="display:flex;flex-wrap:wrap;gap:60px;padding:60px;align-items:flex-start"><section class="frame m" data-name="Agenda celular · A · linha do tempo" style="height:844px"><div class="sb" style="color:#151516"><span>9:41</span><div class="sbi"><i style="width:17px;height:10px;background:#151516"></i><i style="width:15px;height:10px;background:#151516"></i><i style="width:25px;height:12px;border-radius:3px;background:#151516"></i></div></div><div style="padding:8px 20px 12px"><span class="trk">Agenda de visitas</span><p class="lt" style="font-size:26px;margin-top:4px">Hoje, <b>qui 29/10</b></p></div>
+<div style="padding:0 20px;display:flex;gap:8px;margin-bottom:10px"><div class="arr" style="width:36px;height:36px"><svg data-k="i:back" class="ico " width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></div><span class="chip on">Hoje</span><div class="arr" style="width:36px;height:36px"><svg data-k="i:arrow" class="ico " width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+<div style="padding:0 20px"><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">8h</span><div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">9h</span><div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">10h</span><div><div class="vb conf" style="height:auto;padding:10px 12px;font-size:12px"><b>Marina Souza</b><span>Edifício Exemplo B · Cocó</span></div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">11h</span><div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">12h</span><div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">13h</span><div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">14h</span><div><div class="vb ped" style="height:auto;padding:10px 12px;font-size:12px"><b>Rafael Duarte</b><span>Residencial Exemplo A · Varjota</span></div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">15h</span><div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">16h</span><div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">17h</span><div><div class="vb conflict" style="height:auto;padding:10px 12px;font-size:12px"><b>Otto Ramalho</b><span>Casa Exemplo D · Aldeota</span></div></div></div><div style="display:grid;grid-template-columns:44px 1fr;gap:8px;min-height:52px;border-top:1px solid #ebebe8;padding-top:4px"><span class="xs muted2">18h</span><div></div></div></div><div class="tabs" style="position:absolute;left:0;right:0;bottom:0"><div class=""><svg data-k="i:grid" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Painel</div><div class=""><svg data-k="i:lead" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M3 21a7 7 0 0 1 12-4.9M15 19l2 2 4-4"/></svg>Leads</div><div class="on"><svg data-k="i:cal" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Agenda<b></b></div><div class=""><svg data-k="i:home" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg>Imóveis</div><div class=""><svg data-k="i:menu" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Mais</div></div></section><section class="frame m" data-name="Agenda celular · B · o que fazer primeiro" style="height:844px"><div class="sb" style="color:#151516"><span>9:41</span><div class="sbi"><i style="width:17px;height:10px;background:#151516"></i><i style="width:15px;height:10px;background:#151516"></i><i style="width:25px;height:12px;border-radius:3px;background:#151516"></i></div></div><div style="padding:8px 20px 12px"><span class="trk">Agenda de visitas</span><p class="lt" style="font-size:26px;margin-top:4px">Hoje, <b>3 visitas</b></p></div>
+<div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
+<span class="trk" style="padding-left:4px">Precisa de você</span>
+<div class="wcard" style="padding:14px;display:flex;flex-direction:column;gap:8px;border-radius:18px"><div class="between"><b style="font-size:20px" class="num">17h</b><span class="tag t-b">Conflito</span></div><div><b class="small">Otto Ramalho</b><p class="xs muted">Casa Exemplo D · conflito com outra visita</p></div><div class="row"><div class="btn sm" style="flex:1">Resolver</div></div></div>
+<div class="wcard" style="padding:14px;display:flex;flex-direction:column;gap:8px;border-radius:18px"><div class="between"><b style="font-size:20px" class="num">14h</b><span class="tag t-w">Pedida</span></div><div><b class="small">Rafael Duarte</b><p class="xs muted">Residencial Exemplo A · Varjota</p></div><div class="row"><div class="btn sec sm" style="flex:1">Outro horário</div><div class="btn sec sm" style="flex:1">Confirmar</div></div></div>
+<span class="trk" style="padding-left:4px;margin-top:6px">Confirmadas</span>
+<div class="wcard" style="padding:14px;display:flex;flex-direction:column;gap:8px;border-radius:18px"><div class="between"><b style="font-size:20px" class="num">10h</b><span class="tag t-d">Confirmada</span></div><div><b class="small">Marina Souza</b><p class="xs muted">Edifício Exemplo B · Cocó</p></div><div class="row xs muted"><svg data-k="i:pin" class="ico " width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Rua Exemplo, 200 · <b class="ink" style="text-decoration:underline">Adicionar ao calendário</b></div></div>
+</div><div class="tabs" style="position:absolute;left:0;right:0;bottom:0"><div class=""><svg data-k="i:grid" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Painel</div><div class=""><svg data-k="i:lead" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M3 21a7 7 0 0 1 12-4.9M15 19l2 2 4-4"/></svg>Leads</div><div class="on"><svg data-k="i:cal" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Agenda<b></b></div><div class=""><svg data-k="i:home" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg>Imóveis</div><div class=""><svg data-k="i:menu" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Mais</div></div></section><section class="frame m" data-name="Agenda celular · C · semana + dia" style="height:844px"><div class="sb" style="color:#151516"><span>9:41</span><div class="sbi"><i style="width:17px;height:10px;background:#151516"></i><i style="width:15px;height:10px;background:#151516"></i><i style="width:25px;height:12px;border-radius:3px;background:#151516"></i></div></div><div style="padding:8px 20px 12px"><span class="trk">Agenda de visitas</span><p class="lt" style="font-size:26px;margin-top:4px">Outubro, <b>semana 44</b></p></div>
+<div style="padding:0 14px 10px;display:flex;gap:4px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:14px;"><span class="xs" style="font-weight:600">Seg</span><b style="font-size:16px">26</b><span style="display:flex;gap:2px"><i style="width:5px;height:5px;border-radius:50%;background:#0b0b0c"></i></span></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:14px;"><span class="xs" style="font-weight:600">Ter</span><b style="font-size:16px">27</b><span style="display:flex;gap:2px"><i style="width:5px;height:5px;border-radius:50%;background:#0b0b0c"></i><i style="width:5px;height:5px;border-radius:50%;background:#0b0b0c"></i></span></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:14px;"><span class="xs" style="font-weight:600">Qua</span><b style="font-size:16px">28</b><span style="display:flex;gap:2px"><i style="width:5px;height:5px;border-radius:50%;background:#0b0b0c"></i></span></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:14px;background:#0b0b0c;color:#fff"><span class="xs" style="font-weight:600">Qui</span><b style="font-size:16px">29</b><span style="display:flex;gap:2px"><i style="width:5px;height:5px;border-radius:50%;background:#fff"></i><i style="width:5px;height:5px;border-radius:50%;background:#fff"></i><i style="width:5px;height:5px;border-radius:50%;background:#fff"></i></span></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:14px;"><span class="xs" style="font-weight:600">Sex</span><b style="font-size:16px">30</b><span style="display:flex;gap:2px"><i style="width:5px;height:5px;border-radius:50%;background:#0b0b0c"></i><i style="width:5px;height:5px;border-radius:50%;background:#0b0b0c"></i></span></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:14px;"><span class="xs" style="font-weight:600">Sáb</span><b style="font-size:16px">31</b><span style="display:flex;gap:2px"><i style="width:5px;height:5px;border-radius:50%;background:#0b0b0c"></i></span></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:14px;"><span class="xs" style="font-weight:600">Dom</span><b style="font-size:16px">1</b><span style="display:flex;gap:2px"></span></div></div>
+<div style="padding:0 20px"><div class="wcard" style="padding:4px 16px;border-radius:18px"><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0ee"><div style="width:4px;border-radius:2px;background:#0b0b0c"></div><div style="flex:1"><div class="between"><b class="small num">10h</b><span class="tag t-d">Confirmada</span></div><b class="small">Marina Souza</b><p class="xs muted">Edifício Exemplo B · Cocó</p></div></div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0ee"><div style="width:4px;border-radius:2px;background:#a86a00"></div><div style="flex:1"><div class="between"><b class="small num">14h</b><span class="tag t-w">Pedida</span></div><b class="small">Rafael Duarte</b><p class="xs muted">Residencial Exemplo A · Varjota</p></div></div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0ee"><div style="width:4px;border-radius:2px;background:#b3261e"></div><div style="flex:1"><div class="between"><b class="small num">17h</b><span class="tag t-b">Conflito</span></div><b class="small">Otto Ramalho</b><p class="xs muted">Casa Exemplo D · Aldeota</p></div></div></div></div><div class="tabs" style="position:absolute;left:0;right:0;bottom:0"><div class=""><svg data-k="i:grid" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Painel</div><div class=""><svg data-k="i:lead" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M3 21a7 7 0 0 1 12-4.9M15 19l2 2 4-4"/></svg>Leads</div><div class="on"><svg data-k="i:cal" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Agenda<b></b></div><div class=""><svg data-k="i:home" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg>Imóveis</div><div class=""><svg data-k="i:menu" class="ico " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Mais</div></div></section></div></body></html>
