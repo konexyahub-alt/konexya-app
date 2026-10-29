@@ -38,13 +38,19 @@ export const NO_ASSISTANT_TEXT = "Seu perfil já está com o corretor. Continue 
 const ACK = "Anotado!";
 
 async function loadLead(admin: AdminClient, leadId: string) {
-  const { data: lead } = await admin.from("leads").select("*").eq("id", leadId).single();
-  if (!lead) return null;
+  const { data: lead, error } = await admin.from("leads").select("*").eq("id", leadId).single();
+  if (!lead) {
+    console.error("lead-service: lead não carregado (confira SUPABASE_SECRET_KEY)", leadId, error?.message);
+    return null;
+  }
   const [{ data: settings }, { data: agency }] = await Promise.all([
     admin.from("agency_assistant_settings").select("*").eq("agency_id", lead.agency_id).single(),
     admin.from("agencies").select("legal_name").eq("id", lead.agency_id).single(),
   ]);
-  if (!settings || !agency) return null;
+  if (!settings || !agency) {
+    console.error("lead-service: configuração da assistente ou imobiliária ausente", lead.agency_id);
+    return null;
+  }
   return { lead, settings, agencyName: agency.legal_name, questions: parseQuestions(settings.questions) };
 }
 
@@ -58,9 +64,10 @@ async function say(
 ) {
   const sender = opts.sender ?? "assistente";
   const text = fixPra(body);
-  await admin
+  const { error } = await admin
     .from("lead_messages")
     .insert({ lead_id: ctx.lead.id, sender, body: text, quick_replies: opts.quickReplies ?? [] });
+  if (error) console.error("lead-service: mensagem não gravada", ctx.lead.id, error.message);
   if (sender === "assistente") {
     await logAiAction(admin, {
       actor: "assistente",
@@ -94,7 +101,10 @@ async function ask(admin: AdminClient, ctx: Loaded, q: AssistantQuestion) {
  */
 export async function startLeadConversation(leadId: string) {
   const admin = createAdminClient();
-  if (!admin) return;
+  if (!admin) {
+    console.error("lead-service: SUPABASE_SECRET_KEY ausente; a assistente não pode falar");
+    return;
+  }
   const ctx = await loadLead(admin, leadId);
   if (!ctx) return;
   if (!ctx.lead.assistant_active || ctx.lead.first_human_response_at) {
