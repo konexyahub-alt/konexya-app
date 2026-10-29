@@ -210,5 +210,7 @@ sugestões e respostas livres da assistente) será testada quando houver crédit
 - Critério que o cliente **não mencionou não aparece** na tabela principal; fica em "Ver todos os detalhes".
   Ex.: sem pet, não há linha de pets; sem prioridade de lazer, lazer vai para os detalhes.
 - Em cada linha, o valor que atende melhor o cliente fica destacado.
+- Perfil com pouca informação gera tabela curta; nesse caso a análise convida a completar o perfil ("Me conte se
+  você tem pet ou precisa de vaga para eu comparar melhor").
 - A análise da Konexya, embaixo da tabela, fala só dos critérios do perfil. A nota continua do app (regra 7) e a
   análise só usa dados dos anúncios e do perfil (regra 8).
