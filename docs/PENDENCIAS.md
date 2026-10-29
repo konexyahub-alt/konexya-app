@@ -43,7 +43,15 @@ pela Meta.
 - **Textos legais definitivos:** Termos de Uso e Política de Privacidade revisados por advogado, incluindo a
   idade mínima de 18 anos nos termos. Hoje os textos são provisórios.
 
-## 5. Antes de ir para produção (checklist)
+## 5. CRECI-CE (acesso oficial aos dados)
+
+**O que fazer (perto do lançamento do MVP público):** enviar ao CRECI-CE um pedido formal (ofício ou convênio) de
+acesso oficial à consulta de inscritos, para a Konexya conferir o CRECI dos anunciantes automaticamente.
+
+**O que fica parado até lá:** aprovação automática pelo CRECI. Hoje o CRECI é conferido à mão no Admin, com atalho
+de consulta (DECISOES, 2026-10-29). Pedir ao Claude um rascunho do ofício quando for a hora.
+
+## 6. Antes de ir para produção (checklist)
 
 - [ ] Crédito e cobrança da Anthropic configurados, com limite de gastos.
 - [ ] Conversa livre construída, testada e aprovada.
@@ -51,3 +59,4 @@ pela Meta.
 - [ ] Google Maps pago e Mapa Vivo pronto (etapa 3).
 - [ ] Textos legais definitivos publicados.
 - [ ] Nenhum dado de exemplo ("[EXEMPLO]") no banco de produção.
+- [ ] Pedido de acesso oficial aos dados do CRECI-CE enviado (seção 5).
