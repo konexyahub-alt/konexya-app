@@ -197,3 +197,8 @@ muda em até 3 meses e informou orçamento; excluir a conta não apaga o que a i
 (dados novos param); texto atual da tela de consentimento; "Parados há 48 h" no Painel no lugar de "Visitas";
 assistente continua respondendo dúvidas com dados da ficha depois da despedida; modelo de IA mais forte no piloto.
 Resumo do lead sem IA: "Resumo indisponível no momento" depois de 5 minutos (sem prometer versão futura).
+
+## 2026-10-29 · Etapa 2 aprovada
+
+Aprovada pelo dono do produto no ambiente de teste, com a ressalva de que a parte de IA (conversa livre, resumo,
+sugestões e respostas livres da assistente) será testada quando houver crédito na Anthropic (PENDENCIAS, seção 1).
