@@ -67,11 +67,26 @@ async function Conversations() {
               {c.origin_property_title ? (
                 <span className="block truncate text-[12px] text-ink">{c.origin_property_title}</span>
               ) : null}
-              <span className="block truncate text-[11.5px] text-muted">
+              {c.last_body ? (
+                <span className="block truncate text-[11.5px] text-muted">
+                  {c.last_sender === "cliente"
+                    ? "Você"
+                    : c.last_sender === "assistente"
+                      ? `${c.assistant_name ?? "Assistente"} (assistente virtual)`
+                      : (c.broker_name ?? "Corretor(a)")}
+                  : {c.last_body}
+                </span>
+              ) : null}
+              <span className="block truncate text-[11px] text-muted-2">
                 {c.broker_name ? `Corretor(a) ${c.broker_name}` : "Equipe da imobiliária"} · {timeAgo(c.last_message_at)}
               </span>
             </span>
-            <ConversationStatus revoked={c.revoked} replied={c.broker_replied} />
+            <ConversationStatus
+              revoked={c.revoked}
+              replied={c.broker_replied}
+              assistantWaiting={c.assistant_active && c.last_sender === "assistente"}
+              assistantName={c.assistant_name ?? "Assistente"}
+            />
           </Link>
         </li>
       ))}
@@ -79,9 +94,23 @@ async function Conversations() {
   );
 }
 
-/** Situação da conversa: o cliente sabe se já fala com uma pessoa ou se ainda espera o corretor. */
-function ConversationStatus({ revoked, replied }: { revoked: boolean; replied: boolean }) {
+/**
+ * Situação da conversa: se a assistente já mandou mensagem e espera a resposta do cliente, isso vem primeiro
+ * (o cliente pode conversar antes de o corretor chegar); depois, se já fala com o corretor ou ainda espera.
+ */
+function ConversationStatus({
+  revoked,
+  replied,
+  assistantWaiting,
+  assistantName,
+}: {
+  revoked: boolean;
+  replied: boolean;
+  assistantWaiting: boolean;
+  assistantName: string;
+}) {
   if (revoked) return <Tag tone="neutral">Revogado</Tag>;
+  if (assistantWaiting) return <Tag tone="dark">{assistantName} respondeu</Tag>;
   if (replied) return <Tag tone="ok">Conversando</Tag>;
   return <Tag tone="warn">Aguardando corretor</Tag>;
 }

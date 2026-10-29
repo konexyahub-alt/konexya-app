@@ -126,4 +126,6 @@ localização não conta.
 - Aba Corretor (C-11): sempre mostra a lista de conversas, mesmo com uma só (antes abria direto a única conversa).
   Cada conversa é com uma imobiliária (o consentimento vale para a imobiliária inteira) e mostra o imóvel que
   abriu a conversa e a situação: "Aguardando corretor" (amarelo), "Conversando" (verde, depois da primeira
-  mensagem do corretor) ou "Revogado".
+  mensagem do corretor) ou "Revogado". Quando a assistente mandou mensagem e espera o cliente, a situação mostra
+  "[nome da assistente] respondeu" (preto), para o cliente saber que já pode conversar. Cada conversa mostra
+  também a última mensagem e quem a mandou.
