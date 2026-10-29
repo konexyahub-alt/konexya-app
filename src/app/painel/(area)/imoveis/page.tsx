@@ -9,15 +9,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createDraft } from "./actions";
 import { PropertyFilters } from "./filters";
 
-/** P-06 · Imóveis anunciados. */
+/** P-06 · Meus imóveis. Com o cadastro em análise, vira "Prepare seus anúncios" (só rascunhos). */
 export default function PropertiesPage({ searchParams }: PageProps<"/painel/imoveis">) {
   return (
     <main className="grid gap-5 px-4 py-6 lg:px-9 lg:py-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-[26px] font-bold tracking-tight">Imóveis anunciados</h1>
-          <p className="text-[13px] text-muted">Cadastre, importe e acompanhe o selo de cada anúncio.</p>
-        </div>
+        <Suspense fallback={<Skeleton className="h-14 w-72" />}>
+          <Heading />
+        </Suspense>
         <div className="flex gap-2.5">
           <Link href="/painel/imoveis/importar" className={buttonClasses({ variant: "secondary", size: "sm" })}>
             Importar planilha
@@ -30,13 +29,36 @@ export default function PropertiesPage({ searchParams }: PageProps<"/painel/imov
         </div>
       </div>
       <Suspense fallback={<Skeleton className="h-11 w-full max-w-xl" />}>
-        <PropertyFilters />
+        <Filters />
       </Suspense>
       <Suspense fallback={<ListSkeleton />}>
         <List searchParams={searchParams} />
       </Suspense>
     </main>
   );
+}
+
+async function Heading() {
+  const { canPublish } = await requireDraftingMember("/painel/imoveis");
+  return canPublish ? (
+    <div>
+      <h1 className="text-[26px] font-bold tracking-tight">Meus imóveis</h1>
+      <p className="text-[13px] text-muted">Cadastre, importe e acompanhe o selo de cada anúncio.</p>
+    </div>
+  ) : (
+    <div>
+      <h1 className="text-[26px] font-bold tracking-tight">Prepare seus anúncios</h1>
+      <p className="text-[13px] text-muted">
+        Cadastre e deixe tudo pronto. Os imóveis vão ao ar quando seu cadastro for aprovado.
+      </p>
+    </div>
+  );
+}
+
+async function Filters() {
+  const { canPublish } = await requireDraftingMember("/painel/imoveis");
+  // Em análise tudo é rascunho: os filtros de situação ficariam sempre vazios.
+  return <PropertyFilters showStatus={canPublish} />;
 }
 
 const STATUSES = Object.keys(STATUS_LABELS) as PropertyStatus[];
@@ -71,11 +93,13 @@ async function List({ searchParams }: Pick<PageProps<"/painel/imoveis">, "search
     ) : (
       <EmptyState
         title="Nenhum imóvel cadastrado ainda."
-        description="Cadastre um imóvel ou importe vários de uma vez pela planilha modelo."
+        description="Comece pelo primeiro imóvel ou importe vários de uma vez pela planilha."
         action={
-          <Link href="/painel/imoveis/importar" className={buttonClasses({ variant: "secondary", size: "sm" })}>
-            Importar planilha
-          </Link>
+          <form action={createDraft}>
+            <button type="submit" className={buttonClasses({ variant: "secondary", size: "sm" })}>
+              Cadastrar o primeiro imóvel
+            </button>
+          </form>
         }
       />
     );

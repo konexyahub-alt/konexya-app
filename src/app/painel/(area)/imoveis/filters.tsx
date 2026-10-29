@@ -6,7 +6,7 @@ import { Chip, Icon } from "@/components/ui";
 import { STATUS_LABELS, type PropertyStatus } from "@/lib/property";
 
 /** Busca e filtros da lista de imóveis (ficam na URL). */
-export function PropertyFilters() {
+export function PropertyFilters({ showStatus = true }: { showStatus?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -41,7 +41,7 @@ export function PropertyFilters() {
           className="min-w-0 flex-1 bg-transparent text-[13.5px] outline-none"
         />
       </label>
-      {(Object.keys(STATUS_LABELS) as PropertyStatus[]).map((s) => (
+      {(showStatus ? (Object.keys(STATUS_LABELS) as PropertyStatus[]) : []).map((s) => (
         <Chip key={s} selected={status === s} onClick={() => set("status", status === s ? null : s)}>
           {STATUS_LABELS[s]}
         </Chip>
