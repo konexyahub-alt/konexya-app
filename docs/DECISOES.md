@@ -172,3 +172,10 @@ Proprietário vendendo direto continua fora do escopo.
   receber leads dependem da aprovação (garantido no banco).
 - **E-mails:** administração do app → konexyadmin@gmail.com; operação e negócio (propostas e afins) →
   konexyahub@gmail.com (`src/lib/contacts.ts`).
+
+## 2026-10-29 · Perguntas da assistente ligadas por padrão
+
+Das 5 perguntas padrão, 4 vêm ligadas (pagamento, crédito aprovado, FGTS e melhor horário). **"Vender outro imóvel"
+vem desligada**: com as 5 ligadas, toda imobiliária nova abriria a tela já com o aviso "muitas perguntas" (a partir
+de 5). O gestor liga quando quiser na página Assistente virtual; sem ela, o lead mostra "A confirmar" e o corretor
+pergunta na conversa.
