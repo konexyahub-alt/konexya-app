@@ -3,9 +3,13 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { EmptyState, Skeleton, buttonClasses } from "@/components/ui";
 import { requireApprovedMember } from "@/lib/auth";
+import { OPEN_STAGES } from "@/lib/leads";
 import { loadLeadCards } from "@/lib/panel-leads";
 
-/** P-04 sem lead escolhido: abre o próximo que espera por você, ou mostra o estado vazio. */
+/**
+ * P-04 sem lead escolhido: abre o próximo que espera por você; se nenhum espera, o lead em andamento com a
+ * conversa mais recente (responder um lead não pode fazê-lo sumir do menu). Sem leads em andamento, estado vazio.
+ */
 export default function LeadsIndex() {
   return (
     <main className="grid gap-5 px-4 py-6 lg:px-9 lg:py-7">
@@ -19,7 +23,8 @@ export default function LeadsIndex() {
 async function Next() {
   const { membership } = await requireApprovedMember("/painel/leads");
   const cards = await loadLeadCards(membership.agencyId);
-  const next = cards.find((c) => c.awaiting);
+  // Os cartões já vêm da conversa mais recente para a mais antiga.
+  const next = cards.find((c) => c.awaiting) ?? cards.find((c) => OPEN_STAGES.includes(c.stage));
   if (next) redirect(`/painel/leads/${next.id}`);
   return (
     <EmptyState
