@@ -257,6 +257,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"lead_stage_events": {
+                  Row: {
+                    "at": string,"id": number,"lead_id": string,"stage": Database["public"]['Enums']["lead_stage"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "at"?: string,"id"?: never,"lead_id": string,"stage": Database["public"]['Enums']["lead_stage"]
+                  }
+                  Update: {
+                    "at"?: string,"id"?: never,"lead_id"?: string,"stage"?: Database["public"]['Enums']["lead_stage"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "lead_stage_events_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"leads": {
                   Row: {
                     "agency_id": string,"ai_summary": string | null,"assistant_active": boolean,"assistant_finished_at": string | null,"assistant_queue": (string)[],"broker_id": string | null,"client_id": string | null,"client_name": string,"consent_id": string | null,"consent_revoked_at": string | null,"created_at": string,"custom_answers": NonNullable<Json>,"first_human_response_at": string | null,"id": string,"interest_property_ids": (string)[],"last_message_at": string,"lost_note": string | null,"lost_reason": Database["public"]['Enums']["lost_reason"] | null,"origin_property_id": string | null,"profile_snapshot": NonNullable<Json>,"qualification": NonNullable<Json>,"stage": Database["public"]['Enums']["lead_stage"],"stage_changed_at": string
@@ -486,6 +506,11 @@ isOneToOne: false
                            },
 "agency_is_autonomous":
 { Args: { "p_agency": string }; Returns: boolean
+                           },
+"agency_property_stats":
+{ Args: { "p_agency": string,"p_from": string,"p_to": string }; Returns: {
+              "property_id": string,"saves": number,"views": number
+            }[]
                            },
 "agency_team":
 { Args: { "p_agency": string }; Returns: {

@@ -27,6 +27,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
     { href: "/painel/leads", label: "Leads", icon: "lead" as const, primary: true },
     { href: "/painel/agenda", label: "Agenda de visitas", short: "Agenda", icon: "cal" as const, primary: true, badge: pendingVisits },
     { href: "/painel/imoveis", label: "Meus imóveis", short: "Imóveis", icon: "home" as const, primary: true },
+    ...(gestor ? [{ href: "/painel/metricas", label: "Métricas", icon: "chart" as const }] : []),
     // Corretor autônomo não tem equipe.
     ...(gestor && !membership.autonomous ? [{ href: "/painel/equipe", label: "Equipe", icon: "user" as const }] : []),
     ...(gestor ? [{ href: "/painel/assistente", label: "Assistente virtual", icon: "chat" as const }] : []),

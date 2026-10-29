@@ -271,3 +271,17 @@ ambiente) e desenhar o Mapa Vivo (depende do Google Maps).
 - A análise da Konexya, por enquanto, é montada por código com os motivos da nota (regra 7) e os dados dos
   anúncios (regra 8): o que mais combina, diferença de preço e pontos de atenção dos outros. A versão escrita
   pela IA entra quando houver créditos da Anthropic.
+
+## 2026-10-29 · Métricas (P-09) construídas
+
+- Só o gestor (e o corretor autônomo) vê Métricas. Período 7, 30, 90 dias ou datas; filtro por corretor;
+  comparação com o período anterior do mesmo tamanho. Atalhos abrem Leads, Agenda, Meus imóveis e Assistente
+  já filtrados. A lista de Leads ganhou filtros de corretor, motivo de perda e período de chegada.
+- **Histórico de etapas** (`lead_stage_events`): o tempo médio em cada etapa conta a partir desta versão; os
+  leads antigos entram só com a etapa atual. Até haver dado, o quadro mostra estado vazio.
+- **Visualizações e salvos por imóvel** chegam à imobiliária só como totais (`agency_property_stats`); nunca
+  quem viu ou salvou (regra 1).
+- Horário comercial (para "fora do horário"): segunda a sexta das 8h às 18h e sábado das 8h às 12h.
+- "Primeira mensagem" (aprovada da IA, editada ou escrita do zero) reconhece a sugestão pelo texto enviado.
+- A frase "Imóveis com selo receberam N× mais leads por visualização" só aparece com pelo menos 100
+  visualizações em cada grupo, para não tirar conclusão de pouco dado.

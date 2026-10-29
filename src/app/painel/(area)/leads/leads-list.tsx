@@ -3,11 +3,23 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Chip, EmptyState, Icon, ScoreBadge, Tag } from "@/components/ui";
-import { CLOSED_STAGES, OPEN_STAGES, STAGE_LABELS, timeAgo } from "@/lib/leads";
+import { CLOSED_STAGES, LOST_REASON_LABELS, OPEN_STAGES, STAGE_LABELS, timeAgo } from "@/lib/leads";
 import { normalizeText } from "@/lib/neighborhoods";
 import type { LeadCard } from "@/lib/panel-leads";
 
-type Filter = "andamento" | "aguardando" | "parados" | "encerrados";
+export type Filter = "andamento" | "aguardando" | "parados" | "encerrados";
+/** Filtros vindos do endereço (atalhos das Métricas). */
+export type LeadsInitial = {
+  filter?: Filter;
+  stage?: string;
+  broker?: string;
+  reason?: string;
+  /** Período de chegada do lead: "7", "30", "90" ou datas (de/até, AAAA-MM-DD). */
+  period?: string;
+  from?: string;
+  to?: string;
+};
+const DAY = 86_400_000;
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: "andamento", label: "Em andamento" },
@@ -22,11 +34,38 @@ function isActive(c: LeadCard) {
 }
 
 /** Lista de leads com busca por nome, filtros rápidos, etapa e (para o gestor) "Meus leads". */
-export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; userId: string; isManager: boolean }) {
+export function LeadsList({
+  cards,
+  userId,
+  isManager,
+  initial = {},
+}: {
+  cards: LeadCard[];
+  userId: string;
+  isManager: boolean;
+  initial?: LeadsInitial;
+}) {
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<Filter>("andamento");
-  const [stage, setStage] = useState<string>("");
+  const [filter, setFilter] = useState<Filter>(
+    initial.filter ?? (CLOSED_STAGES.includes(initial.stage as LeadCard["stage"]) || initial.reason ? "encerrados" : "andamento"),
+  );
+  const [stage, setStage] = useState<string>(initial.stage ?? "");
   const [mine, setMine] = useState(false);
+  const [broker, setBroker] = useState(initial.broker ?? "");
+  const [reason, setReason] = useState(initial.reason ?? "");
+  const custom = initial.from && initial.to ? { from: initial.from, to: initial.to } : null;
+  const [period, setPeriod] = useState(custom ? "custom" : (initial.period ?? ""));
+  const [now] = useState(() => Date.now());
+  const brokers = useMemo(
+    () => [...new Map(cards.filter((c) => c.brokerId).map((c) => [c.brokerId!, c.brokerName ?? "Corretor"])).entries()].sort((a, b) => a[1].localeCompare(b[1])),
+    [cards],
+  );
+  const inPeriod = (iso: string) => {
+    if (!period) return true;
+    const t = new Date(iso).getTime();
+    if (period === "custom" && custom) return t >= Date.parse(`${custom.from}T00:00:00-03:00`) && t < Date.parse(`${custom.to}T00:00:00-03:00`) + DAY;
+    return t >= now - Number(period) * DAY;
+  };
 
   const counts = useMemo(
     () => ({
@@ -43,13 +82,17 @@ export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; use
     return cards.filter((c) => {
       if (q && !normalizeText(c.name).includes(q)) return false;
       if (mine && c.brokerId !== userId) return false;
+      if (broker && c.brokerId !== broker) return false;
       if (stage && c.stage !== stage) return false;
+      if (reason && c.lostReason !== reason) return false;
+      if (!inPeriod(c.createdAt)) return false;
       if (filter === "andamento") return isActive(c);
       if (filter === "aguardando") return c.awaiting;
       if (filter === "parados") return c.stalled;
       return !isActive(c);
     });
-  }, [cards, query, filter, stage, mine, userId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards, query, filter, stage, mine, userId, broker, reason, period]);
 
   const stages = filter === "encerrados" ? CLOSED_STAGES : OPEN_STAGES;
 
@@ -74,6 +117,7 @@ export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; use
               onClick={() => {
                 setFilter(f.key);
                 setStage("");
+                if (f.key !== "encerrados") setReason("");
               }}
             >
               {f.label}
@@ -93,8 +137,63 @@ export function LeadsList({ cards, userId, isManager }: { cards: LeadCard[]; use
               </option>
             ))}
           </select>
+          {filter === "encerrados" ? (
+            <select
+              aria-label="Motivo de perda"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="min-h-9 rounded-full border border-line-2 bg-white px-3 text-xs font-semibold"
+            >
+              <option value="">Todos os motivos</option>
+              {Object.entries(LOST_REASON_LABELS).map(([k, label]) => (
+                <option key={k} value={k}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          <select
+            aria-label="Período de chegada"
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            className="min-h-9 rounded-full border border-line-2 bg-white px-3 text-xs font-semibold"
+          >
+            <option value="">Qualquer data</option>
+            <option value="7">Chegaram nos últimos 7 dias</option>
+            <option value="30">Chegaram nos últimos 30 dias</option>
+            <option value="90">Chegaram nos últimos 90 dias</option>
+            {custom ? (
+              <option value="custom">
+                Chegaram de {custom.from.split("-").reverse().slice(0, 2).join("/")} a {custom.to.split("-").reverse().slice(0, 2).join("/")}
+              </option>
+            ) : null}
+          </select>
+          {isManager && brokers.length > 1 ? (
+            <select
+              aria-label="Corretor"
+              value={broker}
+              onChange={(e) => {
+                setBroker(e.target.value);
+                setMine(false);
+              }}
+              className="min-h-9 rounded-full border border-line-2 bg-white px-3 text-xs font-semibold"
+            >
+              <option value="">Todos os corretores</option>
+              {brokers.map(([id, name]) => (
+                <option key={id} value={id}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          ) : null}
           {isManager ? (
-            <Chip selected={mine} onClick={() => setMine(!mine)}>
+            <Chip
+              selected={mine}
+              onClick={() => {
+                setMine(!mine);
+                setBroker("");
+              }}
+            >
               Meus leads
             </Chip>
           ) : null}
