@@ -424,15 +424,15 @@ export function createLandAndSea(data) {
         n += vec2(cos(p.x * 0.031 + t * 0.9), cos(p.y * 0.027 - t * 0.7)) * 0.35;
         n += vec2(cos(p.x * 0.083 - p.y * 0.05 + t * 1.6), cos(p.y * 0.091 + p.x * 0.04 + t * 1.3)) * 0.22;
         n += vec2(cos(p.x * 0.21 + p.y * 0.13 - t * 2.4), cos(p.y * 0.19 - p.x * 0.17 + t * 2.1)) * 0.22;
-        n += vec2(cos(p.x * 0.53 - p.y * 0.31 + t * 3.1), cos(p.y * 0.47 + p.x * 0.29 - t * 2.7)) * 0.16;
         return n;
       }
       void main(){
         vec3 V = normalize(cameraPos - vW);
         vec2 w = waveN(vW.xz, uT);
-        vec3 N = normalize(vec3(w.x * 0.07, 1.0, w.y * 0.07));
+        vec3 N = normalize(vec3(w.x * 0.035, 1.0, w.y * 0.035));
         vec3 R = reflect(-V, N);
-        float spec = pow(max(dot(R, uMoonDir), 0.0), 600.0) * 1.6;
+        float spec = pow(max(dot(R, uMoonDir), 0.0), 40.0) * 0.12;
+        spec *= smoothstep(150.0, 600.0, length(vW.xz - cameraPos.xz)); // sem clarão logo abaixo da câmera
         // Reflexo das luzes da orla: faixa suave perto da costa.
         spec += 0.0;
         float fres = pow(1.0 - max(V.y, 0.0), 4.0);
