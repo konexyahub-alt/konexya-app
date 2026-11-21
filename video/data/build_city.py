@@ -181,40 +181,79 @@ def pick_building(spec):
     return max(cands, key=lambda b: (b["h"], -math.dist(centroid(b["pts"]), c)))
 
 
-home = pick_building(PLACES["home"])
-hc = centroid(home["pts"])
-def toward_se(b):
-    c = centroid(b["pts"])
-    d = math.dist(c, hc)
-    return WORK_DISTANCE[0] <= d <= WORK_DISTANCE[1] and c[0] > hc[0] - 100 and c[1] > hc[1] + 150
-work = max([b for b in buildings if b["lv"] >= 12 and toward_se(b)], key=lambda b: b["h"])
-gyms = []
+# Busca do "Y": casa na base da haste, um cruzamento real no topo da haste e dois braços
+# (cruzamento → trabalho, cruzamento → academia) que, vistos de cima, desenham o símbolo da Konexya.
+# Proporções do Y oficial: haste ≈ 1,3 × braço; braços a ±45° da vertical.
+STEM, ARM, SPREAD = 460, 360, math.radians(45)
+gym_pts = []
 for e in json.load(open(os.path.join(OSM, "gyms.json")))["elements"]:
     p = (e.get("lat"), e.get("lon")) if "lat" in e else (e["center"]["lat"], e["center"]["lon"])
-    q = proj_ll(*p)
-    d = math.dist(q, hc)
-    if GYM_DISTANCE[0] <= d <= GYM_DISTANCE[1]:
-        gyms.append((d, q))
-if not gyms:
-    raise SystemExit("nenhuma academia na faixa de distância")
-# Academia em outra direção que o trabalho (rotas que não se sobrepõem).
-wc = centroid(work["pts"])
-wdir = math.atan2(wc[1] - hc[1], wc[0] - hc[0])
-def ang(q):
-    a = math.atan2(q[1] - hc[1], q[0] - hc[0]) - wdir
-    return abs((a + math.pi) % (2 * math.pi) - math.pi)
-gyms.sort(key=lambda g: (-round(ang(g[1]) / 0.35), g[0]))
-gym_pt = gyms[0][1]
+    gym_pts.append(proj_ll(*p))
+towers = [b for b in buildings if b["lv"] >= 15]
+offices = [b for b in buildings if b["lv"] >= 10]
+cent = {id(b): centroid(b["pts"]) for b in buildings}
 
-places = {"home": hc, "work": centroid(work["pts"]), "gym": gym_pt}
-nodes = {k: nearest_node(p) for k, p in places.items()}
-print("nós:", {k: (v, round(math.dist(coords[v], places[k])) if v else None) for k, v in nodes.items()})
-routes = {}
-for k in ("work", "gym"):
-    r = dijkstra(nodes["home"], nodes[k])
-    if not r:
-        raise SystemExit(f"sem rota casa → {k}")
-    routes[k] = [[round(x, 1), round(z, 1)] for x, z in r]
+
+def seg_score(path, a, b):
+    """Quão reta é a rota em relação ao segmento ideal a→b (0 = perfeita)."""
+    if not path or len(path) < 2:
+        return 9
+    L = math.dist(a, b) or 1
+    dx, dz = (b[0] - a[0]) / L, (b[1] - a[1]) / L
+    dev = max(abs((p[0] - a[0]) * dz - (p[1] - a[1]) * dx) for p in path) / L
+    plen = sum(math.dist(p, q) for p, q in zip(path, path[1:]))
+    return dev * 2 + (plen / L - 1)
+
+
+best = None
+for H in towers:
+    hc0 = cent[id(H)]
+    if not (-1300 < hc0[0] < 1300 and -450 < hc0[1] < 1400):
+        continue
+    hn = nearest_node(hc0, 90)
+    if not hn:
+        continue
+    for deg in range(0, 360, 20):
+        th = math.radians(deg)
+        u = (math.sin(th), -math.cos(th))  # "para cima" na tela, em coordenadas do mapa
+        right = (-u[1], u[0])
+        Jt = (coords[hn][0] + u[0] * STEM, coords[hn][1] + u[1] * STEM)
+        jn = nearest_node(Jt, 70)
+        if not jn:
+            continue
+        J = coords[jn]
+        armR = (u[0] * math.cos(SPREAD) + right[0] * math.sin(SPREAD), u[1] * math.cos(SPREAD) + right[1] * math.sin(SPREAD))
+        armL = (u[0] * math.cos(SPREAD) - right[0] * math.sin(SPREAD), u[1] * math.cos(SPREAD) - right[1] * math.sin(SPREAD))
+        tR = (J[0] + armR[0] * ARM, J[1] + armR[1] * ARM)
+        tL = (J[0] + armL[0] * ARM, J[1] + armL[1] * ARM)
+        for tw, tg in ((tR, tL), (tL, tR)):
+            gcand = [g for g in gym_pts if math.dist(g, tg) < 150]
+            wcand = [b for b in offices if math.dist(cent[id(b)], tw) < 120 and b is not H]
+            if not gcand or not wcand:
+                continue
+            W = max(wcand, key=lambda b: b["h"])
+            G = min(gcand, key=lambda g: math.dist(g, tg))
+            wn, gn = nearest_node(cent[id(W)], 90), nearest_node(G, 90)
+            if not wn or not gn:
+                continue
+            quick = math.dist(coords[wn], tw) / ARM + math.dist(coords[gn], tg) / ARM + math.dist(J, Jt) / STEM
+            if best and quick > best[0] + 1.0:
+                continue
+            stem = dijkstra(hn, jn)
+            aw, ag = dijkstra(jn, wn), dijkstra(jn, gn)
+            if not (stem and aw and ag):
+                continue
+            sc = seg_score(stem, coords[hn], J) + seg_score(aw, J, coords[wn]) + seg_score(ag, J, coords[gn]) + quick
+            if not best or sc < best[0]:
+                best = (sc, H, W, G, deg, hn, jn, wn, gn, stem, aw, ag, tw == tR)
+if not best:
+    raise SystemExit("nenhum Y encontrado")
+sc, home, work, gym_pt, up_deg, hn, jn, wn, gn, stem, aw, ag, work_right = best
+hc = cent[id(home)]
+places = {"home": hc, "work": cent[id(work)], "gym": gym_pt, "junction": coords[jn]}
+print(f"Y: nota {sc:.2f}, 'para cima' = {up_deg}°, trabalho no braço {'direito' if work_right else 'esquerdo'}")
+rnd = lambda path: [[round(x, 1), round(z, 1)] for x, z in path]
+routes = {"stem": rnd(stem), "work": rnd(stem + aw[1:]), "gym": rnd(ag), "armWork": rnd(aw)}
 for b in buildings:
     b["tag"] = 1 if b["id"] == home["id"] else 3 if b["id"] == work["id"] else 0
 
@@ -262,6 +301,8 @@ out = {
     "beaches": [[c for p in b for c in p] for b in beaches],
     "parks": [[c for p in pk for c in p] for pk in parks],
     "places": {k: [round(v[0], 1), round(v[1], 1)] for k, v in places.items()},
+    "up": up_deg,
+    "workRight": work_right,
     "placeHeights": {"home": home["h"], "work": work["h"]},
     "routes": routes,
 }
@@ -269,6 +310,6 @@ with open(os.path.join(HERE, "city.json"), "w") as f:
     json.dump(out, f, separators=(",", ":"))
 rl = {k: round(sum(math.dist(a, b) for a, b in zip(v, v[1:]))) for k, v in routes.items()}
 print(f"{len(buildings)} prédios, {len(roads)} ruas, costa {len(coast)} pts, {len(parks)} parques, {len(beaches)} praias")
-print(f"casa: {home['lv']} andares ({home['h']} m) em {places['home']}; trabalho: {work['lv']} andares em {places['work']}; academia em {places['gym']}")
+print(f"casa: {home['lv']} andares ({home['h']} m) em {places['home']}; trabalho: {work['lv']} andares em {places['work']}; academia em {places['gym']}; cruzamento {places['junction']}")
 print(f"rotas (m): {rl}")
 print(f"arquivo: {os.path.getsize(os.path.join(HERE, 'city.json')) // 1024} KB")

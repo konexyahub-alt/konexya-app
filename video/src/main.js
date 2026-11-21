@@ -1,10 +1,10 @@
 // Monta a cena uma vez e expõe window.renderFrame(n): cada quadro é calculado só a partir de n.
 import * as THREE from "three";
-import { VIDEO, LIGHT, TRAFFIC } from "../config.js";
+import { VIDEO, LIGHT, TRAFFIC, OUTRO } from "../config.js";
 import { createBuildings, createRoads, createStreetLights, createTraffic, createLandAndSea, createSky, cityUniforms } from "./osm-city.js";
 import { createCamera, applyCamera } from "./camera.js";
 import { createLights, updateLights } from "./lighting.js";
-import { createRoutes, updateRoutes, labelAnchor } from "./routes.js";
+import { createRoutes, updateRoutes, labelAnchor, yBranches } from "./routes.js";
 import { createPost } from "./post.js";
 import { timeline } from "./transitions.js";
 import { drawTypography } from "./overlay/typography.js";
@@ -109,7 +109,14 @@ window.renderFrame = (n) => {
   ctx.setTransform(ovCanvas.width / 1080, 0, 0, ovCanvas.height / 1920, 0, 0);
   drawTypography(ctx, t);
   drawLabels(ctx, t, (key) => toScreen(labelAnchor(key)));
-  drawLogo(ctx, t, toScreen(labelAnchor("home")));
+  // Na transição, os ramos do Y são projetados na tela a cada quadro (a câmera continua andando).
+  let branches = null;
+  if (t >= OUTRO.handoff[0] && t <= OUTRO.fill[1]) {
+    const yb = yBranches();
+    const proj = (arr) => arr.map((p) => { const s = toScreen(p); return [s.x, s.y]; });
+    branches = { stem: proj(yb.stem), work: proj(yb.work), gym: proj(yb.gym) };
+  }
+  drawLogo(ctx, t, branches, data.workRight);
   // Garante que a GPU terminou antes da captura.
   renderer.getContext().finish();
   return { t };

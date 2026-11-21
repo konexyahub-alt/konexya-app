@@ -236,6 +236,20 @@ export function updateRoutes({ routes, pins }, t, gain = 1) {
   }
 }
 
+/** Ramos do Y em 3D, todos partindo do cruzamento: haste (→ casa), braço do trabalho, braço da academia. */
+let branches = null;
+export function yBranches() {
+  if (!branches) {
+    const P = (pts) => roundedPath(pts, ROUTES.cornerRadius).map((v) => new THREE.Vector3(v.x, Y, v.y));
+    branches = {
+      stem: P([...DATA.routes.stem].reverse()),
+      work: P(DATA.routes.armWork),
+      gym: P(DATA.routes.gym),
+    };
+  }
+  return branches;
+}
+
 /** Base do pino: topo do prédio (casa e trabalho) ou o chão (academia). */
 function baseHeight(key) {
   return (DATA.placeHeights && DATA.placeHeights[key]) || 0;
@@ -244,5 +258,6 @@ function baseHeight(key) {
 /** Ponto 3D de ancoragem da etiqueta de cada pino. */
 export function labelAnchor(key) {
   const [x, z] = DATA.places[key];
+  if (key === "junction") return new THREE.Vector3(x, 0, z);
   return new THREE.Vector3(x, baseHeight(key) + PINS.labelHeight, z);
 }

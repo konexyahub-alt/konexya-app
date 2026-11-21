@@ -36,46 +36,91 @@ function fillPath(ctx, path, box, src) {
   ctx.restore();
 }
 
-/** @param homeScreen posição em px de design do ponto do imóvel em t ({x,y}) */
-export function drawLogo(ctx, t, homeScreen) {
-  if (!brand || t < OUTRO.dotToMark[0]) return;
+// Linhas centrais dos três traços do Y oficial (coordenadas do desenho, 581 × 838),
+// todas partindo do cruzamento. Medidas sobre o contorno de brand-assets.ts.
+const Y_CENTER = {
+  stem: [[272, 330], [271, 450], [270, 580], [268, 700], [264, 822]],
+  right: [[272, 330], [300, 290], [370, 200], [470, 112], [560, 42]],
+  left: [[272, 330], [236, 285], [200, 240], [120, 122], [30, 46]],
+};
+const N = 72;
+
+/** Reamostra uma polilinha em N pontos igualmente espaçados. */
+function resample(pts, n = N) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const L = cum[cum.length - 1] || 1;
+  const out = [];
+  let k = 1;
+  for (let i = 0; i < n; i++) {
+    const s = (i / (n - 1)) * L;
+    while (k < pts.length - 1 && cum[k] < s) k++;
+    const f = (s - cum[k - 1]) / (cum[k] - cum[k - 1] || 1);
+    out.push([pts[k - 1][0] + (pts[k][0] - pts[k - 1][0]) * f, pts[k - 1][1] + (pts[k][1] - pts[k - 1][1]) * f]);
+  }
+  return out;
+}
+
+function strokePath(ctx, pts) {
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.stroke();
+}
+
+/**
+ * @param branches ramos do trajeto já projetados na tela ({stem, work, gym}: [[x,y], ...]),
+ *                 todos partindo do cruzamento; null fora da janela da transição.
+ * @param workRight true se o trabalho é o braço direito do Y
+ */
+export function drawLogo(ctx, t, branches, workRight = true) {
+  if (!brand || t < OUTRO.handoff[0]) return;
   const L = layout();
-  const [d0, d1] = OUTRO.dotToMark;
-  const drift = 1 + OUTRO.drift * ease.inOutSine(range(t, d1, 16));
+  const drift = 1 + OUTRO.drift * ease.inOutSine(range(t, OUTRO.fill[1], 16));
   ctx.save();
   ctx.translate(540, OUTRO.centerY);
   ctx.scale(drift, drift);
   ctx.translate(-540, -OUTRO.centerY);
 
-  // 1. Ponto de luz: sai do imóvel e sobe até o cruzamento do Y.
-  const target = { x: 540, y: L.y.y + L.y.h * 0.43 };
-  const km = ease.inOutCubic(range(t, d0, d1 - 0.15));
-  const dotA = clamp(range(t, d0, d0 + 0.2)) * (1 - ease.inCubic(range(t, d1 - 0.25, d1 + 0.05)));
-  if (dotA > 0) {
-    const x = lerp(homeScreen.x, target.x, km), y = lerp(homeScreen.y, target.y, km);
-    const r = lerp(5, 9, km);
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
-    g.addColorStop(0, `rgba(255,255,255,${0.55 * dotA})`);
-    g.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(x - r * 7, y - r * 7, r * 14, r * 14);
-    ctx.fillStyle = `rgba(255,255,255,${dotA})`;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
+  // 1. O trajeto vira o símbolo: cada ponto da rota desliza até a linha central do Y.
+  const kIn = ease.inOutCubic(range(t, OUTRO.handoff[0], OUTRO.handoff[1]));
+  const km = ease.inOutCubic(range(t, OUTRO.morph[0], OUTRO.morph[1]));
+  const kOut = ease.inOutCubic(range(t, OUTRO.fill[0], OUTRO.fill[1]));
+  if (branches && kIn > 0 && kOut < 1) {
+    const sx = L.y.w / brand.yMark.width, sy = L.y.h / brand.yMark.height;
+    const toLogo = (p) => [L.y.x + p[0] * sx, L.y.y + p[1] * sy];
+    const pairs = [
+      [branches.stem, Y_CENTER.stem],
+      [workRight ? branches.work : branches.gym, Y_CENTER.right],
+      [workRight ? branches.gym : branches.work, Y_CENTER.left],
+    ];
+    const width = lerp(3.2, 15 * sx * 1.0, km); // espessura média dos traços do Y
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = `rgba(255,255,255,${kIn * (1 - kOut)})`;
+    ctx.shadowColor = "rgba(255,255,255,0.85)";
+    ctx.shadowBlur = lerp(14, 4, km);
+    for (const [route, target] of pairs) {
+      const a = resample(route), b = resample(target.map(toLogo));
+      const pts = a.map((p, i) => [lerp(p[0], b[i][0], km), lerp(p[1], b[i][1], km)]);
+      // As pontas afinam como no pincel do símbolo: traço em segmentos de largura decrescente.
+      for (let i = 1; i < pts.length; i++) {
+        const taper = lerp(1, 1 - 0.55 * (i / pts.length), km);
+        ctx.lineWidth = width * taper;
+        ctx.beginPath();
+        ctx.moveTo(pts[i - 1][0], pts[i - 1][1]);
+        ctx.lineTo(pts[i][0], pts[i][1]);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
   }
 
-  // 2. O Y nasce do ponto: escala, foco e máscara que sobe da base às hastes.
-  const ky = easeEditorial(range(t, d1 - 0.35, d1 + 0.55));
-  if (ky > 0) {
+  // 2. O símbolo oficial assume (preenchido, sem alteração do desenho).
+  if (kOut > 0) {
     ctx.save();
-    const sc = lerp(0.86, 1, ky);
-    ctx.translate(target.x, target.y);
-    ctx.scale(sc, sc);
-    ctx.translate(-target.x, -target.y);
-    ctx.globalAlpha = clamp(ky * 1.6);
-    const blur = (1 - ky) * 10;
-    if (blur > 0.05) ctx.filter = `blur(${blur.toFixed(2)}px)`;
+    ctx.globalAlpha = kOut;
     ctx.fillStyle = "#fff";
     fillPath(ctx, paths.y, L.y, brand.yMark);
     ctx.restore();

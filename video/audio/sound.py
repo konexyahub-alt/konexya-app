@@ -210,7 +210,7 @@ shimmer = hp(shimmer, 2000)
 # ---------------------------------------------------------------------------------------------
 # Subida até o Mapa Vivo e impacto
 # ---------------------------------------------------------------------------------------------
-riser = sweep_lp(noise, 300, 9000, 5.4, 7.0) * smooth(5.4, 6.95) ** 2 * (1 - smooth(6.95, 7.05))
+riser = sweep_lp(noise, 300, 9000, 5.8, 7.35) * smooth(5.8, 7.3) ** 2 * (1 - smooth(7.3, 7.4))
 
 
 def impact(tm, f0=58, f1=34, dur=1.8):
@@ -224,16 +224,18 @@ def impact(tm, f0=58, f1=34, dur=1.8):
     return out + click * 0.4
 
 
-imp = impact(7.0) * 0.8 + impact(cues["outro"]["wordmark"][0] - 0.05, 52, 30, 3.2)
+imp = impact(7.35) * 0.8
 
 # Inspiração reversa antes da marca: ruído que cresce e corta no impacto.
 o = cues["outro"]
-pre = sweep_lp(noise, 200, 5000, o["dotToMark"][0], o["wordmark"][0] - 0.05) * smooth(o["dotToMark"][0] - 0.2, o["wordmark"][0] - 0.06) ** 3
-pre *= 1 - smooth(o["wordmark"][0] - 0.06, o["wordmark"][0] - 0.02)
+HIT = (o["fill"][0] + o["fill"][1]) / 2  # o símbolo se completa
+pre = sweep_lp(noise, 200, 5000, o["morph"][0], HIT) * smooth(o["morph"][0], HIT - 0.02) ** 3
+pre *= 1 - smooth(HIT - 0.02, HIT + 0.02)
 
 # Sino da marca (parciais inarmônicos leves), mais um toque na varredura de luz.
 bell = np.zeros(N)
-for tm, base, gain in ((o["wordmark"][0] - 0.05, 74, 1.0), (14.9, 81, 0.35)):
+imp = imp + impact(HIT, 52, 30, 3.2)
+for tm, base, gain in ((HIT, 74, 1.0), (14.9, 81, 0.35)):
     x = t - tm
     on = x >= 0
     for ratio, amp, dec in ((1, 1, 3.2), (2.0, 0.5, 2.2), (2.76, 0.28, 1.6), (5.4, 0.12, 0.8), (1.5, 0.35, 2.6)):

@@ -18,8 +18,8 @@ export function timeline(t) {
   const out = ease.inCubic(range(t, OUTRO.cityFade[0], OUTRO.cityFade[1]));
   const fadeRadius = lerp(3500, 60, out);
   // Fade final da imagem 3D (a marca entra por cima, no overlay).
-  const fade = ease.inOutCubic(range(t, 12.75, 13.55));
-  const routesGain = 1 - ease.inOutCubic(range(t, 12.5, 13.4));
+  const fade = ease.inOutCubic(range(t, 12.2, 13.0));
+  const routesGain = 1 - ease.inOutCubic(range(t, OUTRO.handoff[0], OUTRO.handoff[1]));
   // Exposição: começa no escuro e respira levemente no Mapa Vivo.
   const exposure = lerp(0.45, 1, ease.inOutSine(range(t, 0, 1.4))) * (1 + 0.08 * smoothstep(7, 8.5, t) * (1 - smoothstep(11, 12.5, t)));
   const bloomGain = 1 + 0.25 * smoothstep(6.8, 7.6, t) * (1 - smoothstep(11.5, 12.8, t));

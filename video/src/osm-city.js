@@ -140,11 +140,11 @@ export function createBuildings(data) {
         lit = max(lit, step(hs, 0.62) * step(0.5, tg)); // a casa e o trabalho acendem quase por inteiro
         lit *= step(1.0, g.y) * step(vW.y, vInfo.z - 1.0);
         float win = boxAA(f, vec2(0.16, 0.22), vec2(0.84, 0.8));
-        float far = smoothstep(0.2, 0.5, max(fwidth(g.x), fwidth(g.y)));
-        float shape = mix(win, 0.42, far);
+        float far = smoothstep(0.12, 0.38, max(fwidth(g.x), fwidth(g.y)));
+        float shape = mix(win, 0.3, far);
         float warm = h21(cell * 2.3 + 5.0);
         vec3 wc = mix(vec3(1.0, 0.96, 0.9), vec3(0.88, 0.93, 1.0), step(0.6, warm));
-        totalEmissiveRadiance += wc * lit * shape * (0.55 + 0.45 * h21(cell * 3.1)) * uWindowGain * fade * mix(1.0, 0.6, far) * (1.0 + tg * 0.25);
+        totalEmissiveRadiance += wc * lit * shape * (0.55 + 0.45 * h21(cell * 3.1)) * uWindowGain * fade * mix(1.0, 0.45, far) * (1.0 + tg * 0.25);
       }
       // Contorno suave do prédio destacado.
       if (tg > 0.0) {
@@ -302,7 +302,7 @@ export function createStreetLights(data) {
     fragmentShader: `${COMMON} varying vec2 vP; varying vec3 vO;
       void main(){ float r = length(vP) * 2.0; float a = exp(-r * r * 3.2) * (1.0 - smoothstep(0.9, 1.0, r));
         vec2 xz = vO.xy; float k = fadeMask(xz) * uReveal * (0.8 + 0.2 * vO.z);
-        gl_FragColor = vec4(vec3(1.0, 0.95, 0.86) * a * 0.06 * k, 1.0); }`,
+        gl_FragColor = vec4(vec3(1.0, 0.95, 0.86) * a * 0.035 * k, 1.0); }`,
   });
   const pools = new THREE.Mesh(poolGeo, poolMat);
   pools.frustumCulled = false;
@@ -315,7 +315,7 @@ export function createStreetLights(data) {
     uniforms: cityUniforms,
     vertexShader: `attribute vec3 aOff; varying vec3 vO;
       void main(){ vO = aOff; vec3 p = position + vec3(aOff.x, 8.5, aOff.y); gl_Position = projectionMatrix * viewMatrix * vec4(p, 1.0); }`,
-    fragmentShader: `${COMMON} varying vec3 vO; void main(){ float k = fadeMask(vO.xy) * uReveal; gl_FragColor = vec4(vec3(1.4, 1.35, 1.25) * k, 1.0); }`,
+    fragmentShader: `${COMMON} varying vec3 vO; void main(){ float k = fadeMask(vO.xy) * uReveal * (1.0 - smoothstep(500.0, 1300.0, distance(vec3(vO.x, 8.5, vO.y), cameraPosition))); gl_FragColor = vec4(vec3(0.75, 0.72, 0.66) * k, 1.0); }`,
   });
   const bulbs = new THREE.Mesh(bulbGeo, bulbMat);
   bulbs.frustumCulled = false;

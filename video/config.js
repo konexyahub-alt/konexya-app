@@ -27,8 +27,8 @@ export const SAFE = { top: 250, bottom: 420, side: 90 };
 export const CITY = {
   // Malha real: data/city.json (gerado por data/build_city.py a partir do OpenStreetMap).
   heightScale: 1.0, // escala global das alturas reais
-  windowLitRatio: 0.2, // fração de janelas acesas
-  windowIntensity: 1.5,
+  windowLitRatio: 0.15, // fração de janelas acesas
+  windowIntensity: 0.85,
 };
 
 export const TRAFFIC = { cars: 1100 }; // faróis circulando nas avenidas
@@ -43,20 +43,20 @@ export const POIS = {
 };
 
 export const ROUTES = {
-  work: { draw: [7.5, 9.1] }, // início e fim do desenho (s)
-  gym: { draw: [9.8, 10.9] },
+  work: { draw: [7.5, 9.7] }, // haste (casa → cruzamento) + braço do trabalho (s)
+  gym: { draw: [9.8, 10.7] }, // braço da academia, saindo do cruzamento
   width: 3.0,
   cornerRadius: 10,
   // Pulsos que percorrem as rotas depois de desenhadas (o "trajeto do dia" acontecendo).
-  pulses: { start: 11.0, speed: 0.35, count: 2 },
+  pulses: { start: 10.8, speed: 0.35, count: 2 },
 };
 
 // Quando cada pino aparece (s) e quando a etiqueta se abre.
 export const PINS = {
   home: { pin: 4.0, label: 4.7, side: 1 }, // side: 1 = etiqueta à direita do pino, -1 = à esquerda
-  work: { pin: 8.7, label: 9.0, side: 1 },
-  gym: { pin: 10.5, label: 11.0, side: -1 },
-  labelsOut: [12.2, 12.8],
+  work: { pin: 9.5, label: 9.8, side: 1 },
+  gym: { pin: 10.5, label: 10.8, side: -1 },
+  labelsOut: [11.6, 12.1],
   label: { size: 31, height: 70, pad: 28, gap: 18, refDistance: 520 },
   labelHeight: 30, // altura da âncora da etiqueta acima do topo do prédio (m)
 };
@@ -66,18 +66,21 @@ export const PINS = {
 // pos e target em metros; fov vertical em graus.
 // ---------------------------------------------------------------------------------------------
 export const CAMERA = {
+  // Forma do caminho (posição e alvo em metros, fov vertical em graus). Os TEMPOS não são
+  // definidos aqui: src/camera.js distribui o percurso para manter a velocidade percebida constante.
   keys: [
-    { t: 0.0, pos: [-330, 28, -1180], target: [-240, 75, -350], fov: 34 }, // sobre o mar, olhando a orla
-    { t: 2.8, pos: [-460, 200, -980], target: [-170, 50, -260], fov: 35 }, // sobe em direção à Beira-Mar
-    { t: 5.4, pos: [-577, 542, -497], target: [12, 0, -85], fov: 36 }, // a torre da casa em foco
-    { t: 7.6, pos: [-760, 900, -420], target: [150, 0, -60], fov: 40 },
-    { t: 9.3, pos: [-1008, 1506, -335], target: [275, 0, -46], fov: 44 }, // casa → trabalho
-    { t: 11.6, pos: [-1000, 3400, 150], target: [40, 0, -132], fov: 44 }, // o mapa do dia inteiro
-    { t: 16.0, pos: [-900, 4600, 50], target: [-208, 0, -234], fov: 44 },
+    { pos: [650, 35, -1500], target: [330, 75, -50], fov: 34 }, // sobre o mar, de frente para a Beira-Mar
+    { pos: [760, 210, -950], target: [270, 50, 20], fov: 36 }, // atravessa a orla
+    { pos: [639, 404, -136], target: [130, 0, 124], fov: 38 }, // a torre da casa
+    { pos: [1122, 1510, -374], target: [-65, 0, 239], fov: 38 }, // casa → cruzamento (haste do Y)
+    { pos: [821, 2362, -140], target: [-202, 0, 269], fov: 40 }, // braços se abrindo
+    { pos: [195, 3270, 90], target: [-115, 0, 240], fov: 34 }, // o Y inteiro, de cima
   ],
-  roll: [ // inclinação lateral sutil (graus)
-    { t: 0, v: -1.2 }, { t: 5, v: 0.8 }, { t: 10, v: -0.4 }, { t: 16, v: 0 },
-  ],
+  travelEnd: 11.8, // fim do percurso (s); depois só a aproximação lenta
+  ramp: 1.8, // duração da aceleração/desaceleração nas pontas (s)
+  turnWeight: 1.2, // peso do giro do olhar no custo percebido
+  drift: { pos: [0, 420, 0], target: [0, 0, 0] }, // deslocamento suave de travelEnd até 16 s
+  roll: [{ t: 0, v: -0.8 }, { t: 6, v: 0.6 }, { t: 12, v: 0 }, { t: 16, v: 0 }],
   near: 8,
   far: 9000,
 };
@@ -97,7 +100,7 @@ export const LIGHT = {
 };
 
 export const POST = {
-  bloom: { strength: 0.6, radius: 0.5, threshold: 0.78 },
+  bloom: { strength: 0.42, radius: 0.45, threshold: 0.92 },
   dof: { maxBlur: 7.0, focusRange: 0.42 }, // desfoque em px a 1080p, faixa de foco relativa
   grain: 0.035,
   vignette: 0.42,
@@ -153,10 +156,12 @@ export const TEXTS = [
 // Encerramento e marca
 // ---------------------------------------------------------------------------------------------
 export const OUTRO = {
-  cityFade: [11.9, 13.3], // as luzes da cidade se apagam de fora para dentro
-  dotToMark: [13.0, 13.9], // o ponto do imóvel viaja até o centro e vira o Y
-  wordmark: [13.75, 14.6],
-  slogan: [14.35, 15.0],
+  cityFade: [11.8, 12.9], // as luzes da cidade se apagam de fora para dentro
+  handoff: [11.95, 12.3], // as rotas 3D passam a ser desenhadas no plano da tela
+  morph: [12.2, 13.5], // o trajeto se reorganiza no Y da Konexya
+  fill: [13.25, 13.85], // o traço vira o símbolo oficial preenchido
+  wordmark: [13.8, 14.6],
+  slogan: [14.4, 15.0],
   slogan_text: "Você conversa. A Konexya encontra.",
   credit: "Mapa: Fortaleza · © colaboradores do OpenStreetMap",
   markHeight: 170, // altura do Y em px
