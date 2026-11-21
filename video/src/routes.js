@@ -95,7 +95,7 @@ function routeMaterial(length) {
         float s = abs(vSide);
         float fw = fwidth(s);
         float core = 1.0 - smoothstep(uCore - fw, uCore + fw, s);
-        float halo = exp(-s * s * 6.0) * 0.22;
+        float halo = exp(-s * s * 6.0) * 0.12;
         float drawn = 1.0 - smoothstep(uDraw - 1.5, uDraw, vLen);
         // Cabeça mais brilhante na ponta que avança.
         float head = exp(-pow((uDraw - vLen) / 7.0, 2.0)) * step(uDraw, uLength - 0.5) * step(0.5, uDraw);
@@ -105,7 +105,7 @@ function routeMaterial(length) {
           if (p >= 0.0) pulse += exp(-pow((vLen - p) / 9.0, 2.0));
         }
         float a = (core * 1.0 + halo) * drawn;
-        vec3 col = vec3(0.92, 0.95, 1.0) * a * (0.95 + head * 2.2 + pulse * 1.5) * uGain;
+        vec3 col = vec3(0.92, 0.95, 1.0) * a * (0.75 + head * 1.4 + pulse * 1.1) * uGain;
         gl_FragColor = vec4(col, 1.0);
       }`,
   });

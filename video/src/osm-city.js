@@ -137,19 +137,19 @@ export function createBuildings(data) {
         float on = h21(cell * 1.37 + vInfo.x * 51.0);
         float ratio = uLitRatio * mix(0.45, 1.25, tower);
         float lit = step(hs, ratio) * step(on, uReveal);
-        lit = max(lit, step(hs, 0.62) * step(0.5, tg)); // a casa e o trabalho acendem quase por inteiro
+        lit = max(lit, step(hs, 0.45) * step(0.5, tg)); // a casa e o trabalho acendem quase por inteiro
         lit *= step(1.0, g.y) * step(vW.y, vInfo.z - 1.0);
         float win = boxAA(f, vec2(0.16, 0.22), vec2(0.84, 0.8));
         float far = smoothstep(0.12, 0.38, max(fwidth(g.x), fwidth(g.y)));
         float shape = mix(win, 0.3, far);
         float warm = h21(cell * 2.3 + 5.0);
         vec3 wc = mix(vec3(1.0, 0.96, 0.9), vec3(0.88, 0.93, 1.0), step(0.6, warm));
-        totalEmissiveRadiance += wc * lit * shape * (0.55 + 0.45 * h21(cell * 3.1)) * uWindowGain * fade * mix(1.0, 0.45, far) * (1.0 + tg * 0.25);
+        totalEmissiveRadiance += wc * lit * shape * (0.55 + 0.45 * h21(cell * 3.1)) * uWindowGain * fade * mix(1.0, 0.45, far) * (1.0 + tg * 0.1);
       }
       // Contorno suave do prédio destacado.
       if (tg > 0.0) {
         float top = 1.0 - smoothstep(0.0, 0.6 + fwidth(vW.y) * 2.0, abs(vW.y - vInfo.z));
-        totalEmissiveRadiance += vec3(1.0) * top * tg * 1.2;
+        totalEmissiveRadiance += vec3(1.0) * top * tg * 0.6;
       }`,
   });
   const mesh = new THREE.Mesh(g, mat);
