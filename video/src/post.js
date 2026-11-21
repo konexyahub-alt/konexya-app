@@ -41,7 +41,7 @@ export function createPost(renderer, w, h) {
           float c0 = coc(linDepth(vUv));
           vec3 sum = texture2D(tColor, vUv).rgb; float wsum = 1.0;
           float rad = c0 * uMaxBlur * uScale;
-          if (rad > 0.35) {
+          if (uMaxBlur > 0.0 && rad > 0.35) {
             // Disco de amostragem no ângulo áureo (fixo, sem ruído).
             for (int i = 1; i < 32; i++) {
               float fi = float(i);

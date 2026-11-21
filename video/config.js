@@ -100,9 +100,9 @@ export const LIGHT = {
 };
 
 export const POST = {
-  bloom: { strength: 0.42, radius: 0.45, threshold: 0.92 },
-  dof: { maxBlur: 7.0, focusRange: 0.42 }, // desfoque em px a 1080p, faixa de foco relativa
-  grain: 0.035,
+  bloom: { strength: 0.3, radius: 0.2, threshold: 0.95 },
+  dof: { maxBlur: 0, focusRange: 0.42 }, // desfoque de profundidade (0 = desligado: imagem nítida)
+  grain: 0.012,
   vignette: 0.42,
   msaa: 4,
 };
