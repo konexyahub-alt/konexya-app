@@ -1,14 +1,15 @@
 // Rotas luminosas (fita no chão que se desenha por comprimento de arco) e pinos dos pontos de interesse.
 import * as THREE from "three";
-import { ROUTES, POIS, PINS, GRID_PITCH } from "../config.js";
+import { ROUTES, POIS, PINS } from "../config.js";
 import { range, ease, clamp } from "./math.js";
 
-const P = GRID_PITCH;
-const Y = 0.35; // altura da fita acima do chão
+const Y = 1.2; // altura da fita acima do asfalto
+let DATA = null; // city.json (rotas e lugares reais)
+export const setRouteData = (d) => (DATA = d);
 
-/** Polilinha de grade → pontos densos com cantos arredondados (arcos). */
-function roundedPath(gridPts, radius) {
-  const pts = gridPts.map(([x, z]) => new THREE.Vector2(x * P, z * P));
+/** Polilinha (m) → pontos densos com cantos arredondados. */
+function roundedPath(worldPts, radius) {
+  const pts = worldPts.map(([x, z]) => new THREE.Vector2(x, z));
   const out = [pts[0].clone()];
   for (let i = 1; i < pts.length - 1; i++) {
     const a = pts[i - 1], b = pts[i], c = pts[i + 1];
@@ -161,33 +162,28 @@ function pinGroup() {
   return { group: g, beamMat, ringMat, head };
 }
 
-export function createRoutes(scene) {
+export function createRoutes(scene, data) {
+  DATA = data;
   const routes = {};
   for (const key of ["work", "gym"]) {
-    const path = roundedPath(ROUTES[key].points, ROUTES.cornerRadius);
+    const path = roundedPath(data.routes[key], ROUTES.cornerRadius);
     const { geometry, length } = ribbonGeometry(path, ROUTES.width * 1.7);
     const mat = routeMaterial(length);
     const mesh = new THREE.Mesh(geometry, mat);
     mesh.renderOrder = 2;
     mesh.frustumCulled = false;
     scene.add(mesh);
-    // Trecho escondido atrás dos prédios: desenhado atenuado por cima (leitura de mapa).
-    const xmat = mat.clone();
-    xmat.uniforms = mat.uniforms; // mesmos valores, mesmo t
-    xmat.depthFunc = THREE.GreaterDepth;
-    const xray = new THREE.Mesh(geometry, xmat);
-    xray.renderOrder = 2;
-    xray.frustumCulled = false;
-    xray.onBeforeRender = () => { mat.uniforms.uGain.value *= ROUTES.xray; };
-    xray.onAfterRender = () => { mat.uniforms.uGain.value /= ROUTES.xray; };
-    scene.add(xray);
-    routes[key] = { mesh, mat, length };
+    // Viajante: ponto de luz que percorre a rota enquanto ela se desenha.
+    const traveler = new THREE.Mesh(new THREE.SphereGeometry(2.6, 20, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 3, 3), transparent: true }));
+    traveler.renderOrder = 3;
+    scene.add(traveler);
+    routes[key] = { mesh, mat, length, path, traveler };
   }
   const pins = {};
   for (const key of Object.keys(POIS)) {
     const p = pinGroup();
-    const [gx, gz] = POIS[key].at;
-    p.group.position.set(gx * P, 0, gz * P);
+    const [x, z] = data.places[key];
+    p.group.position.set(x, baseHeight(key), z);
     p.group.renderOrder = 3;
     scene.add(p.group);
     pins[key] = p;
@@ -212,6 +208,18 @@ export function updateRoutes({ routes, pins }, t, gain = 1) {
       }
     }
     r.mat.uniforms.uPulse.value.set(...v);
+    // Posição do viajante = ponto da rota no comprimento desenhado.
+    const k = range(t, a, b);
+    const drawn = r.mat.uniforms.uDraw.value;
+    let acc = 0, pos = r.path[r.path.length - 1];
+    for (let i = 1; i < r.path.length; i++) {
+      const d = r.path[i].distanceTo(r.path[i - 1]);
+      if (acc + d >= drawn) { pos = r.path[i - 1].clone().lerp(r.path[i], (drawn - acc) / d); break; }
+      acc += d;
+    }
+    r.traveler.position.set(pos.x, Y + 2.6, pos.y);
+    r.traveler.material.opacity = Math.sin(Math.PI * k) ** 0.5 * gain;
+    r.traveler.visible = k > 0 && k < 1;
   }
   for (const key of Object.keys(pins)) {
     const p = pins[key];
@@ -228,8 +236,13 @@ export function updateRoutes({ routes, pins }, t, gain = 1) {
   }
 }
 
+/** Base do pino: topo do prédio (casa e trabalho) ou o chão (academia). */
+function baseHeight(key) {
+  return (DATA.placeHeights && DATA.placeHeights[key]) || 0;
+}
+
 /** Ponto 3D de ancoragem da etiqueta de cada pino. */
 export function labelAnchor(key) {
-  const [gx, gz] = POIS[key].at;
-  return new THREE.Vector3(gx * P, PINS.labelHeight, gz * P);
+  const [x, z] = DATA.places[key];
+  return new THREE.Vector3(x, baseHeight(key) + PINS.labelHeight, z);
 }

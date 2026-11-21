@@ -2,7 +2,9 @@
 // Uso: node render/probe.js [t1,t2,...]
 import * as THREE from "three";
 import { applyCamera, createCamera } from "../src/camera.js";
-import { labelAnchor } from "../src/routes.js";
+import fs from "node:fs";
+import { labelAnchor, setRouteData } from "../src/routes.js";
+setRouteData(JSON.parse(fs.readFileSync(new URL("../data/city.json", import.meta.url))));
 const cam = createCamera();
 const ts = (process.argv[2] || "3,5,7,8,9,10,11,12,13").split(",").map(Number);
 for (const t of ts) {

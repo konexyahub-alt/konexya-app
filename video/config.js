@@ -11,7 +11,7 @@ export const VIDEO = {
     return Math.round(this.fps * this.duration);
   },
   // Prévia: resolução reduzida e um a cada N quadros (os quadros pulados são repetidos no MP4).
-  preview: { scale: 0.5, step: 2 },
+  preview: { scale: 0.5, step: 1 }, // step 1 = todos os 30 quadros por segundo (prévia fluida)
   // Qualidade da codificação final (H.264). CRF menor = mais qualidade.
   crf: 16,
   ss: 1, // superamostragem da renderização final (2 = 4x mais pixels, bordas mais limpas, ~4x mais lento)
@@ -25,60 +25,40 @@ export const SAFE = { top: 250, bottom: 420, side: 90 };
 // Cidade
 // ---------------------------------------------------------------------------------------------
 export const CITY = {
-  block: 40, // lado da quadra
-  street: 12, // largura da rua
-  gridX: [-11, 11], // quadras de oeste a leste (inclusive)
-  gridZ: [-17, 6], // quadras de norte a sul (inclusive)
-  downtown: { gx: 1.5, gz: -6.5, radius: 6.5 }, // centro comercial (prédios altos)
-  heights: {
-    residentialMin: 10,
-    residentialMax: 46,
-    towerMax: 190,
-    towerChance: 0.22, // chance de torre perto do centro
-  },
-  heightScale: 1.0, // escala global das alturas
-  windowLitRatio: 0.12, // fração de janelas acesas
-  windowIntensity: 0.95,
-  emptyLotChance: 0.06, // praças e lotes vazios
+  // Malha real: data/city.json (gerado por data/build_city.py a partir do OpenStreetMap).
+  heightScale: 1.0, // escala global das alturas reais
+  windowLitRatio: 0.2, // fração de janelas acesas
+  windowIntensity: 1.5,
 };
 
-// Pitch da malha: centro da rua i+0.5 em unidades de grade.
-export const GRID_PITCH = CITY.block + CITY.street;
+export const TRAFFIC = { cars: 1100 }; // faróis circulando nas avenidas
 
 // ---------------------------------------------------------------------------------------------
-// Pontos de interesse e rotas (em unidades de grade: inteiro = centro da quadra, x.5 = rua)
+// Pontos de interesse (lugares escolhidos em data/build_city.py) e rotas reais pelas ruas
 // ---------------------------------------------------------------------------------------------
 export const POIS = {
-  home: { at: [0, -0.5], building: [0, 0], label: "Apartamento", detail: "2 quartos" },
-  gym: { at: [-0.5, -2], building: [-1, -2], label: "Academia", detail: "5 min" },
-  work: { at: [1, -3.5], building: [1, -4], label: "Trabalho", detail: "12 min" },
+  home: { label: "Apartamento", detail: "2 quartos" },
+  work: { label: "Trabalho", detail: "12 min" },
+  gym: { label: "Academia", detail: "5 min" },
 };
 
 export const ROUTES = {
-  gym: {
-    points: [[0, -0.5], [-0.5, -0.5], [-0.5, -2]],
-    draw: [5.6, 7.2], // início e fim do desenho (s)
-  },
-  work: {
-    points: [[0, -0.5], [0.5, -0.5], [0.5, -1.5], [1.5, -1.5], [1.5, -3.5], [1, -3.5]],
-    draw: [4.1, 6.9],
-  },
-  width: 2.6,
-  xray: 0.32, // intensidade da rota quando passa atrás de prédios
-  cornerRadius: 9,
-  glow: 2.4,
-  // Pulsos que percorrem as rotas no Mapa Vivo (o "trajeto do dia" acontecendo).
-  pulses: { start: 7.6, speed: 0.22, count: 2 },
+  work: { draw: [7.5, 9.1] }, // início e fim do desenho (s)
+  gym: { draw: [9.8, 10.9] },
+  width: 3.0,
+  cornerRadius: 10,
+  // Pulsos que percorrem as rotas depois de desenhadas (o "trajeto do dia" acontecendo).
+  pulses: { start: 11.0, speed: 0.35, count: 2 },
 };
 
 // Quando cada pino aparece (s) e quando a etiqueta se abre.
 export const PINS = {
-  home: { pin: 3.7, label: 7.7, side: -1 }, // side: 1 = etiqueta à direita do pino, -1 = à esquerda
-  gym: { pin: 7.1, label: 8.5, side: -1 },
-  work: { pin: 6.8, label: 9.3, side: 1 },
+  home: { pin: 4.0, label: 4.7, side: 1 }, // side: 1 = etiqueta à direita do pino, -1 = à esquerda
+  work: { pin: 8.7, label: 9.0, side: 1 },
+  gym: { pin: 10.5, label: 11.0, side: -1 },
   labelsOut: [12.2, 12.8],
   label: { size: 31, height: 70, pad: 28, gap: 18, refDistance: 520 },
-  labelHeight: 34, // altura da âncora da etiqueta acima do chão (m)
+  labelHeight: 30, // altura da âncora da etiqueta acima do topo do prédio (m)
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -87,19 +67,19 @@ export const PINS = {
 // ---------------------------------------------------------------------------------------------
 export const CAMERA = {
   keys: [
-    { t: 0.0, pos: [-40, 62, 560], target: [20, 58, -420], fov: 30 },
-    { t: 2.8, pos: [-55, 150, 440], target: [15, 22, -250], fov: 33 },
-    { t: 5.2, pos: [-110, 360, 320], target: [16, 0, -130], fov: 37 },
-    { t: 7.6, pos: [-46, 470, 190], target: [20, 0, -138], fov: 38 },
-    { t: 10.6, pos: [-57, 420, 195], target: [20, 0, -146], fov: 38 },
-    { t: 12.8, pos: [-20, 900, 330], target: [8, 0, -70], fov: 38 },
-    { t: 16.0, pos: [0, 1500, 310], target: [0, 0, -26], fov: 38 },
+    { t: 0.0, pos: [-330, 28, -1180], target: [-240, 75, -350], fov: 34 }, // sobre o mar, olhando a orla
+    { t: 2.8, pos: [-460, 200, -980], target: [-170, 50, -260], fov: 35 }, // sobe em direção à Beira-Mar
+    { t: 5.4, pos: [-577, 542, -497], target: [12, 0, -85], fov: 36 }, // a torre da casa em foco
+    { t: 7.6, pos: [-760, 900, -420], target: [150, 0, -60], fov: 40 },
+    { t: 9.3, pos: [-1008, 1506, -335], target: [275, 0, -46], fov: 44 }, // casa → trabalho
+    { t: 11.6, pos: [-1000, 3400, 150], target: [40, 0, -132], fov: 44 }, // o mapa do dia inteiro
+    { t: 16.0, pos: [-900, 4600, 50], target: [-208, 0, -234], fov: 44 },
   ],
   roll: [ // inclinação lateral sutil (graus)
     { t: 0, v: -1.2 }, { t: 5, v: 0.8 }, { t: 10, v: -0.4 }, { t: 16, v: 0 },
   ],
-  near: 1,
-  far: 4000,
+  near: 8,
+  far: 9000,
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -107,11 +87,11 @@ export const CAMERA = {
 // ---------------------------------------------------------------------------------------------
 export const LIGHT = {
   exposure: 1.0,
-  moon: { intensity: 2.2, dir: [-0.55, 0.62, -0.56], shadowMapSize: 4096, shadowSpan: 520 },
-  ambient: 0.16,
+  moon: { intensity: 3.0, dir: [-0.55, 0.62, -0.56], shadowMapSize: 4096, shadowSpan: 520 },
+  ambient: 0.45,
   rim: { intensity: 2.2, color: 0xdfe5ee }, // contraluz do horizonte na abertura
   horizonGlow: 0.22,
-  fogDensity: 0.00125,
+  fogDensity: 0.00032,
   // Revelação da cidade na abertura (0 = escuro, 1 = cheia).
   reveal: [0.0, 1.8],
 };
@@ -178,6 +158,7 @@ export const OUTRO = {
   wordmark: [13.75, 14.6],
   slogan: [14.35, 15.0],
   slogan_text: "Você conversa. A Konexya encontra.",
+  credit: "Mapa: Fortaleza · © colaboradores do OpenStreetMap",
   markHeight: 170, // altura do Y em px
   wordmarkWidth: 430,
   centerY: 900, // centro vertical da assinatura

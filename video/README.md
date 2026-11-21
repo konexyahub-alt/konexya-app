@@ -3,13 +3,24 @@
 Animação 3D programática: cada quadro é uma função pura do número do quadro (`t = n / 30`).
 Sem relógio, sem `Math.random`, sem física: o quadro 150 sai sempre igual, em qualquer ordem.
 
+## Cidade real
+
+A cidade é Fortaleza de verdade (Meireles, Aldeota e a orla da Beira-Mar), com ruas e prédios do
+OpenStreetMap (© colaboradores do OpenStreetMap, licença ODbL — o crédito aparece na tela final).
+
+- `python3 -I data/fetch_osm.py` — baixa os dados brutos para `data/osm/` (fora do git; ~20 min,
+  precisa dos hosts `maps.mail.ru` ou `overpass-api.de` liberados na rede do ambiente)
+- `python3 -I data/build_city.py` — gera `data/city.json` (no git): prédios com altura real, ruas,
+  orla, parques, e escolhe os lugares da história e as rotas reais pelas ruas (respeita mão única).
+  Os critérios de escolha (casa, trabalho, academia) ficam no topo do script.
+
 ## Comandos (dentro de `video/`)
 
 | Comando | O que faz |
 |---|---|
 | `npm install` | instala three.js e Montserrat (Playwright e FFmpeg já vêm no ambiente) |
 | `npm run audio` | gera a trilha `out/audio.wav` (−14 LUFS) a partir dos tempos do `config.js` |
-| `npm run preview` | prévia 540×960, 1 a cada 2 quadros → `out/preview.mp4` (~2 min) |
+| `npm run preview` | prévia 540×960, todos os 480 quadros → `out/preview.mp4` (~15 min) |
 | `node render/render.js --preview --range 210-360` | refaz só esse trecho da prévia |
 | `npm run frame -- 150` | um quadro em 1080×1920 → `out/frame_0150.png` |
 | `node render/render.js --frame 90,150,300 --scale 0.5` | vários quadros soltos, em meia resolução |
@@ -24,7 +35,8 @@ Opções: `--workers N` (navegadores em paralelo), `--ss 2` (superamostragem: bo
 
 - **`config.js`** — tudo que se ajusta: quadros-chave da câmera, tempos de cada texto, pinos, rotas,
   alturas da cidade, luz, bloom, desfoque, grão, tamanhos de fonte, encerramento.
-- `src/city.js` — cidade (prédios instanciados, janelas procedurais, malha do mapa, céu)
+- `src/osm-city.js` — cidade real (prédios extrudados com andares e janelas, ruas com faixas e calçadas,
+  postes, faróis dos carros, mar com reflexo do luar, praias, parques, céu)
 - `src/camera.js` — câmera por spline cúbica (velocidade contínua entre quadros-chave)
 - `src/lighting.js` — luar com sombra que acompanha o alvo, contraluz
 - `src/routes.js` — rotas luminosas e pinos

@@ -7,7 +7,7 @@ import { POST } from "../config.js";
 
 export function createPost(renderer, w, h) {
   const depthTexture = new THREE.DepthTexture(w, h);
-  depthTexture.type = THREE.UnsignedIntType;
+  depthTexture.type = THREE.FloatType; // 32 bits: chão, asfalto e rota a centímetros de distância sem conflito
   const sceneRT = new THREE.WebGLRenderTarget(w, h, {
     type: THREE.HalfFloatType,
     samples: POST.msaa,

@@ -1,7 +1,7 @@
 // Monta a cena uma vez e expõe window.renderFrame(n): cada quadro é calculado só a partir de n.
 import * as THREE from "three";
-import { VIDEO, LIGHT, POIS, GRID_PITCH } from "../config.js";
-import { createBuildings, createGround, createSky, cityUniforms, skyUniforms, FOG_COLOR } from "./city.js";
+import { VIDEO, LIGHT, TRAFFIC } from "../config.js";
+import { createBuildings, createRoads, createStreetLights, createTraffic, createLandAndSea, createSky, cityUniforms } from "./osm-city.js";
 import { createCamera, applyCamera } from "./camera.js";
 import { createLights, updateLights } from "./lighting.js";
 import { createRoutes, updateRoutes, labelAnchor } from "./routes.js";
@@ -32,7 +32,7 @@ glCanvas.width = W * ss;
 glCanvas.height = H * ss;
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.shadowMap.autoUpdate = true;
 
 ovCanvas.width = W * ss;
@@ -40,17 +40,11 @@ ovCanvas.height = H * ss;
 const ctx = ovCanvas.getContext("2d");
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(FOG_COLOR, LIGHT.fogDensity);
-scene.background = null;
-scene.add(createSky());
-scene.add(createGround());
-const buildings = createBuildings();
-scene.add(buildings);
+// Neblina com a mesma cor do horizonte do céu: sem "costura" entre cidade e céu.
+scene.fog = new THREE.FogExp2(new THREE.Color().setRGB(0.03, 0.032, 0.037, THREE.LinearSRGBColorSpace), LIGHT.fogDensity);
 const camera = createCamera();
 camera.aspect = W / H;
-const lights = createLights(scene);
-const routeSet = createRoutes(scene);
-const post = createPost(renderer, W * ss, H * ss);
+let lights, routeSet, traffic, sea, post, data;
 
 const v = new THREE.Vector3();
 function toScreen(p) {
@@ -59,7 +53,26 @@ function toScreen(p) {
   return { x: (v.x * 0.5 + 0.5) * 1080, y: (-v.y * 0.5 + 0.5) * 1920, dist, visible: v.z < 1 && v.z > -1 };
 }
 
+async function build() {
+  data = await (await fetch("/data/city.json")).json();
+  scene.add(createSky());
+  const landSea = createLandAndSea(data);
+  sea = landSea.children.find((c) => c.userData.mat);
+  scene.add(landSea);
+  scene.add(createRoads(data));
+  scene.add(createStreetLights(data));
+  scene.add(createBuildings(data));
+  traffic = createTraffic(data, TRAFFIC.cars);
+  scene.add(traffic.mesh);
+  lights = createLights(scene);
+  routeSet = createRoutes(scene, data);
+  post = createPost(renderer, W * ss, H * ss);
+  cityUniforms.uHome.value.set(...data.places.home);
+  cityUniforms.uFadeCenter.value.set(...data.places.home);
+}
+
 async function init() {
+  await build();
   const weights = [300, 400, 500, 600, 700];
   await Promise.all(weights.map((w) => document.fonts.load(`${w} 40px Montserrat`, "Você é ãç·")));
   const brand = await (await fetch("/brand.json")).json();
@@ -75,11 +88,13 @@ window.renderFrame = (n) => {
   const tl = timeline(t);
   const cam = applyCamera(camera, t);
 
+  cityUniforms.uT.value = t;
   cityUniforms.uReveal.value = tl.reveal;
   cityUniforms.uMap.value = tl.map;
   cityUniforms.uFadeRadius.value = tl.fadeRadius;
   cityUniforms.uTagGlow.value.set(...tl.tags);
-  skyUniforms.uGlow.value = tl.skyGlow;
+  sea.userData.mat.uniforms.cameraPos.value.copy(camera.position);
+  traffic.update(t, tl.routesGain);
 
   const focus = new THREE.Vector3(...cam.target);
   updateLights(lights, { focus, span: LIGHT.moon.shadowSpan, rim: tl.rim, ambient: tl.ambient, moon: tl.moon });
@@ -100,5 +115,5 @@ window.renderFrame = (n) => {
   return { t };
 };
 
-window.debugInfo = () => ({ buildings: buildings.count, W, H, ss, POIS, GRID_PITCH });
+window.__debug = () => ({ scene, renderer, camera });
 init();

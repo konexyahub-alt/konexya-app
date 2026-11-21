@@ -25,7 +25,6 @@ export function drawLabels(ctx, t, project) {
     const p = project(key);
     if (!p.visible) continue;
     const s = clamp(L.refDistance / p.dist, 0.82, 1.14);
-    const side = PINS[key].side;
     const kLine = ease.outCubic(range(t, start, start + 0.3));
     const kBox = easeEditorial(range(t, start + 0.18, start + 0.8));
     const kText = easeEditorial(range(t, start + 0.4, start + 1.0));
@@ -44,25 +43,24 @@ export function drawLabels(ctx, t, project) {
 
     ctx.save();
     ctx.globalAlpha = out;
-    // Filete do pino até a etiqueta.
-    const lx = p.x + side * (gap * kLine);
+    // Filete vertical do topo do pino até a etiqueta (a etiqueta fica centrada acima).
     ctx.strokeStyle = "rgba(255,255,255,0.75)";
     ctx.lineWidth = 1.5 * s;
     ctx.beginPath();
     ctx.moveTo(p.x, p.y);
-    ctx.lineTo(lx, p.y);
+    ctx.lineTo(p.x, p.y - gap * kLine);
     ctx.stroke();
 
     if (kBox > 0) {
       // Mantém a cápsula dentro da área segura (desliza, sem cortar).
-      const bx = clamp(side > 0 ? p.x + gap : p.x - gap - w, SAFE.side * 0.6, 1080 - SAFE.side * 0.6 - w);
-      const by = p.y - h / 2;
-      // Máscara que abre a cápsula a partir do lado do pino.
+      const bx = clamp(p.x - w / 2, SAFE.side * 0.6, 1080 - SAFE.side * 0.6 - w);
+      const by = p.y - gap - h;
+      // Máscara que abre a cápsula do centro (onde está o pino) para os lados.
       ctx.save();
       const vw = w * kBox;
+      const cx0 = clamp(p.x, bx, bx + w);
       ctx.beginPath();
-      if (side > 0) ctx.rect(bx - 2, by - 4, vw + 4, h + 8);
-      else ctx.rect(bx + w - vw - 2, by - 4, vw + 4, h + 8);
+      ctx.rect(cx0 - vw / 2 - 2 - Math.max(0, cx0 + vw / 2 - bx - w), by - 4, vw + 4, h + 8);
       ctx.clip();
       roundRect(ctx, bx, by, w, h, h / 2);
       ctx.fillStyle = "rgba(10,11,13,0.78)";

@@ -103,6 +103,12 @@ export function drawLogo(ctx, t, homeScreen) {
     });
   }
 
+  // Crédito obrigatório dos dados do mapa (licença ODbL do OpenStreetMap).
+  const kc = ease.inOutSine(range(t, OUTRO.slogan[1], OUTRO.slogan[1] + 0.6));
+  if (kc > 0) {
+    drawText(ctx, OUTRO.credit, 540, 1440, { size: 19, weight: 400, tracking: 0.03, color: "#fff", alpha: 0.32 * kc, align: "center" });
+  }
+
   // 5. Varredura de luz final sobre a marca (brilho que atravessa o Y e o wordmark).
   const kSweep = range(t, 14.9, 15.8);
   if (kSweep > 0 && kSweep < 1) {
