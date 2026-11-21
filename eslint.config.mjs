@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Projeto do vídeo institucional: pacote separado, fora do app.
+    "video/**",
   ]),
 ]);
 
